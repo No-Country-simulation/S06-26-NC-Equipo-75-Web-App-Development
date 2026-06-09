@@ -57,30 +57,44 @@ export default function ColorPaletteTest() {
           <h2 className="text-2xl font-semibold text-text-primary mb-6">
             Brand Colors
           </h2>
-
+          <p className="mb-6 text-text-secondary">
+            Brand colors define visual hierarchy and component usage. Primary
+            Brand (Navy) is used for information, Secondary Brand (Teal) is used
+            for actions, and Connection is reserved for diversity, matching and
+            ESG-related features.
+          </p>
           <div className="grid md:grid-cols-3 gap-6">
             <div>
               <div className="h-24 rounded-lg bg-brand-primary" />
 
-              <h3 className="mt-3 font-semibold text-text-primary">Navy</h3>
+              <h3 className="mt-3 font-semibold text-text-primary">
+                Navy (Primary Brand)
+              </h3>
 
               <p className="text-text-secondary">Company · Data · Trust</p>
 
               <p className="text-sm text-text-tertiary mt-2">
-                Used for navigation, dashboards, headings and strategic
-                information.
+                Primary brand color. Use for headings, dashboard metrics, data
+                visualization, tables and information hierarchy. Represents 30%
+                of the visual balance. Avoid using it for primary action
+                buttons.
               </p>
             </div>
 
             <div>
               <div className="h-24 rounded-lg bg-brand-secondary" />
 
-              <h3 className="mt-3 font-semibold text-text-primary">Teal</h3>
+              <h3 className="mt-3 font-semibold text-text-primary">
+                Teal (Action Color)
+              </h3>
 
               <p className="text-text-secondary">Inclusion · Talent · Action</p>
 
               <p className="text-sm text-text-tertiary mt-2">
-                Used for calls-to-action, focus states and primary actions.
+                Primary action color. Use for CTA buttons, focus states, active
+                controls, links requiring attention and key user interactions.
+                Represents 10% of the visual balance and should be reserved for
+                actions.
               </p>
             </div>
 
@@ -88,7 +102,7 @@ export default function ColorPaletteTest() {
               <div className="h-24 rounded-lg bg-brand-tertiary" />
 
               <h3 className="mt-3 font-semibold text-text-primary">
-                Connection
+                Connection (Impact Color)
               </h3>
 
               <p className="text-text-secondary">
@@ -96,7 +110,10 @@ export default function ColorPaletteTest() {
               </p>
 
               <p className="text-sm text-text-tertiary mt-2">
-                Reserved for diversity indicators, ESG metrics and matching.
+                Special-purpose color. Use only for matching scores, diversity
+                indicators, ESG metrics, inclusion initiatives and impact
+                reporting. It is not part of the primary branding palette and
+                should never be used for navigation or primary actions.
               </p>
             </div>
           </div>
