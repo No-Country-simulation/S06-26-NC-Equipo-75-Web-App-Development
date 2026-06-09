@@ -5,3 +5,125 @@ body,
 #root {
   min-height: 100vh;
 }
+
+/* ==========================================================
+   IMPACTHIRE DESIGN TOKENS
+   ----------------------------------------------------------
+   Los colores base documentan la identidad visual.
+   Los semánticos son los que debe consumir la aplicación.
+   ========================================================== */
+
+@theme {
+  /* ========================================================
+     PRIMITIVE TOKENS
+     ======================================================== */
+
+  /* Navy */
+  --color-navy-100: #e2e8f0;
+  --color-navy-300: #94a3b8;
+  --color-navy-600: #334155;
+  --color-navy-900: #0f172a;
+
+  /* Teal */
+  --color-teal-100: #ccfbf1;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+  --color-teal-700: #0f766e;
+
+  /* Connection */
+  --color-connection-100: #d8ecec;
+  --color-connection-500: #1e6f73;
+  --color-connection-700: #144a4d;
+
+  /* Gray */
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-300: #cbd5e1;
+  --color-gray-600: #475569;
+  --color-gray-900: #0f172a;
+
+  /* Success */
+  --color-green-100: #dcfce7;
+  --color-green-700: #15803d;
+
+  /* Warning */
+  --color-amber-100: #fef3c7;
+  --color-amber-700: #b45309;
+
+  /* Error */
+  --color-red-100: #fee2e2;
+  --color-red-700: #b91c1c;
+
+  /* ========================================================
+     SEMANTIC TOKENS
+     ======================================================== */
+
+  /* Brand */
+  --color-brand-primary: var(--color-navy-900);
+  --color-brand-secondary: var(--color-teal-500);
+  --color-brand-tertiary: var(--color-connection-500);
+
+  /* Text */
+  --color-text-primary: var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-600);
+  --color-text-tertiary: var(--color-gray-300);
+  --color-text-inverse: #ffffff;
+
+  /* Background */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: var(--color-gray-50);
+  --color-bg-tertiary: var(--color-gray-100);
+  --color-bg-dark: var(--color-navy-900);
+
+  /* Border */
+  --color-border-light: var(--color-gray-100);
+  --color-border-medium: var(--color-gray-300);
+  --color-border-strong: var(--color-gray-600);
+
+  /* Buttons */
+  --color-button-primary: var(--color-teal-500);
+  --color-button-primary-hover: var(--color-teal-600);
+  --color-button-primary-pressed: var(--color-teal-700);
+  --color-button-primary-text: #ffffff;
+
+  --color-button-secondary: #ffffff;
+  --color-button-secondary-border: var(--color-navy-900);
+  --color-button-secondary-text: var(--color-navy-900);
+
+  --color-button-tertiary-text: var(--color-teal-600);
+  --color-button-tertiary-hover: var(--color-teal-100);
+
+  /* Inputs */
+  --color-input-border: var(--color-gray-300);
+  --color-input-hover: var(--color-gray-600);
+  --color-input-focus: var(--color-teal-500);
+  --color-input-bg: #ffffff;
+
+  /* Status */
+  --color-status-success: var(--color-green-700);
+  --color-status-warning: var(--color-amber-700);
+  --color-status-error: var(--color-red-700);
+
+  /* Badges */
+  --color-badge-success-bg: var(--color-green-100);
+  --color-badge-success-text: var(--color-green-700);
+
+  --color-badge-warning-bg: var(--color-amber-100);
+  --color-badge-warning-text: var(--color-amber-700);
+
+  --color-badge-error-bg: var(--color-red-100);
+  --color-badge-error-text: var(--color-red-700);
+
+  --color-badge-esg-bg: var(--color-teal-100);
+  --color-badge-esg-text: var(--color-teal-700);
+
+  --color-badge-diversity-bg: var(--color-connection-100);
+  --color-badge-diversity-text: var(--color-connection-700);
+
+  /* Charts */
+  --color-chart-1: var(--color-teal-500);
+  --color-chart-2: var(--color-connection-500);
+  --color-chart-3: var(--color-navy-900);
+  --color-chart-4: var(--color-green-700);
+  --color-chart-5: var(--color-amber-700);
+}
