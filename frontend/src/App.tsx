@@ -1,7 +1,8 @@
-import ColorPaletteTest from './design-system/ColorPaletteTest';
+//import ColorPaletteTest from './design-system/ColorPaletteTest';
+import AppRouter from './routes/AppRouter';
 
 function App() {
-  return <ColorPaletteTest />;
+  return <AppRouter />;
 }
 
 export default App;
