@@ -11,8 +11,8 @@ import { VacantesModule } from './vacantes/vacantes.module';
     ModuleExampleModule,
     PrismaModule,
     AuthModule,
+    VacantesModule,
   ],
-  imports: [ModuleExampleModule, PrismaModule, VacantesModule],
   controllers: [AppController],
   providers: [AppService],
 })
