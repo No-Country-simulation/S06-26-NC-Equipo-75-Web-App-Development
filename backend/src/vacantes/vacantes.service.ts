@@ -4,16 +4,29 @@ import { VacanteUpdateDto } from './dto/vacante-update.dto';
 import { VacanteUpdateStatusDto } from './dto/vacante-update-status.dto';
 import { VacanteFiltersDto } from './dto/vacante-filters.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Prisma, VacancyStatus } from '@prisma/client';
 
 @Injectable()
 export class VacantesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: VacanteCreateDto) {
+  async create(id_token: string, dto: VacanteCreateDto) {
+    const usuarioEmpresa = await this.prisma.usuarioEmpresa.findFirst({
+      where: {
+        usuarioId: id_token,
+      },
+    });
+
+    if (!usuarioEmpresa) {
+      throw new NotFoundException('User not found');
+    }
     const company = await this.prisma.empresa.findUnique({
-      where: { id: dto.empresaId },
+      where: { id: usuarioEmpresa.empresaId },
     });
 
     if (!company) {
@@ -42,7 +55,7 @@ export class VacantesService {
 
     return this.prisma.vacante.create({
       data: {
-        empresaId: dto.empresaId,
+        empresaId: usuarioEmpresa.empresaId,
         titulo: dto.titulo,
         descripcion: dto.descripcion,
         nivelRequerido: dto.nivelRequerido,
@@ -135,11 +148,11 @@ export class VacantesService {
     });
   }
 
-  async update(id: string, dto: VacanteUpdateDto) {
-    await this.findById(id);
+  async update(id_vacante: string, dto: VacanteUpdateDto, id_usuario: string) {
+    await this.validateUserCompanyAccess(id_usuario, id_vacante);
 
     await this.prisma.vacante.update({
-      where: { id },
+      where: { id: id_vacante },
       data: {
         titulo: dto.titulo,
         descripcion: dto.descripcion,
@@ -160,30 +173,59 @@ export class VacantesService {
     });
     if (dto.skillIds !== undefined) {
       await this.prisma.vacanteSkill.deleteMany({
-        where: { vacanteId: id },
+        where: { vacanteId: id_vacante },
       });
 
       if (dto.skillIds.length > 0) {
         await this.prisma.vacanteSkill.createMany({
           data: dto.skillIds.map((skillId) => ({
-            vacanteId: id,
+            vacanteId: id_vacante,
             skillId,
           })),
         });
       }
     }
 
-    return await this.findById(id);
+    return await this.findById(id_vacante);
   }
 
-  async updateStatus(id: string, dto: VacanteUpdateStatusDto) {
-    await this.findById(id);
+  async updateStatus(
+    id_vacancy: string,
+    dto: VacanteUpdateStatusDto,
+    id_usuario: string,
+  ) {
+    await this.validateUserCompanyAccess(id_usuario, id_vacancy);
 
     return this.prisma.vacante.update({
-      where: { id },
+      where: { id: id_vacancy },
       data: {
         estado: dto.status,
       },
     });
+  }
+
+  async validateUserCompanyAccess(userId: string, vacancyId: string) {
+    const vacancy = await this.prisma.vacante.findUnique({
+      where: { id: vacancyId },
+    });
+
+    if (!vacancy) {
+      throw new NotFoundException('Vacancy not found');
+    }
+
+    const pertenece = await this.prisma.usuarioEmpresa.findFirst({
+      where: {
+        usuarioId: userId,
+        empresaId: vacancy.empresaId,
+      },
+    });
+
+    if (!pertenece) {
+      throw new ForbiddenException(
+        'You are not allowed to modify this vacancy',
+      );
+    }
+
+    return vacancy;
   }
 }
