@@ -15,10 +15,6 @@ import { CandidateLevel } from '@prisma/client';
 
 export class VacanteCreateDto {
   @ApiProperty()
-  @IsUUID()
-  empresaId: string;
-
-  @ApiProperty()
   @IsString()
   titulo: string;
 

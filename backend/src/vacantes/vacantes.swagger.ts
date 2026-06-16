@@ -1,9 +1,10 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { VacancyStatus } from '@prisma/client';
 
 export function ApiCreateVacancy() {
   return applyDecorators(
+    ApiBearerAuth(),
     ApiOperation({
       summary: 'Crear una nueva vacante',
     }),
