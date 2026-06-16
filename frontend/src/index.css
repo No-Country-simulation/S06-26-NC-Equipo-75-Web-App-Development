@@ -40,19 +40,21 @@ body,
   --color-gray-100: #f1f5f9;
   --color-gray-300: #cbd5e1;
   --color-gray-600: #475569;
-  --color-gray-900: #0f172a;
 
-  /* Success */
+  /* Green */
   --color-green-100: #dcfce7;
   --color-green-700: #15803d;
 
-  /* Warning */
+  /* Amber*/
   --color-amber-100: #fef3c7;
   --color-amber-700: #b45309;
 
-  /* Error */
+  /* Red */
   --color-red-100: #fee2e2;
   --color-red-700: #b91c1c;
+
+  /* White */
+  --color-white: #ffffff;
 
   /* ========================================================
      SEMANTIC TOKENS
@@ -64,13 +66,13 @@ body,
   --color-brand-tertiary: var(--color-connection-500);
 
   /* Text */
-  --color-text-primary: var(--color-gray-900);
+  --color-text-primary: var(--color-navy-900);
   --color-text-secondary: var(--color-gray-600);
   --color-text-tertiary: var(--color-gray-300);
-  --color-text-inverse: #ffffff;
+  --color-text-inverse: var(--color-white);
 
   /* Background */
-  --color-bg-primary: #ffffff;
+  --color-bg-primary: var(--color-white);
   --color-bg-secondary: var(--color-gray-50);
   --color-bg-tertiary: var(--color-gray-100);
   --color-bg-dark: var(--color-navy-900);
@@ -81,23 +83,26 @@ body,
   --color-border-strong: var(--color-gray-600);
 
   /* Buttons */
-  --color-button-primary: var(--color-teal-500);
+  --color-button-primary-bg: var(--color-teal-500);
   --color-button-primary-hover: var(--color-teal-600);
   --color-button-primary-pressed: var(--color-teal-700);
-  --color-button-primary-text: #ffffff;
+  --color-button-primary-text: var(--color-white);
 
-  --color-button-secondary: #ffffff;
-  --color-button-secondary-border: var(--color-navy-900);
-  --color-button-secondary-text: var(--color-navy-900);
+  --color-button-secondary-border: var(--color-gray-300);
+  --color-button-secondary-text: var(--color-gray-600);
+  --color-button-secondary-hover: var(--color-teal-500);
+  --color-button-secondary-pressed: var(--color-teal-600);
 
-  --color-button-tertiary-text: var(--color-teal-600);
-  --color-button-tertiary-hover: var(--color-teal-100);
+  --color-button-tertiary-bg: var(--color-navy-300);
+  --color-button-tertiary-hover: var(--color-navy-600);
+  --color-button-tertiary-pressed: var(--color-navy-900);
+  --color-button-tertiary-text: var(--color-white);
 
   /* Inputs */
   --color-input-border: var(--color-gray-300);
   --color-input-hover: var(--color-gray-600);
   --color-input-focus: var(--color-teal-500);
-  --color-input-bg: #ffffff;
+  --color-input-bg: var(--color-white);
 
   /* Status */
   --color-status-success: var(--color-green-700);
