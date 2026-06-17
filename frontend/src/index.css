@@ -99,9 +99,9 @@ body,
   --color-button-tertiary-text: var(--color-white);
 
   /* Navigation */
-  --color-nav-header-icon: var(--color-gray-300);
-  --color-nav-header-hover: var(--color-navy-900);
-  --color-nav-header-active: var(--color-navy-900);
+  --color-nav-header-icon: var(--color-navy-300);
+  --color-nav-header-hover: var(--color-navy-600);
+  --color-nav-header-active: var(--color-navy-600);
 
   --color-nav-sidebar-default: var(--color-gray-300);
   --color-nav-sidebar-hover: var(--color-teal-500);
