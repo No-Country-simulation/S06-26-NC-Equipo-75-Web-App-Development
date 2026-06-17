@@ -4,7 +4,7 @@ import brandLogo from '../../assets/images/brand.svg';
 export interface AuthLayoutProps {
   children: React.ReactNode;
   title: string;
-  subtitle: string;
+  subtitle?: string; // ← Ahora opcional
 }
 
 const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle }) => {
@@ -20,11 +20,13 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle }) =>
         <h1 className="text-display-small text-text-primary text-center mb-2">
           {title}
         </h1>
-        <p className="text-body-medium text-text-secondary text-center mb-8">
-          {subtitle}
-        </p>
+        {/* 👇 Solo renderiza el subtítulo si existe */}
+        {subtitle && (
+          <p className="text-body-medium text-text-secondary text-center mb-8">
+            {subtitle}
+          </p>
+        )}
 
-        {/* Contenido (formulario, etc.) */}
         {children}
       </div>
     </div>

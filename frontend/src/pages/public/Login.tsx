@@ -27,6 +27,14 @@ const Login: React.FC = () => {
           ¿Olvidaste tu contraseña?
         </a>
       </div>
+      <div className="mt-4 text-center">
+        <p className="text-body-small text-text-secondary">
+          ¿No tienes cuenta?{' '}
+          <a href="/register" className="text-label-medium text-brand-secondary hover:text-brand-secondary-hover transition-colors">
+            Crear Cuenta
+          </a>
+        </p>
+      </div>
     </AuthLayout>
   );
 };
