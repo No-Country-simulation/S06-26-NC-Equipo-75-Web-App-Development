@@ -170,6 +170,7 @@ model Vacante {
   skills            VacanteSkill[]
   matches           Match[]
   procesosSeleccion ProcesoSeleccion[]
+
 }
 
 model VacanteSkill {
@@ -178,7 +179,7 @@ model VacanteSkill {
 
   obligatorio Boolean @default(true)
 
-  vacante Vacante @relation(fields: [vacanteId], references: [id])
+  vacante Vacante @relation(fields: [vacanteId], references: [id], onDelete: Cascade)
   skill   Skill   @relation(fields: [skillId], references: [id])
 
   @@id([vacanteId, skillId])
