@@ -15,7 +15,6 @@ import { VacanteUpdateDto } from './dto/vacante-update.dto';
 import { VacanteUpdateStatusDto } from './dto/vacante-update-status.dto';
 import { VacanteFiltersDto } from './dto/vacante-filters.dto';
 import { VacantesService } from './vacantes.service';
-import { VacancyStatus } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { AuthenticatedRequest } from '../auth/jwt-auth.guard';
 import {
