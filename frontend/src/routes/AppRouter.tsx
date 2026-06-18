@@ -6,6 +6,7 @@ import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
 import RegisterCompany from '../pages/onboarding/Register';
 import Dashboard from '../pages/app/Dashboard';
+import Home from '../pages/public/Home';
 
 // Componente para rutas protegidas (requiere autenticación)
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -55,6 +56,7 @@ const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({ children }) 
 const AppRoutes: React.FC = () => (
   <Routes>
     {/* Rutas públicas (sin autenticación) */}
+     <Route path="/" element={<Home />} />
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
 
@@ -87,7 +89,7 @@ const AppRoutes: React.FC = () => (
     />
 
     {/* Catch-all: cualquier ruta no definida redirige a login */}
-    <Route path="*" element={<Navigate to="/login" replace />} />
+    <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>
 );
 

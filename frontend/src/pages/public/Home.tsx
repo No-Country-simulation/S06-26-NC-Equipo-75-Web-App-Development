@@ -164,7 +164,7 @@ const Home = () => {
             inclusivo, métricas ESG y datos regionales.
           </p>
 
-          <div className="mt-8 flex justify-center gap-4">
+          {/* <div className="mt-8 flex justify-center gap-4">
             <Link
               to="/register"
               className="px-6 py-3 rounded-lg bg-button-primary-bg text-button-primary-text font-semibold hover:bg-button-primary-hover transition-colors"
@@ -178,7 +178,7 @@ const Home = () => {
             >
               Iniciar sesión
             </Link>
-          </div>
+          </div> */}
         </div>
       </section>
     </main>
