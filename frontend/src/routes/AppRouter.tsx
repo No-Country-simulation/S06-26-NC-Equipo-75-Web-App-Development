@@ -9,7 +9,9 @@ import Dashboard from '../pages/app/Dashboard';
 import Vacancies from '../pages/app/Vacancies';
 
 // Componente para rutas protegidas (requiere autenticación)
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -28,8 +30,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 // Componente para rutas de onboarding (requiere autenticación y perfil incompleto)
-const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
