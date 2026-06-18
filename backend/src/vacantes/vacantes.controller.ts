@@ -8,12 +8,14 @@ import {
   Query,
   UseGuards,
   Req,
+  Delete,
 } from '@nestjs/common';
 import { VacanteCreateDto } from './dto/vacante-create.dto';
 import { VacanteUpdateDto } from './dto/vacante-update.dto';
 import { VacanteUpdateStatusDto } from './dto/vacante-update-status.dto';
 import { VacanteFiltersDto } from './dto/vacante-filters.dto';
 import { VacantesService } from './vacantes.service';
+import { VacancyStatus } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { AuthenticatedRequest } from '../auth/jwt-auth.guard';
 import {
@@ -68,6 +70,12 @@ export class VacantesController {
     return this.vacantesService.update(id, vacanteUpdateDto, req.user.sub);
   }
 
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  //@ApiDeleteVacancy()
+  delete(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.vacantesService.delete(id, req.user.sub);
+  }
   @Patch(':id/status')
   @UseGuards(JwtAuthGuard)
   @ApiUpdateStatusVacancy()

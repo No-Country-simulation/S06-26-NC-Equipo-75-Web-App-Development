@@ -82,6 +82,14 @@ export class VacantesService {
     });
   }
 
+  async delete(idVacante: string, id_usuario: string) {
+    await this.validateUserCompanyAccess(id_usuario, idVacante);
+
+    return this.prisma.vacante.delete({
+      where: { id: idVacante },
+    });
+  }
+
   async findAll(filters?: VacanteFiltersDto) {
     const where: Prisma.VacanteWhereInput = {};
 
