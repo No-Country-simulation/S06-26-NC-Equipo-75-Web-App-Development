@@ -12,17 +12,22 @@ const Input: React.FC<InputProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = 'rounded-lg border bg-input-bg p-3 text-body-medium text-text-primary placeholder:text-text-tertiary outline-none transition-colors focus:outline-none';
-  
+  const baseStyles =
+    'rounded-lg border bg-input-bg p-3 text-body-medium leading-body-medium text-input-text placeholder:text-input-placeholder outline-none transition-colors';
+
   const variantStyles = {
-    default: 'border-input-border focus:border-input-focus',
-    error: 'border-badge-error-border focus:border-badge-error-border bg-badge-error-bg/5',
+    default:
+      'border-input-border hover:border-input-hover focus:border-input-focus',
+
+    error:
+      'border-input-error hover:border-input-error focus:border-input-error',
   };
-  
+
   const widthStyles = fullWidth ? 'w-full' : '';
-  
-  const disabledStyles = disabled ? 'opacity-50 cursor-not-allowed bg-bg-tertiary' : '';
-  
+
+  const disabledStyles = disabled
+    ? 'opacity-50 cursor-not-allowed bg-bg-tertiary'
+    : '';
   return (
     <input
       className={`${baseStyles} ${variantStyles[variant]} ${widthStyles} ${disabledStyles} ${className}`}

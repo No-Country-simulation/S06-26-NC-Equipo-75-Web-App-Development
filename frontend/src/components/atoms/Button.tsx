@@ -26,16 +26,19 @@ const Button: React.FC<ButtonProps> = ({
       'bg-button-primary-bg text-button-primary-text hover:bg-button-primary-hover',
 
     secondary:
-      'border border-button-secondary-border text-button-secondary-text hover:bg-button-secondary-hover',
+      'border border-button-secondary-border text-button-secondary-text hover:border-button-secondary-hover hover:text-button-secondary-hover',
 
     tertiary:
       'bg-button-tertiary-bg text-button-tertiary-text hover:bg-button-tertiary-hover',
   };
 
   const sizeStyles = {
-    large: 'px-6 py-3 text-button-large',
-    medium: 'px-5 py-2.5 text-button-medium',
-    small: 'px-3 py-1.5 text-button-small',
+    large: 'px-6 py-3 text-button-large leading-button-large font-semibold',
+
+    medium:
+      'px-5 py-2.5 text-button-medium leading-button-medium font-semibold',
+
+    small: 'px-3 py-1.5 text-button-small leading-button-small font-semibold',
   };
 
   const widthStyles = fullWidth ? 'w-full' : '';
