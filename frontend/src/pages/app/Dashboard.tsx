@@ -293,7 +293,7 @@ const Dashboard: React.FC = () => {
 
               return (
                 <div key={act.id} className="flex items-start gap-3 border-b border-border-light pb-3 last:border-0 last:pb-0">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${color} bg-opacity-10 flex-shrink-0`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${color} bg-opacity-10 shrink-0`}>
                     <i className={`fas ${icon}`} />
                   </div>
                   <div className="flex-1 min-w-0">

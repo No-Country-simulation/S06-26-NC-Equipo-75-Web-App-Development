@@ -4,9 +4,20 @@ import { authApi } from '../services/api.service';
 
 const initializeAuth = () => {
   const token = localStorage.getItem('access_token');
-  const user = token ? localStorage.getItem('user') : null;
+  const userRaw = localStorage.getItem('user');
+  
+  let user = null;
+  if (userRaw && userRaw !== 'undefined' && userRaw !== 'null') {
+    try {
+      user = JSON.parse(userRaw);
+    } catch (e) {
+      console.warn('Error parsing user from localStorage:', e);
+      localStorage.removeItem('user'); // Limpiar dato corrupto
+    }
+  }
+  
   return {
-    user: user ? JSON.parse(user) : null,
+    user,
     isAuthenticated: !!token,
   };
 };
