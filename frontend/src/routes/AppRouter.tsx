@@ -6,6 +6,7 @@ import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
 import RegisterCompany from '../pages/onboarding/Register';
 import Dashboard from '../pages/app/Dashboard';
+import Home from '../pages/public/Home';
 import Vacancies from '../pages/app/Vacancies';
 
 // Componente para rutas protegidas (requiere autenticación)
@@ -47,23 +48,17 @@ const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({
     return <Navigate to="/login" replace />;
   }
 
-  // Si el usuario ya tiene perfil de empresa completo, redirigir al dashboard
-  // TODO: Reemplazar con la lógica real cuando esté disponible
-  // const hasCompanyProfile = user?.companyProfileCompleted;
-  // if (hasCompanyProfile) {
-  //   return <Navigate to="/dashboard" replace />;
-  // }
-
   return <>{children}</>;
 };
 
 const AppRoutes: React.FC = () => (
   <Routes>
-    {/* Rutas públicas (sin autenticación) */}
+    {/* Rutas públicas */}
+    <Route path="/" element={<Home />} />
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
 
-    {/* Ruta de onboarding (requiere autenticación) */}
+    {/* Ruta de onboarding (protegida) */}
     <Route
       path="/onboarding/company"
       element={
@@ -75,14 +70,6 @@ const AppRoutes: React.FC = () => (
 
     {/* Rutas protegidas del panel */}
     <Route
-      path="/"
-      element={
-        <ProtectedRoute>
-          <Navigate to="/vacancies" replace />
-        </ProtectedRoute>
-      }
-    />
-    <Route
       path="/dashboard"
       element={
         <ProtectedRoute>
@@ -91,16 +78,16 @@ const AppRoutes: React.FC = () => (
       }
     />
     <Route
-    path="/vacancies"
-    element={
-      <ProtectedRoute>
-        <Vacancies />
-      </ProtectedRoute>
+      path="/vacancies"
+      element={
+        <ProtectedRoute>
+          <Vacancies />
+        </ProtectedRoute>
       }
     />
 
-    {/* Catch-all: cualquier ruta no definida redirige a login */}
-    <Route path="*" element={<Navigate to="/login" replace />} />
+    {/* Catch-all: redirige a home */}
+    <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>
 );
 
