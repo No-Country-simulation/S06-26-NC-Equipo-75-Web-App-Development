@@ -5,6 +5,7 @@ import { ModuleExampleModule } from './module-example/module-example.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { VacantesModule } from './vacantes/vacantes.module';
+import { EmpresasModule } from './empresas/empresas.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { VacantesModule } from './vacantes/vacantes.module';
     PrismaModule,
     AuthModule,
     VacantesModule,
+    EmpresasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
