@@ -6,6 +6,7 @@ import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
 import RegisterCompany from '../pages/onboarding/Register';
 import Dashboard from '../pages/app/Dashboard';
+import Vacancies from '../pages/app/Vacancies';
 
 // Componente para rutas protegidas (requiere autenticación)
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
@@ -77,7 +78,7 @@ const AppRoutes: React.FC = () => (
       path="/"
       element={
         <ProtectedRoute>
-          <Navigate to="/dashboard" replace />
+          <Navigate to="/vacancies" replace />
         </ProtectedRoute>
       }
     />
@@ -87,6 +88,14 @@ const AppRoutes: React.FC = () => (
         <ProtectedRoute>
           <Dashboard />
         </ProtectedRoute>
+      }
+    />
+    <Route
+    path="/vacancies"
+    element={
+      <ProtectedRoute>
+        <Vacancies />
+      </ProtectedRoute>
       }
     />
 
