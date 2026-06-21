@@ -43,7 +43,7 @@ const InputField: React.FC<InputFieldProps> = ({
         disabled={disabled}
       />
       {error && (
-        <p className="text-label-small text-badge-error-text mt-1">
+        <p className="text-label-small leading-label-small font-medium text-badge-error-text mt-1">
           {error}
         </p>
       )}
