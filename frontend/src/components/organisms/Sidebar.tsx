@@ -33,11 +33,11 @@ export default function Sidebar() {
   const [activeItem, setActiveItem] = useState<string>('vacancies');
 
   return (
-    <aside className="flex h-screen w-60 flex-col bg-bg-dark">
+    <aside className="flex h-full w-60 flex-col bg-bg-dark">
       {/* ======================================================
           NAV ITEMS
       ====================================================== */}
-      <nav className="flex flex-1 flex-col gap-1 px-3">
+      <nav className="flex flex-1 flex-col gap-1 px-3 py-4 overflow-y-auto">
         {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
           const isActive = activeItem === id;
 
@@ -66,7 +66,7 @@ export default function Sidebar() {
       {/* ======================================================
           FOOTER
       ====================================================== */}
-      <div className="flex flex-col gap-1 border-t border-border-strong px-3 py-4">
+      <div className="flex flex-col gap-1 border-t border-border-strong px-3 py-4 shrink-0">
         <button
           className="
             flex items-center gap-3 rounded-lg px-3 py-2.5
