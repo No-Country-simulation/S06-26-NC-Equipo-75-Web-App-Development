@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import Sidebar from '../../components/organisms/Sidebar';
 import Header from '../../components/organisms/Header';
+import KpiCard from '../../components/molecules/KpiCard';
+import {
+  Briefcase,
+  CheckCircle,
+  PauseCircle,
+  XCircle,
+} from 'lucide-react';
 
 interface Vacante {
   id: string;
@@ -71,8 +78,8 @@ const Vacancies: React.FC = () => {
 
       {/* CONTENEDOR PRINCIPAL: Sidebar + Main */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar: se estira para ocupar toda la altura del contenedor */}
-        <div className="flex-shrink-0 self-stretch">
+        {/* Sidebar */}
+        <div className="shrink-0 self-stretch">
           <Sidebar />
         </div>
 
@@ -88,24 +95,32 @@ const Vacancies: React.FC = () => {
               </button>
             </div>
 
-            {/* Tarjetas de métricas */}
+            {/* Tarjetas de métricas con KpiCard */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-bg-primary border border-border-light rounded-xl p-4 shadow-sm">
-                <p className="text-label-small text-text-secondary">Vacantes totales</p>
-                <p className="text-metric-large text-text-primary font-bold mt-1">{total}</p>
-              </div>
-              <div className="bg-bg-primary border border-border-light rounded-xl p-4 shadow-sm">
-                <p className="text-label-small text-text-secondary">Abiertas</p>
-                <p className="text-metric-large text-badge-success-text font-bold mt-1">{abiertas}</p>
-              </div>
-              <div className="bg-bg-primary border border-border-light rounded-xl p-4 shadow-sm">
-                <p className="text-label-small text-text-secondary">Pausadas</p>
-                <p className="text-metric-large text-badge-warning-text font-bold mt-1">{pausadas}</p>
-              </div>
-              <div className="bg-bg-primary border border-border-light rounded-xl p-4 shadow-sm">
-                <p className="text-label-small text-text-secondary">Cerradas</p>
-                <p className="text-metric-large text-badge-error-text font-bold mt-1">{cerradas}</p>
-              </div>
+              <KpiCard
+                label="Vacantes totales"
+                value={total}
+                icon={Briefcase}
+                valueClassName="text-text-primary"
+              />
+              <KpiCard
+                label="Abiertas"
+                value={abiertas}
+                icon={CheckCircle}
+                valueClassName="text-badge-success-text"
+              />
+              <KpiCard
+                label="Pausadas"
+                value={pausadas}
+                icon={PauseCircle}
+                valueClassName="text-badge-warning-text"
+              />
+              <KpiCard
+                label="Cerradas"
+                value={cerradas}
+                icon={XCircle}
+                valueClassName="text-badge-error-text"
+              />
             </div>
 
             {/* Buscador y filtros */}
@@ -225,7 +240,7 @@ const Vacancies: React.FC = () => {
             </div>
           </div>
 
-          {/* Footer: dentro del main, ocupa el ancho del main */}
+          {/* Footer */}
           <div className="border-t border-border-light bg-bg-primary px-6 md:px-8 py-4 shrink-0">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-label-small text-text-tertiary">
               <p>© 2026 ImpactHire. All rights reserved.</p>

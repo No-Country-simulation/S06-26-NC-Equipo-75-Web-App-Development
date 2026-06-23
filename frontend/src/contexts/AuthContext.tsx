@@ -5,17 +5,17 @@ import { authApi } from '../services/api.service';
 const initializeAuth = () => {
   const token = localStorage.getItem('access_token');
   const userRaw = localStorage.getItem('user');
-  
+
   let user = null;
   if (userRaw && userRaw !== 'undefined' && userRaw !== 'null') {
     try {
       user = JSON.parse(userRaw);
     } catch (e) {
       console.warn('Error parsing user from localStorage:', e);
-      localStorage.removeItem('user'); // Limpiar dato corrupto
+      localStorage.removeItem('user');
     }
   }
-  
+
   return {
     user,
     isAuthenticated: !!token,
@@ -34,13 +34,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     try {
       const response = await authApi.login(email, password);
+
       localStorage.setItem('access_token', response.access_token);
       localStorage.setItem('user', JSON.stringify(response.user));
+
       setState({
         user: response.user,
         isAuthenticated: true,
       });
-    } catch (err) {  // ✅ Cambiado 'error' a 'err' para evitar warning
+    } catch (err) {
       console.error('Login error:', err);
       throw err;
     } finally {
