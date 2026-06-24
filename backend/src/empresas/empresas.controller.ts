@@ -103,14 +103,15 @@ export class EmpresasController {
     }
     return this.empresasService.removeGrupoDiversidad(id, grupoId, req.user.sub);
   }
-}
+
 
   @Delete()
   @UseGuards(JwtAuthGuard)
-  delete(@Req() req: AuthenticatedRequest) {
+  deleteCompany(@Req() req: AuthenticatedRequest) {
     if (req.user.role !== 'ADMIN') {
       throw new ForbiddenException('Only admins can delete companies');
     }
     return this.empresasService.delete(req.user.sub);
   }
+}
 
