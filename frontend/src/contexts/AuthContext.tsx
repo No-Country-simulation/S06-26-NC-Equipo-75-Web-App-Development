@@ -1,6 +1,6 @@
 import React, { useState, type ReactNode } from 'react';
 import { AuthContext, type AuthContextType } from './AuthContextDef';
-import { authApi } from '../services/api.service';
+import { authService } from '../services/auth.service';
 
 const initializeAuth = () => {
   const token = localStorage.getItem('access_token');
@@ -33,13 +33,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await authApi.login(email, password);
+      // 1. Login normal (devuelve usuario del JWT)
+      const response = await authService.login({ email, password });
+      localStorage.setItem('access_token', response.accessToken);
 
-      localStorage.setItem('access_token', response.access_token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      // 2. Obtener datos completos desde /auth/me (incluye companyId)
+      const fullUser = await authService.getMe();
+
+      // 3. Combinar datos del JWT con los datos completos
+      const user = {
+        ...response.user,
+        ...fullUser,
+      };
+
+      localStorage.setItem('user', JSON.stringify(user));
 
       setState({
-        user: response.user,
+        user,
         isAuthenticated: true,
       });
     } catch (err) {
