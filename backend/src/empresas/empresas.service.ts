@@ -95,6 +95,25 @@ export class EmpresasService {
       },
     });
   }
+
+  async delete(userId: string) {
+    const existingCompany = await this.prisma.usuarioEmpresa.findFirst({
+      where: {
+        usuarioId: userId,
+      },
+    });
+
+    if (!existingCompany) {
+      throw new BadRequestException('User does not belong to any company');
+    }
+
+    await this.validateUserCompanyAccess(userId, existingCompany.empresaId);
+
+    return this.prisma.empresa.delete({
+      where: { id: existingCompany.empresaId },
+    });
+  }
+
   async validateUserCompanyAccess(userId: string,companyId: string,) {
     const company = await this.prisma.empresa.findUnique({
       where: { id: companyId },

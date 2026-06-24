@@ -69,8 +69,8 @@ model UsuarioEmpresa {
   usuarioId String
   empresaId String
 
-  usuario Usuario @relation(fields: [usuarioId], references: [id])
-  empresa Empresa @relation(fields: [empresaId], references: [id])
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
 
   @@id([usuarioId, empresaId])
 }
@@ -152,7 +152,7 @@ model Vacante {
   id String @id @default(uuid())
 
   empresaId String
-  empresa   Empresa @relation(fields: [empresaId], references: [id])
+  empresa   Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
 
   titulo          String
   descripcion     String
