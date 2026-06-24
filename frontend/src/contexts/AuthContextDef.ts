@@ -5,6 +5,7 @@ export interface User {
   email: string;
   role: string;
   name?: string;
+  companyId?: string; // ← nuevo campo
 }
 
 export interface AuthContextType {
@@ -15,5 +16,4 @@ export interface AuthContextType {
   logout: () => void;
 }
 
-// ✅ Exportación correcta del contexto
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
