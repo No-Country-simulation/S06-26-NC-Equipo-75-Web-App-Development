@@ -49,6 +49,11 @@ export class EmpresasService {
     return this.prisma.empresa.findMany({
       include: {
         usuarios: true,
+        gruposDiversidad: {
+          include: {
+            grupo: true,
+          },
+        },
       },
     });
   }
@@ -59,6 +64,11 @@ export class EmpresasService {
       include: {
         usuarios: true,
         vacantes: true,
+        gruposDiversidad: {
+          include: {
+            grupo: true,
+          },
+        },
       },
     });
 
@@ -137,5 +147,77 @@ export class EmpresasService {
     }
 
     return company;
+  }
+  
+  async addGrupoDiversidad( empresaId: string,grupoId: string,userId: string,) {
+    await this.validateUserCompanyAccess(
+      userId,
+      empresaId,
+    );
+
+    const grupo =
+      await this.prisma.grupoDiversidad.findUnique({
+        where: { id: grupoId },
+      });
+
+    if (!grupo) {
+      throw new NotFoundException(
+        'Diversity group not found',
+      );
+    }
+
+    const existente =
+      await this.prisma.empresaGrupoDiversidad.findUnique({
+        where: {
+          empresaId_grupoId: {
+            empresaId,
+            grupoId,
+          },
+        },
+      });
+
+    if (existente) {
+      throw new BadRequestException(
+        'Group already assigned to company',
+      );
+    }
+
+    return this.prisma.empresaGrupoDiversidad.create({
+      data: {
+        empresaId,
+        grupoId,
+      },
+    });
+  } 
+  
+  async removeGrupoDiversidad(empresaId: string,grupoId: string,userId: string){
+    await this.validateUserCompanyAccess(
+      userId,
+      empresaId,
+    );
+
+    const relacion =  await this.prisma.empresaGrupoDiversidad.findUnique({
+      where: {
+        empresaId_grupoId: {
+          empresaId,
+          grupoId,
+        },
+      },
+    });
+
+    if (!relacion) {
+      throw new NotFoundException(
+        'Group not assigned to company',
+      );
+    }
+
+    await this.prisma.empresaGrupoDiversidad.delete({
+      where: {
+        empresaId_grupoId: {
+          empresaId,
+          grupoId,
+        },
+      },
+    });
   }
 }

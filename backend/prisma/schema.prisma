@@ -63,6 +63,17 @@ model Empresa {
   usuarios           UsuarioEmpresa[]
   vacantes           Vacante[]
   metricasDiversidad MetricaDiversidad[]
+  gruposDiversidad EmpresaGrupoDiversidad[]
+}
+
+model EmpresaGrupoDiversidad {
+  empresaId String
+  grupoId String
+
+  empresa Empresa @relation(fields: [empresaId], references: [id])
+  grupo GrupoDiversidad @relation(fields: [grupoId], references: [id])
+
+  @@id([empresaId, grupoId])
 }
 
 model UsuarioEmpresa {
@@ -92,6 +103,7 @@ model GrupoDiversidad {
   nombre String @unique
 
   candidatos CandidatoGrupoDiversidad[]
+  empresas EmpresaGrupoDiversidad[]
 }
 
 model Candidato {
