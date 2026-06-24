@@ -8,6 +8,7 @@ import {
   Req,
   UseGuards,
   ForbiddenException,
+  Delete,
 } from '@nestjs/common';
 
 import { EmpresasService } from './empresas.service';
@@ -23,6 +24,7 @@ import {
   ApiFindCompanyById,
   ApiUpdateCompanyProfile,
 } from './empresas.swagger';
+import { EmpresaGrupoDiversidadDto } from './dto/empresa-grupo-diversidad.dto';
 
 @Controller('empresas')
 export class EmpresasController {
@@ -69,5 +71,35 @@ export class EmpresasController {
       );
     }
     return this.empresasService.update(id, dto, req.user.sub);
+  }
+
+  @Patch(':id/grupoDiversidad')
+  @UseGuards(JwtAuthGuard)
+  async addGrupoDiversidad(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: EmpresaGrupoDiversidadDto,
+  ) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException(
+        'Only admins can modify company groups',
+      );
+    }
+    return this.empresasService.addGrupoDiversidad(id, dto.grupoId, req.user.sub);
+  }
+
+  @Delete(':id/grupoDiversidad/:grupoId')
+  @UseGuards(JwtAuthGuard)
+  async removeGrupoDiversidad(
+    @Param('id') id: string,
+    @Param('grupoId') grupoId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException(
+        'Only admins can modify company groups',
+      );
+    }
+    return this.empresasService.removeGrupoDiversidad(id, grupoId, req.user.sub);
   }
 }
