@@ -8,6 +8,7 @@ import {
   Req,
   UseGuards,
   ForbiddenException,
+  Delete,
 } from '@nestjs/common';
 
 import { EmpresasService } from './empresas.service';
@@ -39,7 +40,7 @@ export class EmpresasController {
       throw new ForbiddenException(
         'Only admins can create companies',
       );
-    }    
+    }
     return this.empresasService.create(req.user.sub, dto);
   }
 
@@ -69,5 +70,14 @@ export class EmpresasController {
       );
     }
     return this.empresasService.update(id, dto, req.user.sub);
+  }
+
+  @Delete()
+  @UseGuards(JwtAuthGuard)
+  delete(@Req() req: AuthenticatedRequest) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Only admins can delete companies');
+    }
+    return this.empresasService.delete(req.user.sub);
   }
 }
