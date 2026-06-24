@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from '../../components/organisms/Sidebar';
 import Header from '../../components/organisms/Header';
 import KpiCard from '../../components/molecules/KpiCard';
+import DataTable, { type Column } from '../../components/organisms/DataTable';
 import {
   Briefcase,
   CheckCircle,
@@ -53,39 +54,85 @@ const Vacancies: React.FC = () => {
   });
 
   const totalPages = Math.ceil(filteredVacantes.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentVacantes = filteredVacantes.slice(startIndex, endIndex);
 
   const total = mockVacantes.length;
-  const abiertas = mockVacantes.filter(v => v.estado === 'Abierto').length;
-  const pausadas = mockVacantes.filter(v => v.estado === 'Pausado').length;
-  const cerradas = mockVacantes.filter(v => v.estado === 'Cerrado').length;
+  const abiertas = mockVacantes.filter((v) => v.estado === 'Abierto').length;
+  const pausadas = mockVacantes.filter((v) => v.estado === 'Pausado').length;
+  const cerradas = mockVacantes.filter((v) => v.estado === 'Cerrado').length;
+
+  const handleView = (vac: Vacante) => console.log('Ver', vac);
+  const handleEdit = (vac: Vacante) => console.log('Editar', vac);
+  const handleDelete = (vac: Vacante) => console.log('Eliminar', vac);
 
   const getEstadoColor = (estado: Vacante['estado']) => {
     switch (estado) {
-      case 'Abierto': return 'text-badge-success-text bg-badge-success-bg';
-      case 'Pausado': return 'text-badge-warning-text bg-badge-warning-bg';
-      case 'Cerrado': return 'text-badge-error-text bg-badge-error-bg';
-      default: return 'text-text-secondary bg-bg-tertiary';
+      case 'Abierto':
+        return 'text-badge-success-text bg-badge-success-bg';
+      case 'Pausado':
+        return 'text-badge-warning-text bg-badge-warning-bg';
+      case 'Cerrado':
+        return 'text-badge-error-text bg-badge-error-bg';
+      default:
+        return 'text-text-secondary bg-bg-tertiary';
     }
   };
 
+  const columns: Column<Vacante>[] = [
+    { key: 'titulo', header: 'Título' },
+    { key: 'nivel', header: 'Nivel', hideOnMobile: true },
+    { key: 'region', header: 'Región', hideOnMobile: true },
+    {
+      key: 'estado',
+      header: 'Estado',
+      render: (vac) => (
+        <span
+          className={`px-3 py-1 rounded-full text-badge font-medium ${getEstadoColor(vac.estado)}`}
+        >
+          {vac.estado}
+        </span>
+      ),
+    },
+    {
+      key: 'acciones',
+      header: 'Acciones',
+      render: (vac) => (
+        <div className="flex items-center justify-end gap-3">
+          <button
+            className="text-text-tertiary hover:text-brand-secondary transition-colors"
+            title="Ver detalles"
+            onClick={() => handleView(vac)}
+          >
+            <i className="fas fa-eye" />
+          </button>
+          <button
+            className="text-text-tertiary hover:text-brand-secondary transition-colors"
+            title="Editar"
+            onClick={() => handleEdit(vac)}
+          >
+            <i className="fas fa-pen" />
+          </button>
+          <button
+            className="text-text-tertiary hover:text-badge-error-text transition-colors"
+            title="Eliminar"
+            onClick={() => handleDelete(vac)}
+          >
+            <i className="fas fa-trash-alt" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-bg-secondary flex flex-col">
-      {/* HEADER (ancho completo) */}
       <Header title="Vacantes" userInitials="RH" />
 
-      {/* CONTENEDOR PRINCIPAL: Sidebar + Main */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
         <div className="shrink-0 self-stretch">
           <Sidebar />
         </div>
 
-        {/* Main: contenido + footer */}
         <main className="flex-1 flex flex-col min-h-0">
-          {/* Contenido scrolleable */}
           <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
             {/* Botón Crear Vacante */}
             <div className="flex justify-end">
@@ -95,7 +142,7 @@ const Vacancies: React.FC = () => {
               </button>
             </div>
 
-            {/* Tarjetas de métricas con KpiCard */}
+            {/* KpiCards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <KpiCard
                 label="Vacantes totales"
@@ -136,11 +183,13 @@ const Vacancies: React.FC = () => {
                 />
               </div>
               <div className="flex gap-1.5 flex-wrap">
-                {(['Todos', 'Abierto', 'Pausado', 'Cerrado'] as const).map((estado) => (
+                {(
+                  ['Todos', 'Abierto', 'Pausado', 'Cerrado'] as const
+                ).map((estado) => (
                   <button
                     key={estado}
                     onClick={() => setEstadoFilter(estado)}
-                    className={`px-4 py-1.5 rounded-full text-label-small font-medium transition-colors ${
+                    className={`px-4 py-1.5 rounded-full text-badge font-bold transition-colors ${
                       estadoFilter === estado
                         ? 'bg-brand-secondary text-white'
                         : 'bg-bg-tertiary text-text-secondary hover:bg-bg-secondary'
@@ -152,92 +201,14 @@ const Vacancies: React.FC = () => {
               </div>
             </div>
 
-            {/* Tabla */}
-            <div className="bg-bg-primary border border-border-light rounded-xl overflow-hidden shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-bg-tertiary border-b border-border-light">
-                    <tr>
-                      <th className="px-6 py-3 text-label-small text-text-secondary font-semibold uppercase tracking-wider">Título</th>
-                      <th className="px-6 py-3 text-label-small text-text-secondary font-semibold uppercase tracking-wider hidden md:table-cell">Nivel</th>
-                      <th className="px-6 py-3 text-label-small text-text-secondary font-semibold uppercase tracking-wider hidden md:table-cell">Región</th>
-                      <th className="px-6 py-3 text-label-small text-text-secondary font-semibold uppercase tracking-wider">Estado</th>
-                      <th className="px-6 py-3 text-label-small text-text-secondary font-semibold uppercase tracking-wider text-right">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border-light">
-                    {currentVacantes.length > 0 ? (
-                      currentVacantes.map((vac) => (
-                        <tr key={vac.id} className="hover:bg-bg-tertiary/50 transition-colors">
-                          <td className="px-6 py-4 text-body-medium text-text-primary font-medium">
-                            {vac.titulo}
-                          </td>
-                          <td className="px-6 py-4 text-body-small text-text-secondary hidden md:table-cell">
-                            {vac.nivel}
-                          </td>
-                          <td className="px-6 py-4 text-body-small text-text-secondary hidden md:table-cell">
-                            {vac.region}
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-label-small font-medium ${getEstadoColor(vac.estado)}`}>
-                              {vac.estado}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-3">
-                              <button className="text-text-tertiary hover:text-brand-secondary transition-colors" title="Ver detalles">
-                                <i className="fas fa-eye" />
-                              </button>
-                              <button className="text-text-tertiary hover:text-brand-secondary transition-colors" title="Editar">
-                                <i className="fas fa-pen" />
-                              </button>
-                              <button className="text-text-tertiary hover:text-badge-error-text transition-colors" title="Eliminar">
-                                <i className="fas fa-trash-alt" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={5} className="px-6 py-12 text-center text-body-medium text-text-secondary">
-                          <i className="fas fa-search text-3xl text-text-tertiary block mb-2" />
-                          No se encontraron vacantes que coincidan con los filtros.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Paginación */}
-              {filteredVacantes.length > 0 && (
-                <div className="px-6 py-4 border-t border-border-light flex flex-col sm:flex-row items-center justify-between gap-4 text-label-small text-text-secondary">
-                  <span>
-                    Mostrando {startIndex + 1} a {Math.min(endIndex, filteredVacantes.length)} de {filteredVacantes.length} resultados
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                      className="px-3 py-1.5 rounded-lg border border-border-light hover:bg-bg-tertiary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                    >
-                      Anterior
-                    </button>
-                    <span className="px-3 py-1.5">
-                      Página {currentPage} de {totalPages || 1}
-                    </span>
-                    <button
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages || totalPages === 0}
-                      className="px-3 py-1.5 rounded-lg border border-border-light hover:bg-bg-tertiary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                    >
-                      Siguiente
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Tabla genérica */}
+            <DataTable
+              data={filteredVacantes}
+              columns={columns}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </div>
 
           {/* Footer */}
@@ -245,9 +216,24 @@ const Vacancies: React.FC = () => {
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-label-small text-text-tertiary">
               <p>© 2026 ImpactHire. All rights reserved.</p>
               <div className="flex items-center gap-6 flex-wrap justify-center">
-                <a href="#" className="hover:text-text-primary transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-text-primary transition-colors">Terms of Service</a>
-                <a href="#" className="hover:text-text-primary transition-colors">Help Center</a>
+                <a
+                  href="#"
+                  className="hover:text-text-primary transition-colors"
+                >
+                  Privacy Policy
+                </a>
+                <a
+                  href="#"
+                  className="hover:text-text-primary transition-colors"
+                >
+                  Terms of Service
+                </a>
+                <a
+                  href="#"
+                  className="hover:text-text-primary transition-colors"
+                >
+                  Help Center
+                </a>
               </div>
             </div>
           </div>
