@@ -8,6 +8,7 @@ import RegisterCompany from '../pages/onboarding/Register';
 import Dashboard from '../pages/app/Dashboard';
 import Home from '../pages/public/Home';
 import Vacancies from '../pages/app/Vacancies';
+import CompanyManagement from '../pages/app/CompanyManagement';
 
 // Componente para rutas protegidas (requiere autenticación)
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
@@ -31,9 +32,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 };
 
 // Componente para rutas de onboarding (requiere autenticación y perfil incompleto)
-const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -48,6 +47,13 @@ const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({
     return <Navigate to="/login" replace />;
   }
 
+  // Si el usuario ya tiene perfil de empresa completo, redirigir al dashboard
+  // TODO: Reemplazar con la lógica real cuando esté disponible
+  // const hasCompanyProfile = user?.companyProfileCompleted;
+  // if (hasCompanyProfile) {
+  //   return <Navigate to="/dashboard" replace />;
+  // }
+
   return <>{children}</>;
 };
 
@@ -57,8 +63,9 @@ const AppRoutes: React.FC = () => (
     <Route path="/" element={<Home />} />
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
+    <Route path="/company-management-preview" element={<CompanyManagement />} />
 
-    {/* Ruta de onboarding (protegida) */}
+    {/* Ruta de onboarding (requiere autenticación) */}
     <Route
       path="/onboarding/company"
       element={
@@ -85,8 +92,16 @@ const AppRoutes: React.FC = () => (
         </ProtectedRoute>
       }
     />
+    <Route
+      path="/company-management"
+      element={
+        <ProtectedRoute>
+          <CompanyManagement />
+        </ProtectedRoute>
+      }
+    />
 
-    {/* Catch-all: redirige a home */}
+    {/* Catch-all: cualquier ruta no definida redirige a login */}
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>
 );

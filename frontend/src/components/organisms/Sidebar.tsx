@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Briefcase,
@@ -16,35 +17,48 @@ interface NavItem {
   id: string;
   label: string;
   icon: React.ElementType;
+  path?: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'vacancies', label: 'Vacantes', icon: Briefcase },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+  { id: 'vacancies', label: 'Vacantes', icon: Briefcase, path: '/vacancies' },
   { id: 'candidatos', label: 'Candidatos', icon: Users },
   { id: 'mapa-talento', label: 'Mapa de Talento', icon: Map },
   { id: 'indicadores-esg', label: 'Indicadores ESG', icon: PieChart },
-  { id: 'gestion-empresa', label: 'Gestión de Empresa', icon: Building2 },
-  { id: 'gestion-usuarios', label: 'Gestión de Usuarios', icon: UserCog },
+  {
+    id: 'gestion-empresa',
+    label: 'Gestion de Empresa',
+    icon: Building2,
+    path: '/company-management',
+  },
+  { id: 'gestion-usuarios', label: 'Gestion de Usuarios', icon: UserCog },
   { id: 'reportes-esg', label: 'Reportes ESG', icon: FileBarChart },
 ];
 
-export default function Sidebar() {
-  const [activeItem, setActiveItem] = useState<string>('vacancies');
+interface SidebarProps {
+  activeItem?: string;
+}
+
+export default function Sidebar({
+  activeItem: initialActiveItem = 'vacancies',
+}: SidebarProps) {
+  const navigate = useNavigate();
+  const [activeItem, setActiveItem] = useState<string>(initialActiveItem);
 
   return (
-    <aside className="flex h-screen w-60 flex-col bg-bg-dark">
-      {/* ======================================================
-          NAV ITEMS
-      ====================================================== */}
+    <aside className="flex min-h-screen w-60 self-stretch flex-col bg-bg-dark">
       <nav className="flex flex-1 flex-col gap-1 px-3">
-        {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ id, label, icon: Icon, path }) => {
           const isActive = activeItem === id;
 
           return (
             <button
               key={id}
-              onClick={() => setActiveItem(id)}
+              onClick={() => {
+                setActiveItem(id);
+                if (path) navigate(path);
+              }}
               className={`
                 flex items-center gap-3 rounded-lg px-3 py-2.5
                 text-nav-item font-medium leading-nav-item
@@ -63,9 +77,6 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* ======================================================
-          FOOTER
-      ====================================================== */}
       <div className="flex flex-col gap-1 border-t border-border-strong px-3 py-4">
         <button
           className="
@@ -76,7 +87,7 @@ export default function Sidebar() {
           "
         >
           <Settings className="h-5 w-5 shrink-0" />
-          <span>Configuración</span>
+          <span>Configuracion</span>
         </button>
 
         <button
@@ -88,7 +99,7 @@ export default function Sidebar() {
           "
         >
           <LogOut className="h-5 w-5 shrink-0" />
-          <span>Cerrar Sesión</span>
+          <span>Cerrar Sesion</span>
         </button>
       </div>
     </aside>
