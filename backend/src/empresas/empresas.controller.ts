@@ -41,7 +41,7 @@ export class EmpresasController {
       throw new ForbiddenException(
         'Only admins can create companies',
       );
-    }    
+    }
     return this.empresasService.create(req.user.sub, dto);
   }
 
@@ -73,6 +73,7 @@ export class EmpresasController {
     return this.empresasService.update(id, dto, req.user.sub);
   }
 
+
   @Patch(':id/grupoDiversidad')
   @UseGuards(JwtAuthGuard)
   async addGrupoDiversidad(
@@ -103,3 +104,13 @@ export class EmpresasController {
     return this.empresasService.removeGrupoDiversidad(id, grupoId, req.user.sub);
   }
 }
+
+  @Delete()
+  @UseGuards(JwtAuthGuard)
+  delete(@Req() req: AuthenticatedRequest) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Only admins can delete companies');
+    }
+    return this.empresasService.delete(req.user.sub);
+  }
+
