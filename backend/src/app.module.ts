@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { VacantesModule } from './vacantes/vacantes.module';
 import { EmpresasModule } from './empresas/empresas.module';
 import { RegionModule } from './region/region.module';
+import { CandidatosModule } from './candidatos/candidatos.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { RegionModule } from './region/region.module';
     VacantesModule,
     EmpresasModule,
     RegionModule,
+    CandidatosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
