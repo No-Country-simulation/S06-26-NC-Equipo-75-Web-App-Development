@@ -6,6 +6,7 @@ import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
 import RegisterCompany from '../pages/onboarding/Register';
 import Dashboard from '../pages/app/Dashboard';
+import Home from '../pages/public/Home';
 import Vacancies from '../pages/app/Vacancies';
 import AppLayout from '../components/templates/AppLayout';
 
@@ -28,46 +29,66 @@ const ProtectedLayout: React.FC = () => {
   return <AppLayout />;
 };
 
-// ---------- Definición del router con data router ----------
-const router = createBrowserRouter([
-  {
-    path: '/login',
-    element: <Login />,
-  },
-  {
-    path: '/register',
-    element: <Register />,
-  },
-  {
-    path: '/onboarding/company',
-    element: <RegisterCompany />,
-  },
-  {
-    // Layout protegido para todas las rutas del panel
-    element: <ProtectedLayout />,
-    children: [
-      {
-        index: true,
-        element: <Navigate to="/vacancies" replace />,
-      },
-      {
-        path: 'dashboard',
-        element: <Dashboard />,
-        handle: { title: 'Dashboard ESG' },
-      },
-      {
-        path: 'vacancies',
-        element: <Vacancies />,
-        handle: { title: 'Vacantes' },
-      },
-      // acá se agregarán más páginas con handle: { title: '...' }
-    ],
-  },
-  {
-    path: '*',
-    element: <Navigate to="/login" replace />,
-  },
-]);
+// Componente para rutas de onboarding (requiere autenticación y perfil incompleto)
+const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-brand-secondary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const AppRoutes: React.FC = () => (
+  <Routes>
+    {/* Rutas públicas */}
+    <Route path="/" element={<Home />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
+
+    {/* Ruta de onboarding (protegida) */}
+    <Route
+      path="/onboarding/company"
+      element={
+        <OnboardingRoute>
+          <RegisterCompany />
+        </OnboardingRoute>
+      }
+    />
+
+    {/* Rutas protegidas del panel */}
+    <Route
+      path="/dashboard"
+      element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/vacancies"
+      element={
+        <ProtectedRoute>
+          <Vacancies />
+        </ProtectedRoute>
+      }
+    />
+
+    {/* Catch-all: redirige a home */}
+    <Route path="*" element={<Navigate to="/" replace />} />
+  </Routes>
+);
 
 // ---------- Componente principal ----------
 const AppRouter: React.FC = () => (
