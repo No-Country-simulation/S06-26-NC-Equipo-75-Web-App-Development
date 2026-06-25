@@ -6,11 +6,11 @@ import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
 import RegisterCompany from '../pages/onboarding/Register';
 import Dashboard from '../pages/app/Dashboard';
-import Home from '../pages/public/Home';
 import Vacancies from '../pages/app/Vacancies';
+import Home from '../pages/public/Home'; // ← agregado desde develop
 import AppLayout from '../components/templates/AppLayout';
 
-// ---------- Componente de ruta protegida ----------
+// ---------- Layout protegido (con header, sidebar, footer) ----------
 const ProtectedLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -29,10 +29,8 @@ const ProtectedLayout: React.FC = () => {
   return <AppLayout />;
 };
 
-// Componente para rutas de onboarding (requiere autenticación y perfil incompleto)
-const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+// ---------- Ruta de onboarding (autenticado pero sin layout completo) ----------
+const OnboardingRoute: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -47,48 +45,42 @@ const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
+  return <RegisterCompany />;
 };
 
-const AppRoutes: React.FC = () => (
-  <Routes>
-    {/* Rutas públicas */}
-    <Route path="/" element={<Home />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
+// ---------- Data router ----------
+const router = createBrowserRouter([
+  // Rutas públicas
+  { path: '/', element: <Home /> },
+  { path: '/login', element: <Login /> },
+  { path: '/register', element: <Register /> },
 
-    {/* Ruta de onboarding (protegida) */}
-    <Route
-      path="/onboarding/company"
-      element={
-        <OnboardingRoute>
-          <RegisterCompany />
-        </OnboardingRoute>
-      }
-    />
+  // Onboarding (protegido pero sin AppLayout)
+  { path: '/onboarding/company', element: <OnboardingRoute /> },
 
-    {/* Rutas protegidas del panel */}
-    <Route
-      path="/dashboard"
-      element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/vacancies"
-      element={
-        <ProtectedRoute>
-          <Vacancies />
-        </ProtectedRoute>
-      }
-    />
+  // Rutas protegidas con AppLayout
+  {
+    element: <ProtectedLayout />,
+    children: [
+      // Redirección del índice del panel (si se accede a /vacancies desde /dashboard, etc.)
+      { index: true, element: <Navigate to="/vacancies" replace /> },
+      {
+        path: 'dashboard',
+        element: <Dashboard />,
+        handle: { title: 'Dashboard ESG' },
+      },
+      {
+        path: 'vacancies',
+        element: <Vacancies />,
+        handle: { title: 'Vacantes' },
+      },
+      // Aquí se agregarán más páginas protegidas
+    ],
+  },
 
-    {/* Catch-all: redirige a home */}
-    <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes>
-);
+  // Catch-all
+  { path: '*', element: <Navigate to="/login" replace /> },
+]);
 
 // ---------- Componente principal ----------
 const AppRouter: React.FC = () => (
