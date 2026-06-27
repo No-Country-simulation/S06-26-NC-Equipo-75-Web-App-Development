@@ -22,6 +22,16 @@ interface CompanyFormData {
 
 type MeasurementPeriod = 'Mensual' | 'Trimestral' | 'Anual';
 
+const DEFAULT_DIVERSITY_CATEGORIES = [
+  'Genero',
+  'Discapacidad',
+  'Etnia',
+  'Edad',
+  'Orientacion sexual',
+  'Nivel socioeconomico',
+  'Neurodiversidad',
+];
+
 const CompanyManagement: React.FC = () => {
   const [formData, setFormData] = useState<CompanyFormData>({
     companyName: '',
@@ -34,12 +44,22 @@ const CompanyManagement: React.FC = () => {
   const [measurementPeriod, setMeasurementPeriod] =
     useState<MeasurementPeriod>('Trimestral');
   const [diversityTagInput, setDiversityTagInput] = useState('');
+  const [isCustomDiversityEnabled, setIsCustomDiversityEnabled] =
+    useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [savedSummary, setSavedSummary] = useState<string>('');
 
   const handleCompanyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleCategoryToggle = (category: string) => {
+    setSelectedCategories((current) =>
+      current.includes(category)
+        ? current.filter((item) => item !== category)
+        : [...current, category],
+    );
   };
 
   const handleAddDiversityTag = () => {
@@ -88,6 +108,7 @@ const CompanyManagement: React.FC = () => {
     setMinimumDiversity(35);
     setMeasurementPeriod('Trimestral');
     setDiversityTagInput('');
+    setIsCustomDiversityEnabled(false);
     setSelectedCategories([]);
     setSavedSummary('');
   };
@@ -244,32 +265,73 @@ const CompanyManagement: React.FC = () => {
                   <p className="mb-3 text-label-large font-medium leading-label-large text-text-primary">
                     Categorias de Diversidad Prioritarias
                   </p>
-                  <div className="flex flex-col gap-3">
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                      <Input
-                        id="diversityTag"
-                        name="diversityTag"
-                        placeholder="Ej: Mujeres en tecnologia"
-                        value={diversityTagInput}
-                        onChange={(e) => setDiversityTagInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleAddDiversityTag();
-                          }
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="medium"
-                        onClick={handleAddDiversityTag}
-                        className="shrink-0"
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-wrap gap-2">
+                      {DEFAULT_DIVERSITY_CATEGORIES.map((category) => (
+                        <label
+                          key={category}
+                          className={`inline-flex cursor-pointer items-center rounded-full bg-[#144A4D] px-4 py-2 text-label-small font-semibold leading-label-small text-white transition-all ${
+                            selectedCategories.includes(category)
+                              ? 'ring-2 ring-brand-secondary ring-offset-2 ring-offset-bg-primary'
+                              : 'opacity-85 hover:opacity-100'
+                          }`}
+                        >
+                          <span>{category}</span>
+                          <input
+                            type="checkbox"
+                            checked={selectedCategories.includes(category)}
+                            onChange={() => handleCategoryToggle(category)}
+                            className="sr-only"
+                          />
+                        </label>
+                      ))}
+
+                      <label
+                        className={`inline-flex cursor-pointer items-center rounded-full bg-[#144A4D] px-4 py-2 text-label-small font-semibold leading-label-small text-white transition-all ${
+                          isCustomDiversityEnabled
+                            ? 'ring-2 ring-brand-secondary ring-offset-2 ring-offset-bg-primary'
+                            : 'opacity-85 hover:opacity-100'
+                        }`}
                       >
-                        <Plus className="h-4 w-4" />
-                        Agregar
-                      </Button>
+                        <span>Otros</span>
+                        <input
+                          type="checkbox"
+                          checked={isCustomDiversityEnabled}
+                          onChange={(e) =>
+                            setIsCustomDiversityEnabled(e.target.checked)
+                          }
+                          className="sr-only"
+                        />
+                      </label>
                     </div>
+
+                    {isCustomDiversityEnabled && (
+                      <div className="flex flex-col gap-2 sm:flex-row">
+                        <Input
+                          id="diversityTag"
+                          name="diversityTag"
+                          placeholder="Definir otra diversidad"
+                          value={diversityTagInput}
+                          onChange={(e) => setDiversityTagInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddDiversityTag();
+                            }
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="medium"
+                          onClick={handleAddDiversityTag}
+                          className="shrink-0"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Agregar
+                        </Button>
+                      </div>
+                    )}
 
                     <div className="flex min-h-11 flex-wrap gap-2 rounded-lg border border-border-light bg-bg-tertiary p-3">
                       {selectedCategories.length > 0 ? (
