@@ -6,19 +6,19 @@ export class ReclutadorCreateDto {
   example: 'Juan',
   })
   @IsNotEmpty()
-  nombre: string;
+  nombre!: string;
 
   @ApiProperty({
     example: 'Pérez',
   })
   @IsNotEmpty()
-  apellido: string;
+  apellido!: string;
 
   @ApiProperty({
     example: 'juan.perez@empresa.com',
   })
   @IsEmail()
-  email: string;
+  email!: string;
 
   @ApiProperty(
     {
@@ -28,5 +28,5 @@ export class ReclutadorCreateDto {
     message:
       'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial',
   })
-  password: string;
+  password!: string;
 }
