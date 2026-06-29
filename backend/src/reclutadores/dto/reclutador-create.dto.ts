@@ -2,19 +2,28 @@ import { IsEmail, Matches, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ReclutadorCreateDto {
-  @ApiProperty()
+  @ApiProperty({
+  example: 'Juan',
+  })
   @IsNotEmpty()
   nombre: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'Pérez',
+  })
   @IsNotEmpty()
   apellido: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'juan.perez@empresa.com',
+  })
   @IsEmail()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty(
+    {
+    example: 'Password123!',
+  })
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/, {
     message:
       'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial',
