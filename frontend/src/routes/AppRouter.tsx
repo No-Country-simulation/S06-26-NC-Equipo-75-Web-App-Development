@@ -76,7 +76,7 @@ const router = createBrowserRouter([
         handle: { title: 'Vacantes' },
       },
       {
-        path: 'company-management', // ← ruta protegida agregada
+        path: 'company-management',
         element: <CompanyManagement />,
         handle: { title: 'Gestión de Empresa' },
       },
