@@ -7,10 +7,11 @@ import Register from '../pages/public/Register';
 import RegisterCompany from '../pages/onboarding/Register';
 import Dashboard from '../pages/app/Dashboard';
 import Vacancies from '../pages/app/Vacancies';
-import Home from '../pages/public/Home'; // ← agregado desde develop
+import Home from '../pages/public/Home';
+import CompanyManagement from '../pages/app/CompanyManagement'; // ← agregado desde feature/gestion-empresas
 import AppLayout from '../components/templates/AppLayout';
 
-// ---------- Layout protegido (con header, sidebar, footer) ----------
+// ---------- Layout protegido ----------
 const ProtectedLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -29,7 +30,7 @@ const ProtectedLayout: React.FC = () => {
   return <AppLayout />;
 };
 
-// ---------- Ruta de onboarding (autenticado pero sin layout completo) ----------
+// ---------- Ruta de onboarding ----------
 const OnboardingRoute: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -54,6 +55,7 @@ const router = createBrowserRouter([
   { path: '/', element: <Home /> },
   { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },
+  { path: '/company-management-preview', element: <CompanyManagement /> }, // ← ruta pública agregada
 
   // Onboarding (protegido pero sin AppLayout)
   { path: '/onboarding/company', element: <OnboardingRoute /> },
@@ -62,7 +64,6 @@ const router = createBrowserRouter([
   {
     element: <ProtectedLayout />,
     children: [
-      // Redirección del índice del panel (si se accede a /vacancies desde /dashboard, etc.)
       { index: true, element: <Navigate to="/vacancies" replace /> },
       {
         path: 'dashboard',
@@ -74,7 +75,11 @@ const router = createBrowserRouter([
         element: <Vacancies />,
         handle: { title: 'Vacantes' },
       },
-      // Aquí se agregarán más páginas protegidas
+      {
+        path: 'company-management',
+        element: <CompanyManagement />,
+        handle: { title: 'Gestión de Empresa' },
+      },
     ],
   },
 
