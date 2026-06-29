@@ -4,7 +4,7 @@ import { ReclutadorCreateDto } from './dto/reclutador-create.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { AuthenticatedRequest } from '../auth/jwt-auth.guard';
 
-// import { ApiCreateRecruiter, ApiFindAllRecruiters, ApiFindRecruiterById } from './reclutadores.swagger';
+import { ApiCreateRecruiter, ApiFindAllRecruiters, ApiFindRecruiterById } from './reclutadores.swagger';
 
 @Controller('reclutadores')
 export class ReclutadoresController {
@@ -12,7 +12,7 @@ export class ReclutadoresController {
 
     @Post()
     @UseGuards(JwtAuthGuard)
-    // @ApiCreateRecruiter()
+    @ApiCreateRecruiter()
     create(
         @Req() req: AuthenticatedRequest,
         @Body() dto: ReclutadorCreateDto,
@@ -28,7 +28,7 @@ export class ReclutadoresController {
 
     @Get()
     @UseGuards(JwtAuthGuard)
-    // @ApiFindAllRecruiters()
+    @ApiFindAllRecruiters()
     findAll(
         @Req() req: AuthenticatedRequest
     ){
@@ -44,7 +44,7 @@ export class ReclutadoresController {
 
     @Get(':id')
     @UseGuards(JwtAuthGuard)
-    // @ApiFindRecruiterById()
+    @ApiFindRecruiterById()
     findById(
         @Req() req: AuthenticatedRequest,
         @Param('id') id: string
