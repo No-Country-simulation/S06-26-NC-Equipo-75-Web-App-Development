@@ -1,19 +1,18 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { AuthProvider } from '../contexts/AuthContext';
 import { useAuth } from '../contexts/useAuth';
 import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
 import RegisterCompany from '../pages/onboarding/Register';
 import Dashboard from '../pages/app/Dashboard';
-import Home from '../pages/public/Home';
 import Vacancies from '../pages/app/Vacancies';
-import CompanyManagement from '../pages/app/CompanyManagement';
+import Home from '../pages/public/Home';
+import CompanyManagement from '../pages/app/CompanyManagement'; // ← agregado desde feature/gestion-empresas
+import AppLayout from '../components/templates/AppLayout';
 
-// Componente para rutas protegidas (requiere autenticación)
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+// ---------- Layout protegido ----------
+const ProtectedLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -28,11 +27,11 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
+  return <AppLayout />;
 };
 
-// Componente para rutas de onboarding (requiere autenticación y perfil incompleto)
-const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// ---------- Ruta de onboarding ----------
+const OnboardingRoute: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -47,71 +46,52 @@ const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({ children }) 
     return <Navigate to="/login" replace />;
   }
 
-  // Si el usuario ya tiene perfil de empresa completo, redirigir al dashboard
-  // TODO: Reemplazar con la lógica real cuando esté disponible
-  // const hasCompanyProfile = user?.companyProfileCompleted;
-  // if (hasCompanyProfile) {
-  //   return <Navigate to="/dashboard" replace />;
-  // }
-
-  return <>{children}</>;
+  return <RegisterCompany />;
 };
 
-const AppRoutes: React.FC = () => (
-  <Routes>
-    {/* Rutas públicas */}
-    <Route path="/" element={<Home />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/company-management-preview" element={<CompanyManagement />} />
+// ---------- Data router ----------
+const router = createBrowserRouter([
+  // Rutas públicas
+  { path: '/', element: <Home /> },
+  { path: '/login', element: <Login /> },
+  { path: '/register', element: <Register /> },
+  { path: '/company-management-preview', element: <CompanyManagement /> }, // ← ruta pública agregada
 
-    {/* Ruta de onboarding (requiere autenticación) */}
-    <Route
-      path="/onboarding/company"
-      element={
-        <OnboardingRoute>
-          <RegisterCompany />
-        </OnboardingRoute>
-      }
-    />
+  // Onboarding (protegido pero sin AppLayout)
+  { path: '/onboarding/company', element: <OnboardingRoute /> },
 
-    {/* Rutas protegidas del panel */}
-    <Route
-      path="/dashboard"
-      element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/vacancies"
-      element={
-        <ProtectedRoute>
-          <Vacancies />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/company-management"
-      element={
-        <ProtectedRoute>
-          <CompanyManagement />
-        </ProtectedRoute>
-      }
-    />
+  // Rutas protegidas con AppLayout
+  {
+    element: <ProtectedLayout />,
+    children: [
+      { index: true, element: <Navigate to="/vacancies" replace /> },
+      {
+        path: 'dashboard',
+        element: <Dashboard />,
+        handle: { title: 'Dashboard ESG' },
+      },
+      {
+        path: 'vacancies',
+        element: <Vacancies />,
+        handle: { title: 'Vacantes' },
+      },
+      {
+        path: 'company-management', // ← ruta protegida agregada
+        element: <CompanyManagement />,
+        handle: { title: 'Gestión de Empresa' },
+      },
+    ],
+  },
 
-    {/* Catch-all: cualquier ruta no definida redirige a login */}
-    <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes>
-);
+  // Catch-all
+  { path: '*', element: <Navigate to="/login" replace /> },
+]);
 
+// ---------- Componente principal ----------
 const AppRouter: React.FC = () => (
-  <BrowserRouter>
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
-  </BrowserRouter>
+  <AuthProvider>
+    <RouterProvider router={router} />
+  </AuthProvider>
 );
 
 export default AppRouter;

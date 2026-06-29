@@ -19,18 +19,29 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto) {
-    const usuario = await this.prisma.usuario.findUnique({
+    const user = await this.prisma.usuario.findUnique({
       where: {
         email: loginDto.email,
       },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        rol: true,
+        empresas: {
+          select: {
+            empresaId: true,
+          },
+        },
+      },
     });
 
-    if (!usuario) {
+    if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
     const passwordValida = await bcrypt.compare(
       loginDto.password,
-      usuario.passwordHash,
+      user.passwordHash,
     );
 
     if (!passwordValida) {
@@ -38,9 +49,10 @@ export class AuthService {
     }
 
     const payload = {
-      sub: usuario.id,
-      email: usuario.email,
-      role: usuario.rol,
+      sub: user.id,
+      email: user.email,
+      role: user.rol,
+      companyId: user.empresas[0]?.empresaId || null,
     };
 
     return {
@@ -95,13 +107,24 @@ export class AuthService {
         apellido: true,
         email: true,
         rol: true,
+        empresas: {
+          select: {
+            empresaId: true,
+          },
+        },
       },
     });
 
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }
-
-    return user;
+    return {
+      id: user.id,
+      nombre: user.nombre,
+      apellido: user.apellido,
+      email: user.email,
+      rol: user.rol,
+      companyId: user.empresas[0]?.empresaId || null,
+    };
   }
 }
