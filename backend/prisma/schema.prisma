@@ -63,14 +63,25 @@ model Empresa {
   usuarios           UsuarioEmpresa[]
   vacantes           Vacante[]
   metricasDiversidad MetricaDiversidad[]
+  gruposDiversidad EmpresaGrupoDiversidad[]
+}
+
+model EmpresaGrupoDiversidad {
+  empresaId String
+  grupoId String
+
+  empresa Empresa @relation(fields: [empresaId], references: [id])
+  grupo GrupoDiversidad @relation(fields: [grupoId], references: [id])
+
+  @@id([empresaId, grupoId])
 }
 
 model UsuarioEmpresa {
   usuarioId String
   empresaId String
 
-  usuario Usuario @relation(fields: [usuarioId], references: [id])
-  empresa Empresa @relation(fields: [empresaId], references: [id])
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
 
   @@id([usuarioId, empresaId])
 }
@@ -92,6 +103,7 @@ model GrupoDiversidad {
   nombre String @unique
 
   candidatos CandidatoGrupoDiversidad[]
+  empresas EmpresaGrupoDiversidad[]
 }
 
 model Candidato {
@@ -152,7 +164,7 @@ model Vacante {
   id String @id @default(uuid())
 
   empresaId String
-  empresa   Empresa @relation(fields: [empresaId], references: [id])
+  empresa   Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
 
   titulo          String
   descripcion     String

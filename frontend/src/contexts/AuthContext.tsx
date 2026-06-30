@@ -1,21 +1,21 @@
 import React, { useState, type ReactNode } from 'react';
 import { AuthContext, type AuthContextType } from './AuthContextDef';
-import { authApi } from '../services/api.service';
+import { authService } from '../services/auth.service';
 
 const initializeAuth = () => {
   const token = localStorage.getItem('access_token');
   const userRaw = localStorage.getItem('user');
-  
+
   let user = null;
   if (userRaw && userRaw !== 'undefined' && userRaw !== 'null') {
     try {
       user = JSON.parse(userRaw);
     } catch (e) {
       console.warn('Error parsing user from localStorage:', e);
-      localStorage.removeItem('user'); // Limpiar dato corrupto
+      localStorage.removeItem('user');
     }
   }
-  
+
   return {
     user,
     isAuthenticated: !!token,
@@ -33,14 +33,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await authApi.login(email, password);
-      localStorage.setItem('access_token', response.access_token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      // 1. Login normal (devuelve usuario del JWT)
+      const response = await authService.login({ email, password });
+      localStorage.setItem('access_token', response.accessToken);
+
+      // 2. Obtener datos completos desde /auth/me (incluye companyId)
+      const fullUser = await authService.getMe();
+
+      // 3. Combinar datos del JWT con los datos completos
+      const user = {
+        ...response.user,
+        ...fullUser,
+      };
+
+      localStorage.setItem('user', JSON.stringify(user));
+
       setState({
-        user: response.user,
+        user,
         isAuthenticated: true,
       });
-    } catch (err) {  // ✅ Cambiado 'error' a 'err' para evitar warning
+    } catch (err) {
       console.error('Login error:', err);
       throw err;
     } finally {

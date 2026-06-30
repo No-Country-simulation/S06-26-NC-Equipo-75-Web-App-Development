@@ -122,7 +122,7 @@ const CompanyManagement: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-bg-secondary">
-      <Sidebar activeItem="gestion-empresa" />
+      <Sidebar  />
 
       <main className="flex-1 p-6 md:p-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-6">
