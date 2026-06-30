@@ -4,17 +4,23 @@ import { apiClient } from './apiClient';
 export interface Vacante {
   id: string;
   titulo: string;
-  nivel: string; // "Trainee" | "Junior" | ...
+  nivel: string;
+  area: string;
   region: string;
+  descripcion?: string;
+  diversidadMinima?: number;
+  skills: string[];
   estado: 'Abierto' | 'Pausado' | 'Cerrado';
-  // otros campos que devuelva el backend
 }
 
 export interface VacanteCreate {
   titulo: string;
-  nivel: string;
-  region: string;
-  // ... resto de campos obligatorios según POST /vacantes
+  nivelRequerido: string;   // antes era nivel
+  area: string;
+  regionId: string;          // antes era region
+  descripcion?: string;
+  diversidadMinima?: number;
+  skillIds: string[];        // antes era skills
 }
 
 export const vacantesService = {
