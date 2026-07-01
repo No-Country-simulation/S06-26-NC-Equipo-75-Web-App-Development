@@ -10,6 +10,7 @@ import Vacancies from '../pages/app/Vacancies';
 import Home from '../pages/public/Home';
 import CompanyManagement from '../pages/app/CompanyManagement'; // ← agregado desde feature/gestion-empresas
 import AppLayout from '../components/templates/AppLayout';
+import Candidates from '../pages/app/Candidates';
 
 // ---------- Layout protegido ----------
 const ProtectedLayout: React.FC = () => {
@@ -79,6 +80,11 @@ const router = createBrowserRouter([
         path: 'company-management',
         element: <CompanyManagement />,
         handle: { title: 'Gestión de Empresa' },
+      },
+      {
+        path: 'candidatos',
+        element: <Candidates />,
+        handle: { title: 'Candidatos' },
       },
     ],
   },
