@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import InputField from '../molecules/InputField';
-import { X, ChevronDown, Plus } from 'lucide-react';
+import CustomSelect from '../molecules/CustomSelect';
+import SkillsTagsInput from '../molecules/SkillsTagsInput';
+import Toggle from '../atoms/Toggle';
 import type { VacanteCreate } from '../../services/vacantes.service';
 import { regionService, type Region } from '../../services/region.service';
 
@@ -8,77 +10,6 @@ interface VacancyFormProps {
   onSubmit: (data: VacanteCreate) => Promise<void>;
   isSubmitting?: boolean;
   onClose: () => void;
-}
-
-// ─── Toggle subcomponent ──────────────────────────────
-function Toggle({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (value: boolean) => void;
-  label?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      {label && (
-        <label className="text-label-large font-medium leading-label-large text-input-label">
-          {label}
-        </label>
-      )}
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 ${
-          checked ? 'bg-brand-secondary' : 'bg-border-medium'
-        }`}
-      >
-        <span
-          className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform duration-200 ease-in-out ${
-            checked ? 'translate-x-5.5' : 'translate-x-0.5'
-          }`}
-        />
-      </button>
-    </div>
-  );
-}
-
-// ─── Custom select with styled arrow ────────────────
-function CustomSelect({
-  value,
-  onChange,
-  options,
-  placeholder,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  options: readonly string[];
-  placeholder?: string;
-}) {
-  return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none rounded-lg border border-input-border bg-input-bg p-3 pr-10 text-body-medium text-text-primary outline-none focus:border-input-focus"
-      >
-        {placeholder && <option value="">{placeholder}</option>}
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-        <span className="rounded-full bg-gray-400 p-0.5 text-white">
-          <ChevronDown className="h-3.5 w-3.5" />
-        </span>
-      </div>
-    </div>
-  );
 }
 
 // ─── Datos estáticos ─────────────────────────────────
@@ -104,34 +35,18 @@ export default function VacancyForm({
   const [titulo, setTitulo] = useState('');
   const [nivel, setNivel] = useState<string>('Junior');
   const [area, setArea] = useState<string>('Frontend');
-  const [regionId, setRegionId] = useState(''); // ahora almacena UUID
+  const [regionId, setRegionId] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [diversidadMinima, setDiversidadMinima] = useState<number>(30);
-  const [skills, setSkills] = useState<string[]>([]);        // ← vuelve a ser texto libre
-  const [skillInput, setSkillInput] = useState('');
+  const [skills, setSkills] = useState<string[]>([]);
   const [antisesgo, setAntisesgo] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Datos desde la API
   const [regiones, setRegiones] = useState<Region[]>([]);
 
   useEffect(() => {
     regionService.getAll().then(setRegiones).catch(() => setRegiones([]));
   }, []);
-
-  // Manejo de skills (texto libre)
-  const handleAddSkill = () => {
-    const sk = skillInput.trim();
-    if (!sk) return;
-    if (!skills.includes(sk)) {
-      setSkills((prev) => [...prev, sk]);
-    }
-    setSkillInput('');
-  };
-
-  const handleRemoveSkill = (sk: string) => {
-    setSkills((prev) => prev.filter((s) => s !== sk));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,12 +67,11 @@ export default function VacancyForm({
       regionId,
       descripcion: descripcion.trim() || undefined,
       diversidadMinima,
-      skillIds: skills,   // ← enviamos los strings tal cual
+      skillIds: skills,
     };
 
     try {
       await onSubmit(vacanteData);
-      // Limpiar formulario
       setTitulo('');
       setNivel('Junior');
       setArea('Frontend');
@@ -165,7 +79,6 @@ export default function VacancyForm({
       setDescripcion('');
       setDiversidadMinima(30);
       setSkills([]);
-      setSkillInput('');
       setAntisesgo(true);
     } catch {
       // el error se maneja en el padre
@@ -202,7 +115,7 @@ export default function VacancyForm({
         </div>
       </div>
 
-      {/* Región (select nativo con IDs) */}
+      {/* Región */}
       <div>
         <label htmlFor="region" className="block text-label-large font-medium text-input-label mb-1">
           Región
@@ -225,54 +138,12 @@ export default function VacancyForm({
         )}
       </div>
 
-      {/* Skills (tags libres) */}
-      <div>
-        <label className="block text-label-large font-medium text-input-label mb-1">
-          Habilidades requeridas
-        </label>
-
-        {/* Contenedor relativo para posicionar el botón dentro del input */}
-        <div className="relative mb-2">
-          <input
-            type="text"
-            value={skillInput}
-            onChange={(e) => setSkillInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleAddSkill();
-              }
-            }}
-            placeholder="Ej: Python"
-            className="w-full rounded-lg border border-input-border bg-input-bg py-2 pl-3 pr-24 text-body-medium outline-none focus:border-input-focus"
-          />
-          <button
-            type="button"
-            onClick={handleAddSkill}
-            className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md border border-button-secondary-border px-3 py-1.5 text-label-small font-semibold text-button-secondary-text transition-colors hover:border-brand-secondary hover:text-brand-secondary"
-          >
-            <Plus className="mr-1 inline-block h-3.5 w-3.5" />
-            Agregar
-          </button>
-        </div>
-
-        {errors.skills && <p className="text-badge-error-text text-body-small mb-2">{errors.skills}</p>}
-
-        <div className="flex flex-wrap gap-2 min-h-10 p-2 rounded-lg border border-border-light bg-bg-tertiary">
-          {skills.length > 0 ? (
-            skills.map((sk) => (
-              <span key={sk} className="inline-flex items-center gap-2 rounded-full bg-bg-primary px-3 py-1 text-label-small font-medium shadow-sm">
-                {sk}
-                <button type="button" onClick={() => handleRemoveSkill(sk)} className="text-text-secondary hover:text-badge-error-text">
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </span>
-            ))
-          ) : (
-            <p className="text-body-small text-text-secondary px-2">No hay habilidades agregadas</p>
-          )}
-        </div>
-      </div>
+      {/* Skills */}
+      <SkillsTagsInput
+        skills={skills}
+        onChange={setSkills}
+        error={errors.skills}
+      />
 
       {/* Descripción */}
       <div>
