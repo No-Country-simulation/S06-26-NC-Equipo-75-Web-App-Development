@@ -197,6 +197,21 @@ export class VacantesService {
       },
     });
   }
+  async getCandidatosByVancante(vacanteId: string, userId: string) {
+    await this.validateUserCompanyAccess(userId, vacanteId);
+
+    return await this.prisma.match.findMany({
+      where: {
+        vacanteId: vacanteId,
+      },
+      orderBy: {
+        score: 'desc',
+      },
+      include: {
+        candidato: true,
+      },
+    });
+  }
 
   async runMatch(idVacante: string, idUsuario: string) {
     await this.validateUserCompanyAccess(idUsuario, idVacante);

@@ -51,6 +51,18 @@ export class VacantesController {
     return await this.vacantesService.runMatch(id, req.user.sub);
   }
 
+  @Get(':id/match')
+  @UseGuards(JwtAuthGuard)
+  async getMatchCandidatos(
+    @Param('id') vacanteId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return await this.vacantesService.getCandidatosByVancante(
+      vacanteId,
+      req.user.sub,
+    );
+  }
+
   @Get()
   @ApiFindAllVacancies()
   async findAll(@Query() filters: VacanteFiltersDto) {
