@@ -10,6 +10,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { CandidateLevel, Match, Prisma, VacancyStatus } from '@prisma/client';
+import { ShortlistResponseDto } from './dto/vacanteShortlistCandidate.dto';
 
 const DEFAULT_PESO_SKILLS = 0.5;
 const DEFAULT_PESO_NIVEL = 0.3;
@@ -211,6 +212,56 @@ export class VacantesService {
         candidato: true,
       },
     });
+  }
+
+  async getShortlist(
+    vacanteId: string,
+    userId: string,
+  ): Promise<ShortlistResponseDto> {
+    await this.validateUserCompanyAccess(userId, vacanteId);
+
+    const matches = await this.prisma.match.findMany({
+      where: { vacanteId },
+      orderBy: { score: 'desc' },
+      include: {
+        candidato: {
+          include: {
+            region: true,
+            skills: {
+              include: {
+                skill: true,
+              },
+            },
+            gruposDiversidad: {
+              include: {
+                grupo: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return {
+      vacanteId,
+      total: matches.length,
+      candidatos: matches.map((match) => ({
+        id: match.candidato.id,
+        nombre: match.candidato.nombre,
+        apellido: match.candidato.apellido,
+        score: match.score,
+
+        skills: match.candidato.skills.map((s) => s.skill.nombre),
+
+        nivel: match.candidato.nivel,
+
+        badges: match.candidato.gruposDiversidad.map((g) => g.grupo.nombre),
+
+        region: match.candidato.region.nombre,
+
+        latitud: match.candidato.region.latitud,
+        longitud: match.candidato.region.longitud,
+      })),
+    };
   }
 
   async runMatch(idVacante: string, idUsuario: string) {

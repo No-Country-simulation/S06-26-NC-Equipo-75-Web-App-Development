@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { VacancyStatus } from '@prisma/client';
+import { ShortlistCandidateDto } from './dto/vacanteShortlistCandidate.dto';
 
 export function ApiCreateVacancy() {
   return applyDecorators(
@@ -104,6 +105,29 @@ export function ApiUpdateStatusVacancy() {
     ApiResponse({
       status: 200,
       description: 'Estado actualizado correctamente',
+    }),
+  );
+}
+
+export function ApiGetShortlist() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Obtener el shortlist de candidatos de una vacante',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Shortlist recuperado correctamente',
+      type: ShortlistCandidateDto,
+      isArray: true,
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Vacante no encontrada',
+    }),
+    ApiResponse({
+      status: 403,
+      description: 'No tiene permisos para acceder al shortlist',
     }),
   );
 }

@@ -24,6 +24,7 @@ import {
   ApiUpdateStatusVacancy,
   ApiUpdateVacancy,
   ApiFindVacancyByCompany,
+  ApiGetShortlist,
 } from './vacantes.swagger';
 
 @Controller('vacantes')
@@ -61,6 +62,16 @@ export class VacantesController {
       vacanteId,
       req.user.sub,
     );
+  }
+
+  @Get('shortlist/:vacanteId')
+  @ApiGetShortlist()
+  @UseGuards(JwtAuthGuard)
+  async getShortlist(
+    @Param('vacanteId') vacanteId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return await this.vacantesService.getShortlist(vacanteId, req.user.sub);
   }
 
   @Get()
