@@ -170,6 +170,7 @@ model Vacante {
   descripcion     String
 
   nivelRequerido  CandidateLevel
+  experienciaMeses  Int @default(0)
 
   regionId        String
   region          Region @relation(fields: [regionId], references: [id])
