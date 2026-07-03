@@ -10,8 +10,6 @@ import {
 import Button from '../../components/atoms/Button';
 import Input from '../../components/atoms/Input';
 import InputField from '../../components/molecules/InputField';
-import Sidebar from '../../components/organisms/Sidebar';
-
 interface CompanyFormData {
   companyName: string;
   industry: string;
@@ -23,13 +21,11 @@ interface CompanyFormData {
 type MeasurementPeriod = 'Mensual' | 'Trimestral' | 'Anual';
 
 const DEFAULT_DIVERSITY_CATEGORIES = [
-  'Genero',
+  'Mujer en tech',
+  'Región periférica',
+  'Diversidad étnica',
   'Discapacidad',
-  'Etnia',
-  'Edad',
-  'Orientacion sexual',
-  'Nivel socioeconomico',
-  'Neurodiversidad',
+  'Primera generación universitaria',
 ];
 
 const CompanyManagement: React.FC = () => {
@@ -122,8 +118,6 @@ const CompanyManagement: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-bg-secondary">
-      <Sidebar />
-
       <main className="flex-1 p-6 md:p-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-6">
           <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
