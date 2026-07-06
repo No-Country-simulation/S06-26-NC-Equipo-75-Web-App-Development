@@ -3,6 +3,7 @@ export interface Candidato {
   score: number;
   nombre: string;
   nivel: string;
+  area?: string;
   habilidades: string[];
   diversidad: string;
   region: string;
@@ -24,4 +25,10 @@ export const candidatosService = {
   async getAll(): Promise<Candidato[]> {
     return MOCK_CANDIDATOS;
   },
+  async getById(id: string): Promise<Candidato> {
+  const candidato = MOCK_CANDIDATOS.find((c) => c.id === id);
+  if (!candidato) throw new Error('Candidato no encontrado');
+  return candidato;
+},
 };
+
