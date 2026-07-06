@@ -9,6 +9,7 @@ export interface Candidato {
   region: string;
   estado: string;
   badges: string[];
+  consentimientoUbicacion: boolean;
 }
 
 const MOCK_CANDIDATOS: Candidato[] = [
@@ -26,6 +27,7 @@ const MOCK_CANDIDATOS: Candidato[] = [
       'Mujer en área tecnológica o STEM',
       'Resido en región periférica o de baja representación laboral',
     ],
+    consentimientoUbicacion: true,
   },
   {
     id: '2',
@@ -38,6 +40,7 @@ const MOCK_CANDIDATOS: Candidato[] = [
     region: 'São Paulo - Brasil',
     estado: 'Entrevista',
     badges: ['Tengo discapacidad certificada o auto-declarada'],
+    consentimientoUbicacion: false,
   },
   {
     id: '3',
@@ -50,6 +53,7 @@ const MOCK_CANDIDATOS: Candidato[] = [
     region: 'Quito - Ecuador',
     estado: 'Rechazado',
     badges: [],
+    consentimientoUbicacion: false,
   },
   {
     id: '4',
@@ -62,6 +66,7 @@ const MOCK_CANDIDATOS: Candidato[] = [
     region: 'Buenos Aires - Argentina',
     estado: 'Contactado',
     badges: [],
+    consentimientoUbicacion: true,
   },
   {
     id: '5',
@@ -74,6 +79,7 @@ const MOCK_CANDIDATOS: Candidato[] = [
     region: 'Lima - Perú',
     estado: 'Aplicó',
     badges: [],
+    consentimientoUbicacion: true,
   },
   {
     id: '6',
@@ -86,6 +92,7 @@ const MOCK_CANDIDATOS: Candidato[] = [
     region: 'Bogotá - Colombia',
     estado: 'Entrevista',
     badges: ['Mujer en área tecnológica o STEM'],
+    consentimientoUbicacion: false,
   },
   {
     id: '7',
@@ -98,6 +105,7 @@ const MOCK_CANDIDATOS: Candidato[] = [
     region: 'Santiago - Chile',
     estado: 'Contactado',
     badges: ['Tengo discapacidad certificada o auto-declarada'],
+    consentimientoUbicacion: false,
   },
   {
     id: '8',
@@ -110,6 +118,7 @@ const MOCK_CANDIDATOS: Candidato[] = [
     region: 'São Paulo - Brasil',
     estado: 'Aplicó',
     badges: [],
+    consentimientoUbicacion: true,
   },
 ];
 
