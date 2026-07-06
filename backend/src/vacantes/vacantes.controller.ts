@@ -26,6 +26,13 @@ import {
   ApiFindVacancyByCompany,
   ApiGetShortlist,
 } from './vacantes.swagger';
+import { VacanteAddSkillDto } from './dto/vacante-add-skill.dto';
+
+import {
+    ApiAddSkillToVacancy,
+    ApiGetVacancySkills,
+    ApiRemoveSkillFromVacancy,
+} from './vacantes.swagger';
 
 @Controller('vacantes')
 export class VacantesController {
@@ -128,4 +135,43 @@ export class VacantesController {
       req.user.sub,
     );
   }
+
+  @Post(':id/skills')
+  @UseGuards(JwtAuthGuard)
+  @ApiAddSkillToVacancy()
+  async addSkill(
+    @Param('id') vacanteId: string,
+    @Body() dto: VacanteAddSkillDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return await this.vacantesService.addSkill(
+      vacanteId,
+      dto.skillId,
+      req.user.sub,
+    );
+  }
+
+  @Delete(':id/skills/:skillId')
+  @UseGuards(JwtAuthGuard)
+  @ApiRemoveSkillFromVacancy()
+  async removeSkill(
+    @Param('id') vacanteId: string,
+    @Param('skillId') skillId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return await this.vacantesService.removeSkill(
+      vacanteId,
+      skillId,
+      req.user.sub,
+    );
+  }
+
+  @Get(':id/skills')
+  @ApiGetVacancySkills()
+  async getSkills(
+    @Param('id') vacanteId: string,
+  ) {
+    return await this.vacantesService.getSkills(vacanteId);
+  }
+
 }

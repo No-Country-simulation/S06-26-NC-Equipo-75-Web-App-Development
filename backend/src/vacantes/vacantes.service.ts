@@ -522,7 +522,7 @@ export class VacantesService {
       );
     }
 
-    await this.prisma.vacanteSkill.delete({
+    return this.prisma.vacanteSkill.delete({
       where: {
         vacanteId_skillId: {
           vacanteId,
@@ -531,4 +531,26 @@ export class VacantesService {
       },
     });
   }
+
+  async getSkills(vacanteId: string) {
+    const vacante = await this.prisma.vacante.findUnique({
+      where: { id: vacanteId },
+        include: {
+          skills: {
+            include: {
+              skill: true,
+            },
+          },
+        },
+    });
+
+    if (!vacante) {
+      throw new NotFoundException(
+      'Vacancy not found',
+      );
+    }
+
+    return vacante.skills;
+  }
+
 }

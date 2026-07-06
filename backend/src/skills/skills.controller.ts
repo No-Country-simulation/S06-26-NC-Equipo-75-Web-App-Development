@@ -7,6 +7,7 @@ import {
   Req,
   UseGuards,
   ForbiddenException,
+  Delete,
 } from '@nestjs/common';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -34,7 +35,7 @@ export class SkillsController {
     @Req() req: AuthenticatedRequest,
     @Body() dto: SkillCreateDto,
   ) {
-    if (req.user.role !== 'Recruiter') {
+    if (req.user.role !== 'RECRUITER') {
       throw new ForbiddenException(
         'Only recruiters can create skills',
       );
@@ -54,4 +55,7 @@ export class SkillsController {
   findById(@Param('id') id: string) {
     return this.skillsService.findById(id);
   }
+
+  
+
 }

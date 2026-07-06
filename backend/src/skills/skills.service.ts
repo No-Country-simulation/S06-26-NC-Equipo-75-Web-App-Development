@@ -42,6 +42,7 @@ export class SkillsService {
     return this.prisma.skill.create({
       data: {
         nombre: dto.nombre.trim(),
+        categoria: dto.categoria?.trim() || null,
       },
     });
   }
@@ -54,7 +55,7 @@ export class SkillsService {
     });
   }
 
-    async findById(id: string) {
+  async findById(id: string) {
     const skill =
         await this.prisma.skill.findUnique({
         where: { id },
@@ -67,5 +68,7 @@ export class SkillsService {
     }
 
     return skill;
-    }
+  }
+
+
 }

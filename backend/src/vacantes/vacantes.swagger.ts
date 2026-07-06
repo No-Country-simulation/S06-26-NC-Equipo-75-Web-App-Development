@@ -131,3 +131,73 @@ export function ApiGetShortlist() {
     }),
   );
 }
+
+export function ApiAddSkillToVacancy() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Add skill to vacancy',
+    }),
+    ApiParam({
+      name: 'id',
+      description: 'Vacancy ID',
+    }),
+    ApiResponse({
+      status: 201,
+      description: 'Skill added to vacancy',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Vacancy or Skill not found',
+    }),
+    ApiResponse({
+      status: 400,
+      description: 'Skill already assigned',
+    }),
+  );
+}
+
+export function ApiGetVacancySkills() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Get vacancy skills',
+    }),
+    ApiParam({
+      name: 'id',
+      description: 'Vacancy ID',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Vacancy skills',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Vacancy not found',
+    }),
+  );
+}
+
+export function ApiRemoveSkillFromVacancy() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Remove skill from vacancy',
+    }),
+    ApiParam({
+      name: 'id',
+      description: 'Vacancy ID',
+    }),
+    ApiParam({
+      name: 'skillId',
+      description: 'Skill ID',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Skill removed',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Vacancy or Skill not found',
+    }),
+  );
+}
