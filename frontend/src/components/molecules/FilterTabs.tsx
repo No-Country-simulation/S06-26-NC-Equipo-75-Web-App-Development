@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 interface FilterTabsProps<T extends string> {
   options: readonly T[];

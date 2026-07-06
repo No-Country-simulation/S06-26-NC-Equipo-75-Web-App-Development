@@ -10,7 +10,7 @@ const RegisterCompany: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   if (isAuthenticated && !authLoading) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   const handleSubmit = async (data: RegisterCompanyFormData) => {

@@ -29,7 +29,7 @@ interface NavItem {
 const ALL_NAV_ITEMS: NavItem[] = [
   {
     id: 'dashboard',
-    label: 'Dashboard',
+    label: 'Dashboard ESG',
     icon: LayoutDashboard,
     to: '/app/dashboard',
     roles: ['empresa_admin', 'reclutador'],
@@ -88,7 +88,10 @@ export default function Sidebar() {
   const userRole = (user?.role as Rol) ?? null;
 
   const visibleItems = useMemo(
-    () => (userRole ? ALL_NAV_ITEMS.filter((item) => item.roles.includes(userRole)) : []),
+    () =>
+      userRole
+        ? ALL_NAV_ITEMS.filter((item) => item.roles.includes(userRole))
+        : [],
     [userRole],
   );
 
@@ -111,7 +114,7 @@ export default function Sidebar() {
               text-nav-item font-medium leading-nav-item
               transition-colors ${
                 isActive
-                  ? 'text-nav-sidebar-hover' // 🎯 ahora usa color de hover
+                  ? 'text-nav-sidebar-hover'
                   : 'text-nav-sidebar-default hover:text-nav-sidebar-hover'
               }`
             }

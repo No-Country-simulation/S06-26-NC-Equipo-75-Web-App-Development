@@ -297,3 +297,262 @@ body,
   --text-metric-label: 14px;
   --leading-metric-label: 20px;
 }
+
+/* ==========================================================
+   CUSTOM UTILITY CLASSES
+   ========================================================== */
+
+@layer utilities {
+  /* Navigation Sidebar */
+  .text-nav-sidebar-default {
+    @apply text-[color:var(--color-nav-sidebar-default)];
+  }
+
+  .text-nav-sidebar-hover {
+    @apply text-[color:var(--color-nav-sidebar-hover)];
+  }
+
+  .text-nav-sidebar-active {
+    @apply text-[color:var(--color-nav-sidebar-active)];
+  }
+
+  /* Background Colors */
+  .bg-bg-dark {
+    @apply bg-[color:var(--color-bg-dark)];
+  }
+
+  .bg-bg-primary {
+    @apply bg-[color:var(--color-bg-primary)];
+  }
+
+  .bg-bg-secondary {
+    @apply bg-[color:var(--color-bg-secondary)];
+  }
+
+  .bg-bg-tertiary {
+    @apply bg-[color:var(--color-bg-tertiary)];
+  }
+
+  /* Text Colors */
+  .text-text-primary {
+    @apply text-[color:var(--color-text-primary)];
+  }
+
+  .text-text-secondary {
+    @apply text-[color:var(--color-text-secondary)];
+  }
+
+  .text-text-tertiary {
+    @apply text-[color:var(--color-text-tertiary)];
+  }
+
+  .text-text-inverse {
+    @apply text-[color:var(--color-text-inverse)];
+  }
+
+  /* Border Colors */
+  .border-border-light {
+    @apply border-[color:var(--color-border-light)];
+  }
+
+  .border-border-medium {
+    @apply border-[color:var(--color-border-medium)];
+  }
+
+  .border-border-strong {
+    @apply border-[color:var(--color-border-strong)];
+  }
+
+  /* Brand Colors */
+  .text-brand-primary {
+    @apply text-[color:var(--color-brand-primary)];
+  }
+
+  .text-brand-secondary {
+    @apply text-[color:var(--color-brand-secondary)];
+  }
+
+  .text-brand-tertiary {
+    @apply text-[color:var(--color-brand-tertiary)];
+  }
+
+  .bg-brand-primary {
+    @apply bg-[color:var(--color-brand-primary)];
+  }
+
+  .bg-brand-secondary {
+    @apply bg-[color:var(--color-brand-secondary)];
+  }
+
+  .bg-brand-tertiary {
+    @apply bg-[color:var(--color-brand-tertiary)];
+  }
+
+  /* Badge Colors */
+  .bg-badge-success-bg {
+    @apply bg-[color:var(--color-badge-success-bg)];
+  }
+
+  .text-badge-success-text {
+    @apply text-[color:var(--color-badge-success-text)];
+  }
+
+  .bg-badge-error-bg {
+    @apply bg-[color:var(--color-badge-error-bg)];
+  }
+
+  .text-badge-error-text {
+    @apply text-[color:var(--color-badge-error-text)];
+  }
+
+  .bg-badge-esg-bg {
+    @apply bg-[color:var(--color-badge-esg-bg)];
+  }
+
+  .text-badge-esg-text {
+    @apply text-[color:var(--color-badge-esg-text)];
+  }
+
+  .bg-badge-diversity-bg {
+    @apply bg-[color:var(--color-badge-diversity-bg)];
+  }
+
+  .text-badge-diversity-text {
+    @apply text-[color:var(--color-badge-diversity-text)];
+  }
+
+  /* Input Colors */
+  .border-input-border {
+    @apply border-[color:var(--color-input-border)];
+  }
+
+  .border-input-hover {
+    @apply border-[color:var(--color-input-hover)];
+  }
+
+  .border-input-focus {
+    @apply border-[color:var(--color-input-focus)];
+  }
+
+  .bg-input-bg {
+    @apply bg-[color:var(--color-input-bg)];
+  }
+
+  .text-input-text {
+    @apply text-[color:var(--color-input-text)];
+  }
+
+  /* Typography Utilities */
+  .text-nav-item {
+    font-size: var(--text-nav-item);
+  }
+
+  .leading-nav-item {
+    line-height: var(--leading-nav-item);
+  }
+
+  .text-h1 {
+    font-size: var(--text-h1);
+  }
+
+  .leading-h1 {
+    line-height: var(--leading-h1);
+  }
+
+  .text-h2 {
+    font-size: var(--text-h2);
+  }
+
+  .leading-h2 {
+    line-height: var(--leading-h2);
+  }
+
+  .text-h3 {
+    font-size: var(--text-h3);
+  }
+
+  .leading-h3 {
+    line-height: var(--leading-h3);
+  }
+
+  .text-h4 {
+    font-size: var(--text-h4);
+  }
+
+  .leading-h4 {
+    line-height: var(--leading-h4);
+  }
+
+  .text-body-large {
+    font-size: var(--text-body-large);
+  }
+
+  .leading-body-large {
+    line-height: var(--leading-body-large);
+  }
+
+  .text-body-medium {
+    font-size: var(--text-body-medium);
+  }
+
+  .leading-body-medium {
+    line-height: var(--leading-body-medium);
+  }
+
+  .text-body-small {
+    font-size: var(--text-body-small);
+  }
+
+  .leading-body-small {
+    line-height: var(--leading-body-small);
+  }
+
+  .text-label-large {
+    font-size: var(--text-label-large);
+  }
+
+  .leading-label-large {
+    line-height: var(--leading-label-large);
+  }
+
+  .text-label-small {
+    font-size: var(--text-label-small);
+  }
+
+  .leading-label-small {
+    line-height: var(--leading-label-small);
+  }
+
+  .text-badge {
+    font-size: var(--text-badge);
+  }
+
+  .leading-badge {
+    line-height: var(--leading-badge);
+  }
+
+  /* Button Typography */
+  .text-button-large {
+    font-size: var(--text-button-large);
+  }
+
+  .leading-button-large {
+    line-height: var(--leading-button-large);
+  }
+
+  .text-button-medium {
+    font-size: var(--text-button-medium);
+  }
+
+  .leading-button-medium {
+    line-height: var(--leading-button-medium);
+  }
+
+  .text-button-small {
+    font-size: var(--text-button-small);
+  }
+
+  .leading-button-small {
+    line-height: var(--leading-button-small);
+  }
+}
