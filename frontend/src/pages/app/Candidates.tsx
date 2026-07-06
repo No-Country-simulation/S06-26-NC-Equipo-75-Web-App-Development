@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, Eye, Mail } from 'lucide-react';
 import KpiCard from '../../components/molecules/KpiCard';
 import DataTable, { type Column } from '../../components/organisms/DataTable';
@@ -6,24 +7,25 @@ import SearchBar from '../../components/molecules/SearchBar';
 import Badge from '../../components/atoms/Badge';
 import { candidatosService, type Candidato } from '../../services/candidatos.service';
 
-// ─── Configuración de colores (puede ir en utils) ────
+// ─── Configuración de colores ────────────────────────
 const NIVEL_COLORS: Record<string, string> = {
-  Trainee:      'bg-badge-diversity-bg text-badge-diversity-text',
-  Junior:       'bg-badge-esg-bg text-badge-esg-text',
-  'Semi Senior':'bg-badge-warning-bg text-badge-warning-text',
-  Senior:       'bg-badge-success-bg text-badge-success-text',
-  Lead:         'bg-badge-error-bg text-badge-error-text',
+  Trainee: 'bg-badge-diversity-bg text-badge-diversity-text',
+  Junior: 'bg-badge-esg-bg text-badge-esg-text',
+  'Semi Senior': 'bg-badge-warning-bg text-badge-warning-text',
+  Senior: 'bg-badge-success-bg text-badge-success-text',
+  Lead: 'bg-badge-error-bg text-badge-error-text',
 };
 
 const ESTADO_COLORS: Record<string, string> = {
   Contratado: 'bg-badge-success-bg text-badge-success-text',
   Entrevista: 'bg-badge-warning-bg text-badge-warning-text',
-  Rechazado:  'bg-badge-error-bg text-badge-error-text',
+  Rechazado: 'bg-badge-error-bg text-badge-error-text',
   Contactado: 'bg-badge-esg-bg text-badge-esg-text',
-  'Aplicó':   'bg-badge-diversity-bg text-badge-diversity-text',
+  'Aplicó': 'bg-badge-diversity-bg text-badge-diversity-text',
 };
 
-export default function Candidates() {
+export default function Candidatos() {
+  const navigate = useNavigate();
   const [candidatos, setCandidatos] = useState<Candidato[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -63,14 +65,14 @@ export default function Candidates() {
     {
       key: 'nivel',
       header: 'Nivel',
-      render: (c) => <Badge label={c.nivel} className={NIVEL_COLORS[c.nivel] || ''} />,
+      render: (vac) => <Badge label={vac.nivel} className={NIVEL_COLORS[vac.nivel] || ''} />,
     },
     {
       key: 'habilidades',
       header: 'Habilidades',
-      render: (c) => (
+      render: (vac) => (
         <span className="text-body-small text-text-secondary max-w-45 block">
-          {c.habilidades.join(', ')}
+          {vac.habilidades.join(', ')}
         </span>
       ),
     },
@@ -79,17 +81,24 @@ export default function Candidates() {
     {
       key: 'estado',
       header: 'Estado',
-      render: (c) => <Badge label={c.estado} className={ESTADO_COLORS[c.estado] || ''} />,
+      render: (vac) => <Badge label={vac.estado} className={ESTADO_COLORS[vac.estado] || ''} />,
     },
     {
       key: 'acciones',
       header: '',
-      render: () => (
+      render: (vac) => (
         <div className="flex items-center gap-2">
-          <button className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-brand-secondary" title="Ver perfil">
+          <button
+            className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-brand-secondary"
+            title="Ver perfil"
+            onClick={() => navigate(`/candidatos/${vac.id}`)}
+          >
             <Eye className="h-4 w-4" />
           </button>
-          <button className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-brand-secondary" title="Contactar">
+          <button
+            className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-brand-secondary"
+            title="Contactar"
+          >
             <Mail className="h-4 w-4" />
           </button>
         </div>
@@ -118,7 +127,7 @@ export default function Candidates() {
           </p>
         </div>
         <button className="flex items-center gap-2 rounded-full border border-border-medium bg-bg-primary px-4 py-2 text-label-large font-semibold text-text-primary transition-colors hover:border-brand-secondary hover:text-brand-secondary shrink-0">
-          <Eye className="h-4 w-4" /> {/* ArrowLeft si lo preferís */}
+          <Eye className="h-4 w-4" />
           Volver a Vacantes
         </button>
       </div>

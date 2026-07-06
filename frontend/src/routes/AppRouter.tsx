@@ -16,6 +16,7 @@ import Candidates from '../pages/app/Candidates';
 import Home from '../pages/public/Home';
 import CompanyManagement from '../pages/app/CompanyManagement';
 import AppLayout from '../components/templates/AppLayout';
+import CandidateProfile from '../pages/app/CandidateProfile';
 
 // ---------- Layout protegido (con verificación de roles) ----------
 const ProtectedLayout: React.FC = () => {
@@ -113,7 +114,11 @@ const router = createBrowserRouter([
         element: <CompanyManagement />,
         handle: { title: 'Gestión de Empresa', roles: ['empresa_admin'] },
       },
-      // Aquí se agregarán más páginas protegidas
+      {
+        path: 'candidatos/:id',
+        element: <CandidateProfile />,
+        handle: { title: 'Perfil del Candidato', roles: ['empresa_admin', 'reclutador'] },
+      },
     ],
   },
 
