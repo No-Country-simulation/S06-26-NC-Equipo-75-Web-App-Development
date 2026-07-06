@@ -460,4 +460,97 @@ export class VacantesService {
 
     return vacancy;
   }
+  async addSkill( vacanteId: string,skillId: string,userId: string,) {
+    await this.validateUserCompanyAccess(
+      userId,
+      vacanteId,
+    );
+
+    const skill =
+      await this.prisma.skill.findUnique({
+        where: { id: skillId },
+      });
+
+    if (!skill) {
+      throw new NotFoundException(
+        'Skill not found',
+      );
+    }
+
+    const existente =
+      await this.prisma.vacanteSkill.findUnique({
+        where: {
+          vacanteId_skillId: {
+            vacanteId,
+            skillId,
+          },
+        },
+      });
+
+    if (existente) {
+      throw new BadRequestException(
+        'Skill already assigned to vacancy',
+      );
+    }
+
+    return this.prisma.vacanteSkill.create({
+      data: {
+        vacanteId,
+        skillId,
+      },
+    });
+  } 
+  
+  async removeSkill(vacanteId: string,skillId: string,userId: string){
+    await this.validateUserCompanyAccess(
+      userId,
+      vacanteId,
+    );
+
+    const relacion =  await this.prisma.vacanteSkill.findUnique({
+      where: {
+        vacanteId_skillId: {
+          vacanteId,
+          skillId,
+        },
+      },
+    });
+
+    if (!relacion) {
+      throw new NotFoundException(
+        'Skill not assigned to vacancy',
+      );
+    }
+
+    return this.prisma.vacanteSkill.delete({
+      where: {
+        vacanteId_skillId: {
+          vacanteId,
+          skillId,
+        },
+      },
+    });
+  }
+
+  async getSkills(vacanteId: string) {
+    const vacante = await this.prisma.vacante.findUnique({
+      where: { id: vacanteId },
+        include: {
+          skills: {
+            include: {
+              skill: true,
+            },
+          },
+        },
+    });
+
+    if (!vacante) {
+      throw new NotFoundException(
+      'Vacancy not found',
+      );
+    }
+
+    return vacante.skills;
+  }
+
 }
