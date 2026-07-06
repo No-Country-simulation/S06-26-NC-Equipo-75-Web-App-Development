@@ -6,6 +6,7 @@ import CustomSelect from '../../components/molecules/CustomSelect';
 import SkillsTagsInput from '../../components/molecules/SkillsTagsInput';
 import InputField from '../../components/molecules/InputField';
 import Badge from '../../components/atoms/Badge';
+import Toggle from '../../components/atoms/Toggle';
 
 const NIVELES = ['Trainee', 'Junior', 'Semi Senior', 'Senior', 'Lead'] as const;
 const AREAS = [
@@ -124,6 +125,21 @@ export default function CandidateProfile() {
 
         <p className="text-body-small text-text-tertiary italic">
           Esta información es voluntaria. Solo se muestra como etiqueta en procesos de selección con metas de inclusión. No afecta tu puntuación de compatibilidad.
+        </p>
+      </div>
+
+      {/* Consentimiento de ubicación */}
+      <div className="rounded-xl border border-border-light bg-bg-primary p-5 shadow-sm space-y-4">
+        <h2 className="text-h3 font-semibold text-text-primary">Privacidad de ubicación</h2>
+        
+        <Toggle
+          checked={candidato.consentimientoUbicacion}
+          onChange={() => {}} // solo lectura para el reclutador
+          label="Permitir que las empresas vean mi ubicación aproximada en el mapa de talento. Tu dirección exacta nunca se comparte."
+        />
+
+        <p className="text-body-small text-text-tertiary italic">
+          Estado actual: {candidato.consentimientoUbicacion ? 'Activado' : 'Desactivado'}
         </p>
       </div>
 
