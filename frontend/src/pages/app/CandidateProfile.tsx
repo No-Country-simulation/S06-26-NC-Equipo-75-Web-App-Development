@@ -98,6 +98,35 @@ export default function CandidateProfile() {
         </div>
       </div>
 
+      {/* Diversidad e Inclusión */}
+      <div className="rounded-xl border border-border-light bg-bg-primary p-5 shadow-sm space-y-4">
+        <h2 className="text-h3 font-semibold text-text-primary">Diversidad e Inclusión</h2>
+
+        <div className="space-y-3">
+          {[
+            'Mujer en área tecnológica o STEM',
+            'Resido en región periférica o de baja representación laboral',
+            'Pertenezco a grupo étnico históricamente excluido',
+            'Tengo discapacidad certificada o auto-declarada',
+            'Soy el primero de mi familia en acceder a educación superior',
+          ].map((badgeLabel) => (
+            <label key={badgeLabel} className="flex items-start gap-3 cursor-default">
+              <input
+                type="checkbox"
+                checked={candidato.badges.includes(badgeLabel)}
+                readOnly
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-secondary focus:ring-brand-secondary cursor-default"
+              />
+              <span className="text-body-medium text-text-primary">{badgeLabel}</span>
+            </label>
+          ))}
+        </div>
+
+        <p className="text-body-small text-text-tertiary italic">
+          Esta información es voluntaria. Solo se muestra como etiqueta en procesos de selección con metas de inclusión. No afecta tu puntuación de compatibilidad.
+        </p>
+      </div>
+
       {/* Indicador de completitud */}
       <div className="rounded-xl border border-border-light bg-bg-primary p-5 shadow-sm">
         <div className="flex items-center justify-between">
