@@ -47,6 +47,15 @@ const ROLE_MAP: Record<string, string> = {
   RECRUITER: 'reclutador',
 };
 
+
+interface MeResponse {
+  id: string;
+  email: string;
+  rol: string;
+  nombre?: string;
+  apellido?: string;
+  companyId?: string;
+}
 // ---------- Servicio ----------
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
@@ -88,9 +97,9 @@ export const authService = {
       },
     };
   },
-
+  
   async getMe(): Promise<AuthResponse['user']> {
-    const data = await apiClient<any>('/auth/me');
+    const data = await apiClient<MeResponse>('/auth/me');
     return {
       id: data.id,
       email: data.email,
