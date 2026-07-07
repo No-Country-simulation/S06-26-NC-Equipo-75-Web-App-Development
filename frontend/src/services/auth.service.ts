@@ -19,6 +19,7 @@ export interface AuthResponse {
     email: string;
     role: string;
     name?: string;
+    companyId?: string;
   };
 }
 
@@ -28,6 +29,7 @@ function parseJwt(token: string): {
   email: string;
   role: string;
   name?: string;
+  companyId?: string;
 } {
   const base64Url = token.split('.')[1];
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -88,6 +90,13 @@ export const authService = {
   },
 
   async getMe(): Promise<AuthResponse['user']> {
-    return apiClient<AuthResponse['user']>('/auth/me');
+    const data = await apiClient<any>('/auth/me');
+    return {
+      id: data.id,
+      email: data.email,
+      role: ROLE_MAP[data.rol] || data.rol,
+      name: `${data.nombre} ${data.apellido}`,
+      companyId: data.companyId,
+    };
   },
 };

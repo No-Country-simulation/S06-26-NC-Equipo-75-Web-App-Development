@@ -5,6 +5,10 @@ import Header from '../organisms/Header';
 import Footer from '../molecules/Footer';
 import { useAuth } from '../../contexts/useAuth';
 
+interface AppLayoutProps {
+  children?: React.ReactNode;
+}
+
 // Interfaz para el handle de las rutas
 interface RouteHandle {
   title?: string;
@@ -20,7 +24,7 @@ function usePageTitle(): string {
   return (routeWithHandle?.handle as RouteHandle)?.title ?? 'ImpactHire';
 }
 
-const AppLayout: React.FC = () => {
+const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { user } = useAuth();
   const pageTitle = usePageTitle();
 
@@ -39,7 +43,7 @@ const userInitials = user?.name
         </div>
         <main className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-6 md:p-8">
-            <Outlet />
+            {children ?? <Outlet />}
           </div>
           <Footer />
         </main>
