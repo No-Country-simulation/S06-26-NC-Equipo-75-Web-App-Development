@@ -23,13 +23,11 @@ interface CompanyFormData {
 type MeasurementPeriod = 'Mensual' | 'Trimestral' | 'Anual';
 
 const DEFAULT_DIVERSITY_CATEGORIES = [
-  'Genero',
+  'Mujer en tech',
+  'Región periférica',
+  'Diversidad étnica',
   'Discapacidad',
-  'Etnia',
-  'Edad',
-  'Orientacion sexual',
-  'Nivel socioeconomico',
-  'Neurodiversidad',
+  'Primera generación universitaria',
 ];
 
 const CompanyManagement: React.FC = () => {
@@ -122,7 +120,7 @@ const CompanyManagement: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="mx-auto flex max-w-7xl flex-col gap-6">
+      <div className="flex flex-col gap-6">
         <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-3">
@@ -432,6 +430,7 @@ const CompanyManagement: React.FC = () => {
         </div>
       </div>
     </AppLayout>
+    
   );
 };
 

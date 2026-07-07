@@ -31,49 +31,49 @@ const ALL_NAV_ITEMS: NavItem[] = [
     id: 'dashboard',
     label: 'Dashboard ESG',
     icon: LayoutDashboard,
-    to: '/app/dashboard',
+    to: '/dashboard',
     roles: ['empresa_admin', 'reclutador'],
   },
   {
     id: 'vacancies',
     label: 'Vacantes',
     icon: Briefcase,
-    to: '/app/vacantes',
+    to: '/vacancies',
     roles: ['empresa_admin', 'reclutador'],
   },
   {
     id: 'candidatos',
     label: 'Candidatos',
     icon: Users,
-    to: '/app/candidatos',
+    to: '/candidatos',
     roles: ['empresa_admin', 'reclutador'],
   },
   {
     id: 'mapa-talento',
     label: 'Mapa de Talento',
     icon: Map,
-    to: '/app/mapa-talento',
+    to: '/mapa-talento',
     roles: ['empresa_admin', 'reclutador'],
   },
   {
     id: 'gestion-empresa',
     label: 'Gestión de Empresa',
     icon: Building2,
-    to: '/app/gestion-empresa',
+    to: '/company-management',
     roles: ['empresa_admin'],
   },
   {
     id: 'gestion-usuarios',
     label: 'Gestión de Usuarios',
     icon: UserCog,
-    to: '/app/gestion-usuarios',
+    to: '/gestion-usuarios',
     roles: ['empresa_admin'],
   },
   {
     id: 'reportes-esg',
     label: 'Reportes ESG',
     icon: FileBarChart,
-    to: '/app/reportes-esg',
+    to: '/reportes-esg',
     roles: ['empresa_admin'],
   },
 ];
@@ -108,7 +108,7 @@ export default function Sidebar() {
           <NavLink
             key={id}
             to={to}
-            end={to === '/app/dashboard'}
+            end={to === '/dashboard'}
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-3 py-2.5
               text-nav-item font-medium leading-nav-item

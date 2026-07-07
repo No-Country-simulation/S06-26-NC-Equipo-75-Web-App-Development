@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { VacancyStatus } from '@prisma/client';
+import { ShortlistCandidateDto } from './dto/vacanteShortlistCandidate.dto';
 
 export function ApiCreateVacancy() {
   return applyDecorators(
@@ -104,6 +105,99 @@ export function ApiUpdateStatusVacancy() {
     ApiResponse({
       status: 200,
       description: 'Estado actualizado correctamente',
+    }),
+  );
+}
+
+export function ApiGetShortlist() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Obtener el shortlist de candidatos de una vacante',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Shortlist recuperado correctamente',
+      type: ShortlistCandidateDto,
+      isArray: true,
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Vacante no encontrada',
+    }),
+    ApiResponse({
+      status: 403,
+      description: 'No tiene permisos para acceder al shortlist',
+    }),
+  );
+}
+
+export function ApiAddSkillToVacancy() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Add skill to vacancy',
+    }),
+    ApiParam({
+      name: 'id',
+      description: 'Vacancy ID',
+    }),
+    ApiResponse({
+      status: 201,
+      description: 'Skill added to vacancy',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Vacancy or Skill not found',
+    }),
+    ApiResponse({
+      status: 400,
+      description: 'Skill already assigned',
+    }),
+  );
+}
+
+export function ApiGetVacancySkills() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Get vacancy skills',
+    }),
+    ApiParam({
+      name: 'id',
+      description: 'Vacancy ID',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Vacancy skills',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Vacancy not found',
+    }),
+  );
+}
+
+export function ApiRemoveSkillFromVacancy() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Remove skill from vacancy',
+    }),
+    ApiParam({
+      name: 'id',
+      description: 'Vacancy ID',
+    }),
+    ApiParam({
+      name: 'skillId',
+      description: 'Skill ID',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Skill removed',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Vacancy or Skill not found',
     }),
   );
 }

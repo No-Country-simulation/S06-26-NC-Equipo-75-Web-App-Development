@@ -4,8 +4,10 @@ import DataTable, { type Column } from '../../components/organisms/DataTable';
 import SearchBar from '../../components/molecules/SearchBar';
 import FilterTabs from '../../components/molecules/FilterTabs';
 import Button from '../../components/atoms/Button';
+import Modal from '../../components/molecules/Modal';
+import VacancyForm from '../../components/organisms/VacancyForm';
 import { useAuth } from '../../contexts/useAuth';
-import { vacantesService, type Vacante } from '../../services/vacantes.service';
+import { vacantesService, type Vacante, type VacanteCreate } from '../../services/vacantes.service';
 import {
   Briefcase,
   CheckCircle,
@@ -29,6 +31,9 @@ const Vacancies: React.FC = () => {
   const [estadoFilter, setEstadoFilter] = useState<string>('Todos');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  // Modal de creación
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // ---------- Efecto de carga ----------
   useEffect(() => {
@@ -90,6 +95,17 @@ const Vacancies: React.FC = () => {
     } catch (err) {
       console.error('Error al eliminar:', err);
       alert('No se pudo eliminar la vacante.');
+    }
+  };
+
+  const handleCreateVacante = async (data: VacanteCreate) => {
+    try {
+      await vacantesService.create(data);
+      setIsCreateModalOpen(false);   // cierra el modal
+      triggerRefresh();              // recarga la lista
+    } catch (err) {
+      console.error('Error al crear vacante:', err);
+      alert('No se pudo crear la vacante. Intente nuevamente.');
     }
   };
 
@@ -184,7 +200,7 @@ const Vacancies: React.FC = () => {
           Encuentra talento compatible y gestiona cada vacante desde un solo
           lugar.
         </h2>
-        <Button variant="primary" size="medium" className="shrink-0">
+        <Button variant="primary" size="medium" className="shrink-0" onClick={() => setIsCreateModalOpen(true)}>
           <Plus className="h-5 w-5" />
           Crear Vacante
         </Button>
@@ -241,6 +257,20 @@ const Vacancies: React.FC = () => {
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
+
+      {/* MODAL DE CREAR VACANTE */}
+<Modal
+  isOpen={isCreateModalOpen}
+  onClose={() => setIsCreateModalOpen(false)}
+  title="Crear Vacante"
+  maxWidth="md"
+>
+  <VacancyForm
+    onSubmit={handleCreateVacante}
+    isSubmitting={isLoading}
+    onClose={() => setIsCreateModalOpen(false)}
+  />
+</Modal>
     </>
   );
 };

@@ -24,6 +24,14 @@ import {
   ApiUpdateStatusVacancy,
   ApiUpdateVacancy,
   ApiFindVacancyByCompany,
+  ApiGetShortlist,
+} from './vacantes.swagger';
+import { VacanteAddSkillDto } from './dto/vacante-add-skill.dto';
+
+import {
+    ApiAddSkillToVacancy,
+    ApiGetVacancySkills,
+    ApiRemoveSkillFromVacancy,
 } from './vacantes.swagger';
 
 @Controller('vacantes')
@@ -33,56 +41,137 @@ export class VacantesController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiCreateVacancy()
-  create(
+  async create(
     @Req() req: AuthenticatedRequest,
     @Body() vacanteCreateDto: VacanteCreateDto,
   ) {
-    return this.vacantesService.create(req.user.sub, vacanteCreateDto);
+    const vacante = await this.vacantesService.create(
+      req.user.sub,
+      vacanteCreateDto,
+    );
+    const match = await this.vacantesService.runMatch(vacante.id, req.user.sub);
+    return { vacante, match };
+  }
+
+  @Post(':id/match')
+  @UseGuards(JwtAuthGuard)
+  async runMatch(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return await this.vacantesService.runMatch(id, req.user.sub);
+  }
+
+  @Get(':id/match')
+  @UseGuards(JwtAuthGuard)
+  async getMatchCandidatos(
+    @Param('id') vacanteId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return await this.vacantesService.getCandidatosByVancante(
+      vacanteId,
+      req.user.sub,
+    );
+  }
+
+  @Get('shortlist/:vacanteId')
+  @ApiGetShortlist()
+  @UseGuards(JwtAuthGuard)
+  async getShortlist(
+    @Param('vacanteId') vacanteId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return await this.vacantesService.getShortlist(vacanteId, req.user.sub);
   }
 
   @Get()
   @ApiFindAllVacancies()
-  findAll(@Query() filters: VacanteFiltersDto) {
-    return this.vacantesService.findAll(filters);
+  async findAll(@Query() filters: VacanteFiltersDto) {
+    return await this.vacantesService.findAll(filters);
   }
 
   @Get(':id')
   @ApiFindVacancyById()
-  findById(@Param('id') id: string) {
-    return this.vacantesService.findById(id);
+  async findById(@Param('id') id: string) {
+    return await this.vacantesService.findById(id);
   }
 
   @Get('company/:companyId')
   @ApiFindVacancyByCompany()
-  findByCompany(@Param('companyId') companyId: string) {
-    return this.vacantesService.findByCompany(companyId);
+  async findByCompany(@Param('companyId') companyId: string) {
+    return await this.vacantesService.findByCompany(companyId);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiUpdateVacancy()
-  update(
+  async update(
     @Param('id') id: string,
     @Body() vacanteUpdateDto: VacanteUpdateDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.vacantesService.update(id, vacanteUpdateDto, req.user.sub);
+    return await this.vacantesService.update(
+      id,
+      vacanteUpdateDto,
+      req.user.sub,
+    );
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   //@ApiDeleteVacancy()
-  delete(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    return this.vacantesService.delete(id, req.user.sub);
+  async delete(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return await this.vacantesService.delete(id, req.user.sub);
   }
+
   @Patch(':id/status')
   @UseGuards(JwtAuthGuard)
   @ApiUpdateStatusVacancy()
-  updateStatus(
+  async updateStatus(
     @Param('id') id_vacante: string,
     @Body() dto: VacanteUpdateStatusDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.vacantesService.updateStatus(id_vacante, dto, req.user.sub);
+    return await this.vacantesService.updateStatus(
+      id_vacante,
+      dto,
+      req.user.sub,
+    );
   }
+
+  @Post(':id/skills')
+  @UseGuards(JwtAuthGuard)
+  @ApiAddSkillToVacancy()
+  async addSkill(
+    @Param('id') vacanteId: string,
+    @Body() dto: VacanteAddSkillDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return await this.vacantesService.addSkill(
+      vacanteId,
+      dto.skillId,
+      req.user.sub,
+    );
+  }
+
+  @Delete(':id/skills/:skillId')
+  @UseGuards(JwtAuthGuard)
+  @ApiRemoveSkillFromVacancy()
+  async removeSkill(
+    @Param('id') vacanteId: string,
+    @Param('skillId') skillId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return await this.vacantesService.removeSkill(
+      vacanteId,
+      skillId,
+      req.user.sub,
+    );
+  }
+
+  @Get(':id/skills')
+  @ApiGetVacancySkills()
+  async getSkills(
+    @Param('id') vacanteId: string,
+  ) {
+    return await this.vacantesService.getSkills(vacanteId);
+  }
+
 }

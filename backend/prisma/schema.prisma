@@ -170,6 +170,7 @@ model Vacante {
   descripcion     String
 
   nivelRequerido  CandidateLevel
+  experienciaMeses  Int @default(0)
 
   regionId        String
   region          Region @relation(fields: [regionId], references: [id])
@@ -183,6 +184,17 @@ model Vacante {
   matches           Match[]
   procesosSeleccion ProcesoSeleccion[]
 
+  pesos VacantePeso?
+}
+
+model VacantePeso {
+  vacanteId String @id
+
+  pesoSkills       Float @default(0.5)
+  pesoNivel        Float @default(0.3)
+  pesoExperiencia  Float @default(0.2)
+
+  vacante Vacante @relation(fields: [vacanteId], references: [id], onDelete: Cascade)
 }
 
 model VacanteSkill {
@@ -209,7 +221,7 @@ model Match {
   score            Float
   skillsScore      Float
   experienciaScore Float
-  regionScore      Float
+  regionScore      Float //nivelScore
 
   badgeDiversidad Boolean
 

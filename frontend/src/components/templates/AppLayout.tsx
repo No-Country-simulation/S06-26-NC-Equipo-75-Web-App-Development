@@ -28,13 +28,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { user } = useAuth();
   const pageTitle = usePageTitle();
 
-  const userInitials = user?.name
-    ? user.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
+const userInitials = user?.name
+  ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  : user?.email
+    ? user.email.split('@')[0].substring(0, 2).toUpperCase()
     : '??';
 
   return (

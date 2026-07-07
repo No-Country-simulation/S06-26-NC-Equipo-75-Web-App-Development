@@ -50,4 +50,37 @@ export class VacanteCreateDto {
   @IsOptional()
   @IsBoolean()
   antiSesgo?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Experiencia mínima requerida en meses',
+    default: 0,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  experienciaMeses?: number;
+
+  @ApiPropertyOptional({
+    description: 'Peso de las skills en el cálculo del score (0 a 1)',
+    default: 0.5,
+  })
+  @IsOptional()
+  @IsNumber()
+  pesoSkills?: number;
+
+  @ApiPropertyOptional({
+    description: 'Peso del nivel requerido en el cálculo del score (0 a 1)',
+    default: 0.3,
+  })
+  @IsOptional()
+  @IsNumber()
+  pesoNivel?: number;
+
+  @ApiPropertyOptional({
+    description: 'Peso de la experiencia en el cálculo del score (0 a 1)',
+    default: 0,
+  })
+  @IsOptional()
+  @IsNumber()
+  pesoExperiencia?: number;
 }

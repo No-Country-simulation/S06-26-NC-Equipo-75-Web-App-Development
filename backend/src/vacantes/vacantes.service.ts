@@ -9,7 +9,12 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import { Prisma, VacancyStatus } from '@prisma/client';
+import { CandidateLevel, Match, Prisma, VacancyStatus } from '@prisma/client';
+import { ShortlistResponseDto } from './dto/vacanteShortlistCandidate.dto';
+
+const DEFAULT_PESO_SKILLS = 0.5;
+const DEFAULT_PESO_NIVEL = 0.3;
+const DEFAULT_PESO_EXPERIENCIA = 0.2;
 
 @Injectable()
 export class VacantesService {
@@ -53,7 +58,7 @@ export class VacantesService {
       throw new BadRequestException('One or more skills do not exist');
     }
 
-    return this.prisma.vacante.create({
+    const vacante = await this.prisma.vacante.create({
       data: {
         empresaId: usuarioEmpresa.empresaId,
         titulo: dto.titulo,
@@ -63,6 +68,7 @@ export class VacantesService {
         diversidadMinima: dto.diversidadMinima,
         antiSesgo: dto.antiSesgo ?? false,
         estado: VacancyStatus.OPEN,
+        experienciaMeses: dto.experienciaMeses ?? 0,
 
         skills: {
           create: dto.skillIds.map((skillId) => ({
@@ -80,6 +86,16 @@ export class VacantesService {
         region: true,
       },
     });
+
+    await this.prisma.vacantePeso.create({
+      data: {
+        vacanteId: vacante.id,
+        pesoSkills: dto.pesoSkills ?? DEFAULT_PESO_SKILLS,
+        pesoNivel: dto.pesoNivel ?? DEFAULT_PESO_NIVEL,
+        pesoExperiencia: dto.pesoExperiencia ?? DEFAULT_PESO_EXPERIENCIA,
+      },
+    });
+    return vacante;
   }
 
   async delete(idVacante: string, id_usuario: string) {
@@ -121,13 +137,22 @@ export class VacantesService {
 
   async findById(id: string) {
     const vacancy = await this.prisma.vacante.findUnique({
-      where: { id },
+      where: { id: id },
       include: {
-        empresa: true,
         region: true,
         skills: {
           include: {
             skill: true,
+          },
+        },
+        pesos: true,
+        empresa: {
+          include: {
+            gruposDiversidad: {
+              include: {
+                grupo: true,
+              },
+            },
           },
         },
       },
@@ -154,6 +179,205 @@ export class VacantesService {
         },
       },
     });
+  }
+
+  async getCandidatos() {
+    return await this.prisma.candidato.findMany({
+      include: {
+        skills: {
+          include: {
+            skill: true,
+          },
+        },
+        gruposDiversidad: {
+          include: {
+            grupo: true,
+          },
+        },
+        region: true,
+      },
+    });
+  }
+  async getCandidatosByVancante(vacanteId: string, userId: string) {
+    await this.validateUserCompanyAccess(userId, vacanteId);
+
+    return await this.prisma.match.findMany({
+      where: {
+        vacanteId: vacanteId,
+      },
+      orderBy: {
+        score: 'desc',
+      },
+      include: {
+        candidato: true,
+      },
+    });
+  }
+
+  async getShortlist(
+    vacanteId: string,
+    userId: string,
+  ): Promise<ShortlistResponseDto> {
+    await this.validateUserCompanyAccess(userId, vacanteId);
+
+    const matches = await this.prisma.match.findMany({
+      where: { vacanteId },
+      orderBy: { score: 'desc' },
+      include: {
+        candidato: {
+          include: {
+            region: true,
+            skills: {
+              include: {
+                skill: true,
+              },
+            },
+            gruposDiversidad: {
+              include: {
+                grupo: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return {
+      vacanteId,
+      total: matches.length,
+      candidatos: matches.map((match) => ({
+        id: match.candidato.id,
+        nombre: match.candidato.nombre,
+        apellido: match.candidato.apellido,
+        score: match.score,
+
+        skills: match.candidato.skills.map((s) => s.skill.nombre),
+
+        nivel: match.candidato.nivel,
+
+        badges: match.candidato.gruposDiversidad.map((g) => g.grupo.nombre),
+
+        region: match.candidato.region.nombre,
+
+        latitud: match.candidato.region.latitud,
+        longitud: match.candidato.region.longitud,
+      })),
+    };
+  }
+
+  async runMatch(idVacante: string, idUsuario: string) {
+    await this.validateUserCompanyAccess(idUsuario, idVacante);
+
+    const vacancy = await this.findById(idVacante);
+    const candidatos = await this.getCandidatos();
+
+    const empresaGrupos = new Set(
+      vacancy.empresa.gruposDiversidad.map((g) => g.grupoId),
+    );
+
+    const resultados: (Match & { candidato: any })[] = [];
+
+    for (const candidato of candidatos) {
+      const skillsScore = this.calculateSkillsScore(
+        vacancy.skills,
+        candidato.skills,
+      );
+
+      const levelScore = this.calculateLevelScore(
+        vacancy.nivelRequerido,
+        candidato.nivel,
+      );
+
+      const experienceScore = Math.min(
+        candidato.experienciaMeses / vacancy.experienciaMeses,
+        1,
+      );
+
+      const badgeDiversidad = candidato.gruposDiversidad.some((g) =>
+        empresaGrupos.has(g.grupoId),
+      );
+
+      const score =
+        skillsScore * (vacancy.pesos?.pesoSkills ?? DEFAULT_PESO_SKILLS) +
+        levelScore * (vacancy.pesos?.pesoNivel ?? DEFAULT_PESO_NIVEL) +
+        experienceScore *
+          (vacancy.pesos?.pesoExperiencia ?? DEFAULT_PESO_EXPERIENCIA);
+
+      const match = await this.prisma.match.upsert({
+        where: {
+          vacanteId_candidatoId: {
+            vacanteId: idVacante,
+            candidatoId: candidato.id,
+          },
+        },
+        create: {
+          vacanteId: idVacante,
+          candidatoId: candidato.id,
+          score,
+          skillsScore,
+          experienciaScore: experienceScore,
+          regionScore: levelScore, // en el schema lo usan para nivel
+          badgeDiversidad,
+        },
+        update: {
+          score,
+          skillsScore,
+          experienciaScore: experienceScore,
+          regionScore: levelScore,
+          badgeDiversidad,
+        },
+      });
+
+      resultados.push({ ...match, candidato });
+    }
+
+    resultados.sort((a, b) => b.score - a.score);
+
+    return {
+      totalAnalizados: candidatos.length,
+      candidatos: resultados,
+    };
+  }
+
+  private calculateSkillsScore(
+    vacancySkills: any[],
+    candidateSkills: any[],
+  ): number {
+    const requiredSkills = vacancySkills.map((s) => s.skillId);
+
+    const matched = candidateSkills.filter((s) =>
+      requiredSkills.includes(s.skillId),
+    ).length;
+
+    // if (matched === requiredSkills.length) {
+    //   return 1;
+    // }
+
+    // if (matched > 0) {
+    //   return 0.5;
+    // }
+
+    return matched / requiredSkills.length; // 6 match de candidato / 10 skills requeridas = 0.6
+  }
+
+  private calculateLevelScore(
+    required: CandidateLevel,
+    candidate: CandidateLevel,
+  ): number {
+    if (required === candidate) {
+      return 1;
+    }
+
+    const levels = [
+      CandidateLevel.TRAINEE,
+      CandidateLevel.JUNIOR,
+      CandidateLevel.SEMI_SENIOR,
+      CandidateLevel.SENIOR,
+      CandidateLevel.LEAD,
+    ];
+
+    const diff = Math.abs(levels.indexOf(required) - levels.indexOf(candidate));
+
+    return diff === 1 ? 0.5 : 0; // si la diferencia es de un nivel, devuelve 0.5, si es mayor, devuelve 0
   }
 
   async update(id_vacante: string, dto: VacanteUpdateDto, id_usuario: string) {
@@ -236,4 +460,97 @@ export class VacantesService {
 
     return vacancy;
   }
+  async addSkill( vacanteId: string,skillId: string,userId: string,) {
+    await this.validateUserCompanyAccess(
+      userId,
+      vacanteId,
+    );
+
+    const skill =
+      await this.prisma.skill.findUnique({
+        where: { id: skillId },
+      });
+
+    if (!skill) {
+      throw new NotFoundException(
+        'Skill not found',
+      );
+    }
+
+    const existente =
+      await this.prisma.vacanteSkill.findUnique({
+        where: {
+          vacanteId_skillId: {
+            vacanteId,
+            skillId,
+          },
+        },
+      });
+
+    if (existente) {
+      throw new BadRequestException(
+        'Skill already assigned to vacancy',
+      );
+    }
+
+    return this.prisma.vacanteSkill.create({
+      data: {
+        vacanteId,
+        skillId,
+      },
+    });
+  } 
+  
+  async removeSkill(vacanteId: string,skillId: string,userId: string){
+    await this.validateUserCompanyAccess(
+      userId,
+      vacanteId,
+    );
+
+    const relacion =  await this.prisma.vacanteSkill.findUnique({
+      where: {
+        vacanteId_skillId: {
+          vacanteId,
+          skillId,
+        },
+      },
+    });
+
+    if (!relacion) {
+      throw new NotFoundException(
+        'Skill not assigned to vacancy',
+      );
+    }
+
+    return this.prisma.vacanteSkill.delete({
+      where: {
+        vacanteId_skillId: {
+          vacanteId,
+          skillId,
+        },
+      },
+    });
+  }
+
+  async getSkills(vacanteId: string) {
+    const vacante = await this.prisma.vacante.findUnique({
+      where: { id: vacanteId },
+        include: {
+          skills: {
+            include: {
+              skill: true,
+            },
+          },
+        },
+    });
+
+    if (!vacante) {
+      throw new NotFoundException(
+      'Vacancy not found',
+      );
+    }
+
+    return vacante.skills;
+  }
+
 }
