@@ -60,6 +60,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const signup = async (data: {
+    nombre: string;
+    apellido: string;
+    email: string;
+    password: string;
+  }) => {
+    setIsLoading(true);
+
+    try {
+      // Registrar usuario
+      const response = await authService.signup(data);
+
+      // Guardar token
+      localStorage.setItem('access_token', response.accessToken);
+
+      // Obtener usuario completo
+      const fullUser = await authService.getMe();
+
+      const user = {
+        ...response.user,
+        ...fullUser,
+      };
+
+      localStorage.setItem('user', JSON.stringify(user));
+
+      setState({
+        user,
+        isAuthenticated: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
@@ -74,12 +108,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: state.isAuthenticated,
     isLoading,
     login,
+    signup,
     logout,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
