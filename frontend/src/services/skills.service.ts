@@ -7,6 +7,6 @@ export interface Skill {
 
 export const skillsService = {
   async getAll(): Promise<Skill[]> {
-    return apiClient<Skill[]>('/skills'); // o '/habilidades'
+    return apiClient<Skill[]>('/skills');
   },
 };
