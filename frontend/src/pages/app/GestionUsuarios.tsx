@@ -59,8 +59,10 @@ const GestionUsuarios: React.FC = () => {
       const data = await recruiterService.getRecruiters();
       setUsuarios(data);
       setCurrentPage(1);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
+      error('No fue posible cargar los reclutadores.');
+      setUsuarios([]);
     } finally {
       setLoading(false);
     }
