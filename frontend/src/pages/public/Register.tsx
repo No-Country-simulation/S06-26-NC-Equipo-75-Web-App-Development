@@ -5,11 +5,13 @@ import RegisterForm, {
 } from '../../components/organisms/RegisterForm';
 import { useAuth } from '../../contexts/useAuth';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { useToast } from '../../hooks/useToast';
 
 const Register: React.FC = () => {
   const { isAuthenticated, isLoading: authLoading, signup } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { success, error, warning, info } = useToast();
 
   if (isAuthenticated && !authLoading) {
     return <Navigate to="/vacancies" replace />;
@@ -27,7 +29,7 @@ const Register: React.FC = () => {
         password: data.password,
       });
       console.log('Datos de registro:', data);
-      alert('Registro exitoso! Revisa tu correo para confirmar.');
+      success('Registro exitoso! Revisa tu correo para confirmar.');
       navigate('/onboarding/company');
     } catch (error) {
       console.error('Register error:', error);

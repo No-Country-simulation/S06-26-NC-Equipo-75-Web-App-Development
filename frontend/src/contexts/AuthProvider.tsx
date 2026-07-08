@@ -1,5 +1,5 @@
 import React, { useState, type ReactNode } from 'react';
-import { AuthContext, type AuthContextType } from './AuthContextDef';
+import { AuthContext, type AuthContextType } from './uthContext';
 import { authService } from '../services/auth.service';
 
 const initializeAuth = () => {

@@ -5,7 +5,7 @@ import {
   Navigate,
   useMatches,
 } from 'react-router-dom';
-import { AuthProvider } from '../contexts/AuthContext';
+import { AuthProvider } from '../contexts/AuthProvider';
 import { useAuth } from '../contexts/useAuth';
 import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
