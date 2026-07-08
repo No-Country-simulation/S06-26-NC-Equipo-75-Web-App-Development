@@ -14,6 +14,7 @@ import MapaTalento from '../pages/app/MapaTalento';
 import GestionUsuarios from '../pages/app/GestionUsuarios';
 import ReportesESG from '../pages/app/ReportesESG';
 import AppLayout from '../components/templates/AppLayout';
+import {ToastContainer} from 'react-toastify';
 
 // ---------- Layout protegido ----------
 const ProtectedLayout: React.FC = () => {
@@ -135,6 +136,7 @@ const router = createBrowserRouter([
 const AppRouter: React.FC = () => (
   <AuthProvider>
     <RouterProvider router={router} />
+    <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
   </AuthProvider>
 );
 
