@@ -14,9 +14,16 @@ import {
   PauseCircle,
   XCircle,
   Plus,
+  Eye,
 } from 'lucide-react';
 
 const ESTADOS_FILTRO = ['Todos', 'Abierto', 'Pausado', 'Cerrado'] as const;
+
+const ESTADO_MAP: Record<string, string> = {
+  OPEN: 'Abierto',
+  CLOSED: 'Cerrado',
+  PAUSED: 'Pausado',
+};
 
 const Vacancies: React.FC = () => {
   const { user } = useAuth();
@@ -34,6 +41,7 @@ const Vacancies: React.FC = () => {
 
   // Modal de creación
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false); // ← nuevo estado para envío
 
   // ---------- Efecto de carga ----------
   useEffect(() => {
@@ -71,8 +79,7 @@ const Vacancies: React.FC = () => {
     const matchesSearch = vac.titulo
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
-    const matchesEstado =
-      estadoFilter === 'Todos' || vac.estado === estadoFilter;
+    const matchesEstado = estadoFilter === 'Todos' || ESTADO_MAP[vac.estado] === estadoFilter;
     return matchesSearch && matchesEstado;
   });
 
@@ -99,41 +106,46 @@ const Vacancies: React.FC = () => {
   };
 
   const handleCreateVacante = async (data: VacanteCreate) => {
+    setIsCreating(true);
     try {
       await vacantesService.create(data);
-      setIsCreateModalOpen(false);   // cierra el modal
-      triggerRefresh();              // recarga la lista
-    } catch (err) {
-      console.error('Error al crear vacante:', err);
-      alert('No se pudo crear la vacante. Intente nuevamente.');
+      triggerRefresh();                     // actualiza la lista
+      // no cerramos el modal, el formulario lo hará tras el éxito
+    } finally {
+      setIsCreating(false);
     }
   };
 
-  const getEstadoColor = (estado: Vacante['estado']) => {
-    switch (estado) {
-      case 'Abierto':
-        return 'text-badge-success-text bg-badge-success-bg';
-      case 'Pausado':
-        return 'text-badge-warning-text bg-badge-warning-bg';
-      case 'Cerrado':
-        return 'text-badge-error-text bg-badge-error-bg';
-      default:
-        return 'text-text-secondary bg-bg-tertiary';
+  const getEstadoColor = (estado: string) => {
+    const estadoNormalizado = ESTADO_MAP[estado] || estado;
+    switch (estadoNormalizado) {
+      case 'Abierto': return 'text-badge-success-text bg-badge-success-bg';
+      case 'Pausado': return 'text-badge-warning-text bg-badge-warning-bg';
+      case 'Cerrado': return 'text-badge-error-text bg-badge-error-bg';
+      default: return 'text-text-secondary bg-bg-tertiary';
     }
   };
 
   // ---------- Columnas de la tabla ----------
   const columns: Column<Vacante>[] = [
     { key: 'titulo', header: 'Título' },
-    { key: 'nivel', header: 'Nivel', hideOnMobile: true },
-    { key: 'region', header: 'Región', hideOnMobile: true },
+    {
+      key: 'nivel',
+      header: 'Nivel',
+      hideOnMobile: true,
+      render: (vac) => <span>{vac.nivelRequerido || '—'}</span>,
+    },
+    {
+      key: 'region',
+      header: 'Región',
+      hideOnMobile: true,
+      render: (vac) => <span>{vac.region?.nombre || '—'}</span>,
+    },
     {
       key: 'estado',
       header: 'Estado',
       render: (vac) => (
-        <span
-          className={`px-3 py-1 rounded-full text-badge font-bold ${getEstadoColor(vac.estado)}`}
-        >
+        <span className={`px-3 py-1 rounded-full text-badge font-bold ${getEstadoColor(vac.estado)}`}>
           {vac.estado}
         </span>
       ),
@@ -148,7 +160,7 @@ const Vacancies: React.FC = () => {
             title="Ver detalles"
             onClick={() => handleView(vac)}
           >
-            <i className="fas fa-eye" />
+            <Eye className="h-4 w-4" />
           </button>
           <button
             className="text-text-tertiary hover:text-brand-secondary transition-colors"
@@ -208,69 +220,29 @@ const Vacancies: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <KpiCard
-          label="Vacantes totales"
-          value={total}
-          icon={Briefcase}
-          valueClassName="text-text-primary"
-        />
-        <KpiCard
-          label="Abiertas"
-          value={abiertas}
-          icon={CheckCircle}
-          valueClassName="text-badge-success-text"
-        />
-        <KpiCard
-          label="Pausadas"
-          value={pausadas}
-          icon={PauseCircle}
-          valueClassName="text-badge-warning-text"
-        />
-        <KpiCard
-          label="Cerradas"
-          value={cerradas}
-          icon={XCircle}
-          valueClassName="text-badge-error-text"
-        />
+        <KpiCard label="Vacantes totales" value={total} icon={Briefcase} valueClassName="text-text-primary" />
+        <KpiCard label="Abiertas" value={abiertas} icon={CheckCircle} valueClassName="text-badge-success-text" />
+        <KpiCard label="Pausadas" value={pausadas} icon={PauseCircle} valueClassName="text-badge-warning-text" />
+        <KpiCard label="Cerradas" value={cerradas} icon={XCircle} valueClassName="text-badge-error-text" />
       </div>
 
       {/* BUSCADOR Y FILTROS */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-16 mb-6">
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-          placeholder="Buscar vacantes..."
-          className="sm:w-145"
-        />
-        <FilterTabs
-          options={ESTADOS_FILTRO}
-          selected={estadoFilter}
-          onChange={setEstadoFilter}
-        />
+        <SearchBar value={searchTerm} onChange={setSearchTerm} placeholder="Buscar vacantes..." className="sm:w-145" />
+        <FilterTabs options={ESTADOS_FILTRO} selected={estadoFilter} onChange={setEstadoFilter} />
       </div>
 
       {/* TABLA */}
-      <DataTable
-        data={filteredVacantes}
-        columns={columns}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      <DataTable data={filteredVacantes} columns={columns} currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
 
       {/* MODAL DE CREAR VACANTE */}
-<Modal
-  isOpen={isCreateModalOpen}
-  onClose={() => setIsCreateModalOpen(false)}
-  title="Crear Vacante"
-  maxWidth="md"
->
-  <VacancyForm
-    onSubmit={handleCreateVacante}
-    isSubmitting={isLoading}
-    onClose={() => setIsCreateModalOpen(false)}
-  />
-</Modal>
+      <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} title="Crear Vacante" maxWidth="md">
+        <VacancyForm
+          onSubmit={handleCreateVacante}
+          isSubmitting={isCreating}
+          onClose={() => setIsCreateModalOpen(false)}
+        />
+      </Modal>
     </>
   );
 };
