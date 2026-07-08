@@ -14,14 +14,12 @@ const Register: React.FC = () => {
   const { success } = useToast();
 
   if (isAuthenticated && !authLoading) {
-    return <Navigate to="/vacancies" replace />;
+    return <Navigate to="/onboarding/company" replace />;
   }
 
   const handleSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      // Aquí iría la llamada al endpoint de registro
-      // await api.register(data);
       await signup({
         nombre: data.firstName,
         apellido: data.lastName,

@@ -5,7 +5,6 @@ import {
   Navigate,
   useMatches,
 } from 'react-router-dom';
-import { AuthProvider } from '../contexts/AuthProvider';
 import { useAuth } from '../contexts/useAuth';
 import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
@@ -159,10 +158,6 @@ const router = createBrowserRouter([
 ]);
 
 // ---------- Componente principal ----------
-const AppRouter: React.FC = () => (
-  <AuthProvider>
-    <RouterProvider router={router} />
-  </AuthProvider>
-);
+const AppRouter: React.FC = () => <RouterProvider router={router} />;
 
 export default AppRouter;

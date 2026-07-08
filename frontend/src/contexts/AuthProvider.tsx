@@ -69,13 +69,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
 
     try {
-      // Registrar usuario
       const response = await authService.signup(data);
 
-      // Guardar token
+      // guardar JWT
       localStorage.setItem('access_token', response.accessToken);
 
-      // Obtener usuario completo
+      // consultar usuario real
       const fullUser = await authService.getMe();
 
       const user = {
