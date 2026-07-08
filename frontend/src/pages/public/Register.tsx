@@ -11,7 +11,7 @@ const Register: React.FC = () => {
   const { isAuthenticated, isLoading: authLoading, signup } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { success, error, warning, info } = useToast();
+  const { success } = useToast();
 
   if (isAuthenticated && !authLoading) {
     return <Navigate to="/vacancies" replace />;
