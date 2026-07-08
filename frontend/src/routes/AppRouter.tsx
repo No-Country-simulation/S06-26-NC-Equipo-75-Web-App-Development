@@ -5,11 +5,10 @@ import {
   Navigate,
   useMatches,
 } from 'react-router-dom';
-import { AuthProvider } from '../contexts/AuthContext';
 import { useAuth } from '../contexts/useAuth';
 import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
-import RegisterCompany from '../pages/onboarding/Register';
+import RegisterCompany from '../pages/onboarding/RegisterCompany';
 import Dashboard from '../pages/app/Dashboard';
 import Vacancies from '../pages/app/Vacancies';
 import Candidates from '../pages/app/Candidates';
@@ -44,7 +43,11 @@ const ProtectedLayout: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (currentHandle?.roles && user && !currentHandle.roles.includes(user.role)) {
+  if (
+    currentHandle?.roles &&
+    user &&
+    !currentHandle.roles.includes(user.role)
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-secondary">
         <div className="text-center">
@@ -100,7 +103,10 @@ const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: <Dashboard />,
-        handle: { title: 'Dashboard ESG', roles: ['empresa_admin', 'reclutador'] },
+        handle: {
+          title: 'Dashboard ESG',
+          roles: ['empresa_admin', 'reclutador'],
+        },
       },
       {
         path: 'vacancies',
@@ -110,7 +116,7 @@ const router = createBrowserRouter([
       {
         path: 'candidatos',
         element: <Candidates />,
-        handle: { title: 'Candidatos', roles: ['empresa_admin', 'reclutador'] }
+        handle: { title: 'Candidatos', roles: ['empresa_admin', 'reclutador'] },
       },
       {
         path: 'company-management',
@@ -120,13 +126,19 @@ const router = createBrowserRouter([
       {
         path: 'candidatos/:id',
         element: <CandidateProfile />,
-        handle: { title: 'Perfil del Candidato', roles: ['empresa_admin', 'reclutador'] },
+        handle: {
+          title: 'Perfil del Candidato',
+          roles: ['empresa_admin', 'reclutador'],
+        },
       },
       // Nuevas rutas placeholder (Adriel)
       {
         path: 'mapa-talento',
         element: <MapaTalento />,
-        handle: { title: 'Mapa de Talento', roles: ['empresa_admin', 'reclutador'] },
+        handle: {
+          title: 'Mapa de Talento',
+          roles: ['empresa_admin', 'reclutador'],
+        },
       },
       {
         path: 'gestion-usuarios',
@@ -146,10 +158,6 @@ const router = createBrowserRouter([
 ]);
 
 // ---------- Componente principal ----------
-const AppRouter: React.FC = () => (
-  <AuthProvider>
-    <RouterProvider router={router} />
-  </AuthProvider>
-);
+const AppRouter: React.FC = () => <RouterProvider router={router} />;
 
 export default AppRouter;
