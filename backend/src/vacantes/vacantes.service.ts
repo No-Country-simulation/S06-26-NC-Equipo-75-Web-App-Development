@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { CandidateLevel, Match, Prisma, VacancyStatus } from '@prisma/client';
 import { ShortlistResponseDto } from './dto/vacanteShortlistCandidate.dto';
+import { VacanteUpdatePesosDto } from './dto/vacante-update-pesos.dto';
 
 const DEFAULT_PESO_SKILLS = 0.5;
 const DEFAULT_PESO_NIVEL = 0.3;
@@ -551,6 +552,71 @@ export class VacantesService {
     }
 
     return vacante.skills;
+  }
+
+  async getWeights(vacanteId: string) {
+    const pesos = await this.prisma.vacantePeso.findUnique({
+      where: {
+        vacanteId,
+      },
+    });
+
+    if (!pesos) {
+      throw new NotFoundException('Vacancy weights not found');
+    }
+
+    return pesos;
+  }
+
+  async updateWeights(
+    vacanteId: string,
+    dto: VacanteUpdatePesosDto,
+    userId: string,
+  ) {
+    await this.validateUserCompanyAccess(userId, vacanteId);
+
+    const pesosActuales =
+      await this.prisma.vacantePeso.findUnique({
+        where: {
+          vacanteId,
+        },
+      });
+
+    if (!pesosActuales) {
+      throw new NotFoundException(
+        'Vacancy weights not found',
+      );
+    }
+
+    const nuevosPesos = {
+      pesoSkills:
+        dto.pesoSkills ?? pesosActuales.pesoSkills,
+
+      pesoNivel:
+        dto.pesoNivel ?? pesosActuales.pesoNivel,
+
+      pesoExperiencia:
+        dto.pesoExperiencia ??
+        pesosActuales.pesoExperiencia,
+    };
+
+    const suma =
+      nuevosPesos.pesoSkills +
+      nuevosPesos.pesoNivel +
+      nuevosPesos.pesoExperiencia;
+
+    if (Math.abs(suma - 1) > 0.0001) {
+      throw new BadRequestException(
+        'The sum of the weights must be equal to 1',
+      );
+    }
+
+    return await this.prisma.vacantePeso.update({
+      where: {
+        vacanteId,
+      },
+      data: nuevosPesos,
+    });
   }
 
 }
