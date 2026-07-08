@@ -57,6 +57,12 @@ export class EmpresasController {
     return this.empresasService.findById(id);
   }
 
+  @Get(':id/dashboard')
+  @UseGuards(JwtAuthGuard)
+  findDashboard(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.empresasService.findDashboard(id, req.user.sub);
+  }
+
   @Patch(':id/perfil')
   @UseGuards(JwtAuthGuard)
   @ApiUpdateCompanyProfile()
@@ -114,4 +120,3 @@ export class EmpresasController {
     return this.empresasService.delete(req.user.sub);
   }
 }
-
