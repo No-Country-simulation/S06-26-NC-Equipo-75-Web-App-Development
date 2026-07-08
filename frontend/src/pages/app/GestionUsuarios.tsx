@@ -178,21 +178,21 @@ const GestionUsuarios: React.FC = () => {
 
         <KpiCard
           label="Vacantes totales"
-          value={42}
+          value={0}
           icon={User}
           valueClassName="text-badge-success-text"
         />
 
         <KpiCard
           label="Contrataciones"
-          value={43}
+          value={0}
           icon={User}
           valueClassName="text-badge-warning-text"
         />
 
         <KpiCard
           label="Objetivo de Diversidad"
-          value={44}
+          value={0}
           icon={User}
           valueClassName="text-badge-error-text"
         />

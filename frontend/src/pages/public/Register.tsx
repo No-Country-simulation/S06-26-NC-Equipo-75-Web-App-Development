@@ -26,7 +26,7 @@ const Register: React.FC = () => {
         email: data.email,
         password: data.password,
       });
-      console.log('Datos de registro:', data);
+
       success('Registro exitoso! Revisa tu correo para confirmar.');
       navigate('/onboarding/company');
     } catch (error) {
