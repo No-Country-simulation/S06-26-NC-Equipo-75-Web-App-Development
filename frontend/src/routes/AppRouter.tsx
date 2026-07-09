@@ -18,8 +18,6 @@ import CompanyManagement from '../pages/app/CompanyManagement';
 import AppLayout from '../components/templates/AppLayout';
 import CandidateProfile from '../pages/app/CandidateProfile';
 
-// Placeholders nuevos (Adriel)
-import MapaTalento from '../pages/app/MapaTalento';
 import GestionUsuarios from '../pages/app/GestionUsuarios';
 import ReportesESG from '../pages/app/ReportesESG';
 
@@ -137,15 +135,6 @@ const router = createBrowserRouter([
         element: <CandidateProfile />,
         handle: {
           title: 'Perfil del Candidato',
-          roles: ['empresa_admin', 'reclutador'],
-        },
-      },
-      // Nuevas rutas placeholder (Adriel)
-      {
-        path: 'mapa-talento',
-        element: <MapaTalento />,
-        handle: {
-          title: 'Mapa de Talento',
           roles: ['empresa_admin', 'reclutador'],
         },
       },

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Eye, Mail } from 'lucide-react';
+import { Users, Eye, Mail, ArrowLeft } from 'lucide-react';
 import KpiCard from '../../components/molecules/KpiCard';
 import DataTable, { type Column } from '../../components/organisms/DataTable';
 import SearchBar from '../../components/molecules/SearchBar';
@@ -126,8 +126,11 @@ export default function Candidatos() {
             Ejecutado el 25/08/2026 · 14:30 · {total} candidatos
           </p>
         </div>
-        <button className="flex items-center gap-2 rounded-full border border-border-medium bg-bg-primary px-4 py-2 text-label-large font-semibold text-text-primary transition-colors hover:border-brand-secondary hover:text-brand-secondary shrink-0">
-          <Eye className="h-4 w-4" />
+        <button
+          onClick={() => navigate('/vacancies')}
+          className="flex items-center gap-2 rounded-full border border-border-medium bg-bg-primary px-4 py-2 text-label-large font-semibold text-text-primary transition-colors hover:border-brand-secondary hover:text-brand-secondary shrink-0"
+        >
+          <ArrowLeft className="h-4 w-4" />
           Volver a Vacantes
         </button>
       </div>
