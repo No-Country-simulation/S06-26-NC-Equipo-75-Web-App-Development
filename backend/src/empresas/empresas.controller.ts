@@ -60,13 +60,30 @@ export class EmpresasController {
   @Get(':id/dashboard')
   @UseGuards(JwtAuthGuard)
   findDashboard(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    if (!req.user.companyId) {
+      throw new ForbiddenException('User does not belong to any company');
+    }
     return this.empresasService.findDashboard(id, req.user.sub);
   }
 
   @Get(':id/weeklyMatches')
   @UseGuards(JwtAuthGuard)
   getWeeklyMatches(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    if (!req.user.companyId) {
+      throw new ForbiddenException('User does not belong to any company');
+    }
+
     return this.empresasService.getWeeklyMatches(id, req.user.sub);
+  }
+
+  @Get(':id/dashboard/esg')
+  @UseGuards(JwtAuthGuard)
+  findEsgDashboard(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    if (!req.user.companyId) {
+      throw new ForbiddenException('User does not belong to any company');
+    }
+
+    return this.empresasService.findEsgDashboard(id, req.user.sub);
   }
 
   @Patch(':id/perfil')
