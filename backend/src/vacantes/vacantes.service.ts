@@ -9,13 +9,21 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import { CandidateLevel, Match, Prisma, VacancyStatus } from '@prisma/client';
+import { CandidateLevel, Match, Prisma, VacancyStatus, SelectionStatus } from '@prisma/client';
 import { ShortlistResponseDto } from './dto/vacanteShortlistCandidate.dto';
 import { VacanteUpdatePesosDto } from './dto/vacante-update-pesos.dto';
 
 const DEFAULT_PESO_SKILLS = 0.5;
 const DEFAULT_PESO_NIVEL = 0.3;
 const DEFAULT_PESO_EXPERIENCIA = 0.2;
+
+const estados = [
+  SelectionStatus.APPLIED,
+  SelectionStatus.CONTACTED,
+  SelectionStatus.INTERVIEW,
+  SelectionStatus.HIRED,
+  SelectionStatus.REJECTED,
+];
 
 @Injectable()
 export class VacantesService {
@@ -245,7 +253,7 @@ export class VacantesService {
     return {
       vacanteId,
       total: matches.length,
-      candidatos: matches.map((match) => ({
+      candidatos: matches.map((match, index) => ({
         id: match.candidato.id,
         nombre: match.candidato.nombre,
         apellido: match.candidato.apellido,
@@ -261,6 +269,7 @@ export class VacantesService {
 
         latitud: match.candidato.region.latitud,
         longitud: match.candidato.region.longitud,
+        estado: estados[index % estados.length],
       })),
     };
   }
