@@ -78,7 +78,7 @@ export const vacantesService = {
   ): Promise<Vacante> {
     return apiClient<Vacante>(`/vacantes/${id}/status`, {
       method: 'PATCH',
-      body: JSON.stringify({ estado: status }),
+      body: JSON.stringify({ status }),
     });
   },
 };
