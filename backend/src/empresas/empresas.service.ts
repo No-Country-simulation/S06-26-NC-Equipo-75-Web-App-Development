@@ -297,6 +297,62 @@ export class EmpresasService {
     };
   }
 
+  async findBadgeDistribution(companyId: string, userId: string) {
+    const company = await this.prisma.usuarioEmpresa.findFirst({
+      where: {
+        usuarioId: userId,
+        empresaId: companyId,
+      },
+    });
+
+    if (!company) {
+      throw new BadRequestException(
+        'User does not belong to this company',
+      );
+    }
+
+    await this.validateUserCompanyAccess(userId, companyId);
+
+    const totalCandidatesWithBadge =
+      await this.prisma.candidatoGrupoDiversidad.groupBy({
+        by: ['candidatoId'],
+      });
+
+    const categories = await this.prisma.grupoDiversidad.findMany({
+      include: {
+        candidatos: true,
+      },
+      orderBy: {
+        nombre: 'asc',
+      },
+    });
+
+    const totalBadgedCandidates = totalCandidatesWithBadge.length;
+
+    return {
+      totalCandidatesWithBadge: totalBadgedCandidates,
+
+      categories: categories.map((category) => {
+        const candidateCount = category.candidatos.length;
+
+        return {
+          id: category.id,
+          name: category.nombre,
+          candidateCount,
+          percentage:
+            totalBadgedCandidates === 0
+              ? 0
+              : Number(
+                  (
+                    (candidateCount / totalBadgedCandidates) *
+                    PERCENTAGE_MULTIPLIER
+                  ).toFixed(2),
+                ),
+        };
+      }),
+    };
+  }
+
   async findAll() {
     return this.prisma.empresa.findMany({
       include: {
