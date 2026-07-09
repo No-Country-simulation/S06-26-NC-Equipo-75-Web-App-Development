@@ -120,6 +120,7 @@ model Candidato {
   portfolio         String?
 
   regionId          String
+  fechaRegistro DateTime @default(now())
   region            Region @relation(fields: [regionId], references: [id])
 
   skills            CandidatoSkill[]
