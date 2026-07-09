@@ -1,6 +1,9 @@
 import React from 'react';
 import { User } from 'lucide-react';
 import KpiCard from '../../components/molecules/KpiCard';
+import SelectionFunnel from '../../components/organisms/SelectionFunnel';
+import DiversityPieChart from '../../components/organisms/DiversityPieChart';
+import { selectionFunnelMock, diversityMock } from '../../mocks/esg.mock';
 
 const IndicadoresESG: React.FC = () => {
   return (
@@ -41,6 +44,19 @@ const IndicadoresESG: React.FC = () => {
           icon={User}
           valueClassName="text-badge-error-text"
         />
+      </div>
+
+      {/* GRÁFICOS */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <SelectionFunnel data={selectionFunnelMock} />
+
+        <div className="rounded-xl border border-border-light bg-bg-primary p-6 shadow-sm">
+          <h3 className="mb-4 text-h3 font-semibold text-text-primary">
+            Distribución de Badges
+          </h3>
+
+          <DiversityPieChart data={diversityMock} />
+        </div>
       </div>
     </>
   );
