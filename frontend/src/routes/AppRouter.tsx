@@ -12,6 +12,7 @@ import RegisterCompany from '../pages/onboarding/RegisterCompany';
 import Dashboard from '../pages/app/Dashboard';
 import Vacancies from '../pages/app/Vacancies';
 import Candidates from '../pages/app/Candidates';
+import IndicadoresESG from '../pages/app/IndicadoresESG';
 import Home from '../pages/public/Home';
 import CompanyManagement from '../pages/app/CompanyManagement';
 import AppLayout from '../components/templates/AppLayout';
@@ -117,6 +118,14 @@ const router = createBrowserRouter([
         path: 'candidatos',
         element: <Candidates />,
         handle: { title: 'Candidatos', roles: ['empresa_admin', 'reclutador'] },
+      },
+      {
+        path: 'indicadores-esg',
+        element: <IndicadoresESG />,
+        handle: {
+          title: 'Indicadores ESG',
+          roles: ['empresa_admin', 'reclutador'],
+        },
       },
       {
         path: 'company-management',

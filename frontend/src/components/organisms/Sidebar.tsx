@@ -3,13 +3,12 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Briefcase,
-  Users,
-  Map,
   Building2,
   UserCog,
   FileBarChart,
   Settings,
   LogOut,
+  ChartPie,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/useAuth';
 
@@ -42,17 +41,10 @@ const ALL_NAV_ITEMS: NavItem[] = [
     roles: ['empresa_admin', 'reclutador'],
   },
   {
-    id: 'candidatos',
-    label: 'Candidatos',
-    icon: Users,
-    to: '/candidatos',
-    roles: ['empresa_admin', 'reclutador'],
-  },
-  {
-    id: 'mapa-talento',
-    label: 'Mapa de Talento',
-    icon: Map,
-    to: '/mapa-talento',
+    id: 'indicadores-esg',
+    label: 'Indicadores ESG',
+    icon: ChartPie,
+    to: '/indicadores-esg',
     roles: ['empresa_admin', 'reclutador'],
   },
   {
