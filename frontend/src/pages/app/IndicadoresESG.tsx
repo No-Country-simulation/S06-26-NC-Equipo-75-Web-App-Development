@@ -1,7 +1,8 @@
 import React from 'react';
-import { User } from 'lucide-react';
+import { ChartPie } from 'lucide-react';
 import KpiCard from '../../components/molecules/KpiCard';
 import SelectionFunnel from '../../components/organisms/SelectionFunnel';
+import AbandonmentRateChart from '../../components/organisms/AbandonmentRateChart';
 import DiversityPieChart from '../../components/organisms/DiversityPieChart';
 import { selectionFunnelMock, diversityMock } from '../../mocks/esg.mock';
 
@@ -18,45 +19,53 @@ const IndicadoresESG: React.FC = () => {
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <KpiCard
-          label="Reclutadores totales"
-          value={77}
-          icon={User}
+          label="% Diversos Contactados"
+          value={25}
+          icon={ChartPie}
           valueClassName="text-text-primary"
         />
 
         <KpiCard
-          label="Vacantes totales"
+          label="% Diversos Contratados"
           value={42}
-          icon={User}
+          icon={ChartPie}
           valueClassName="text-badge-success-text"
         />
 
         <KpiCard
-          label="Contrataciones"
-          value={43}
-          icon={User}
+          label="% Diversidad Promedio"
+          value={36}
+          icon={ChartPie}
           valueClassName="text-badge-warning-text"
         />
 
         <KpiCard
-          label="Objetivo de Diversidad"
-          value={44}
-          icon={User}
+          label="% Abandono"
+          value={68}
+          icon={ChartPie}
           valueClassName="text-badge-error-text"
         />
       </div>
 
       {/* GRÁFICOS */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      {/* FILA 1 */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
         <SelectionFunnel data={selectionFunnelMock} />
 
-        <div className="rounded-xl border border-border-light bg-bg-primary p-6 shadow-sm">
-          <h3 className="mb-4 text-h3 font-semibold text-text-primary">
-            Distribución de Badges
-          </h3>
+        <AbandonmentRateChart data={selectionFunnelMock} />
+      </div>
 
-          <DiversityPieChart data={diversityMock} />
-        </div>
+      {/* FILA 2 */}
+      <div className="rounded-xl border border-border-light bg-bg-primary p-6 shadow-sm">
+        <h3 className="mb-2 text-h2 font-semibold text-text-primary">
+          Distribución de Badges
+        </h3>
+
+        <p className="mb-8 text-body-large text-text-secondary">
+          Distribución de candidatos según sus categorías de diversidad.
+        </p>
+
+        <DiversityPieChart data={diversityMock} />
       </div>
     </>
   );
