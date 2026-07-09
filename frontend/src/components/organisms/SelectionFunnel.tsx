@@ -43,13 +43,13 @@ const SelectionFunnel: React.FC<SelectionFunnelProps> = ({
                   title={stage.stage}
                   value={stage.value}
                   width={width}
-                  colorClassName={stageColors[index]}
+                  colorClassName={stageColors[index % stageColors.length]}
                 />
               </div>
 
               {index < data.length - 1 && stage.conversion !== undefined && (
                 <div className="flex justify-center">
-                  <FunnelBadge value={stage.conversion} />
+                  <FunnelBadge value={stage.conversion} label="conversión" />
                 </div>
               )}
             </React.Fragment>

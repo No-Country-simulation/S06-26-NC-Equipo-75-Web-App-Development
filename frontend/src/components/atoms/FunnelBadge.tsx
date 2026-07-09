@@ -25,7 +25,7 @@ const FunnelBadge: React.FC<FunnelBadgeProps> = ({ value, label }) => {
       <TrendingDown size={14} strokeWidth={2.5} />
 
       <span>
-        {value}% {label}
+        {value}%{label ? ` ${label}` : ''}
       </span>
     </div>
   );

@@ -16,15 +16,50 @@ const AbandonmentRateChart: React.FC<AbandonmentRateChartProps> = ({
   description = 'Identifica en qué etapa del proceso se pierde la mayor cantidad de candidatos.',
   data,
 }) => {
-  if (data.length < 2) return null;
+  // Estado sin datos suficientes
+  if (data.length < 2) {
+    return (
+      <section className="rounded-xl border border-border-light bg-bg-primary p-6 shadow-sm">
+        <header className="text-center">
+          <h3 className="mb-2 text-h2 font-semibold text-text-primary">
+            {title}
+          </h3>
+
+          <p className="text-body-large text-text-secondary">
+            No hay suficientes datos para calcular la tasa de abandono.
+          </p>
+        </header>
+      </section>
+    );
+  }
 
   // El primer valor (Shortlist) es la referencia
   const shortlist = data[0].value;
 
+  // Evitamos división por cero
+  if (shortlist <= 0) {
+    return (
+      <section className="rounded-xl border border-border-light bg-bg-primary p-6 shadow-sm">
+        <header className="text-center">
+          <h3 className="mb-2 text-h2 font-semibold text-text-primary">
+            {title}
+          </h3>
+
+          <p className="text-body-large text-text-secondary">
+            No existen candidatos en shortlist para calcular abandonos.
+          </p>
+        </header>
+      </section>
+    );
+  }
+
   // Calculamos el % que llega a cada etapa
   const stages = data.map((stage) => ({
     ...stage,
-    percentage: Math.round((stage.value / shortlist) * 100),
+    percentage: Math.min(
+      100,
+      Math.max(0, Math.round((stage.value / shortlist) * 100)),
+    ),
   }));
 
   // Calculamos el abandono entre etapas
@@ -33,14 +68,16 @@ const AbandonmentRateChart: React.FC<AbandonmentRateChartProps> = ({
 
     return {
       stage: stage.stage.toUpperCase(),
-      value: previousPercentage - stage.percentage,
+      value: Math.max(0, previousPercentage - stage.percentage),
     };
   });
 
-  // Buscamos la etapa con mayor abandono
-  const worstStage = abandonmentStages.reduce((max, current) =>
-    current.value > max.value ? current : max,
-  );
+  // Seguridad extra por si no hay etapas de abandono
+  const worstStage = abandonmentStages.length
+    ? abandonmentStages.reduce((max, current) =>
+        current.value > max.value ? current : max,
+      )
+    : null;
 
   const formatStage = (stage: string) =>
     stage.charAt(0).toUpperCase() + stage.slice(1).toLowerCase();
@@ -65,18 +102,20 @@ const AbandonmentRateChart: React.FC<AbandonmentRateChartProps> = ({
             key={stage.stage}
             stage={stage.stage}
             percentage={stage.percentage}
-            colorClassName={stageColors[index]}
+            colorClassName={stageColors[index % stageColors.length]}
           />
         ))}
       </div>
 
       {/* Mensaje */}
-      <div className="mt-8">
-        <AlertMessage
-          title={`El problema está en la etapa de ${formatStage(worstStage.stage)}.`}
-          description={`El ${worstStage.value}% de los candidatos abandonan el proceso durante la etapa de ${formatStage(worstStage.stage.toLowerCase())}.`}
-        />
-      </div>
+      {worstStage && (
+        <div className="mt-8">
+          <AlertMessage
+            title={`El problema está en la etapa de ${formatStage(worstStage.stage)}.`}
+            description={`El ${worstStage.value}% de los candidatos abandonan el proceso durante la etapa de ${formatStage(worstStage.stage)}.`}
+          />
+        </div>
+      )}
     </section>
   );
 };

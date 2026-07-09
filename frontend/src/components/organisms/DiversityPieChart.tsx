@@ -55,10 +55,10 @@ export default function DiversityPieChart({ data }: Props) {
                 }}
               />
 
-              <span className="text-sm text-gray-700">{item.name}</span>
+              <span className="text-sm text-text-secondary">{item.name}</span>
             </div>
 
-            <span className="text-sm font-semibold text-gray-900">
+            <span className="text-sm font-semibold text-text-primary">
               {item.value}%
             </span>
           </div>
