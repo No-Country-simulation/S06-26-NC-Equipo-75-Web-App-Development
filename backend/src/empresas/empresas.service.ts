@@ -528,4 +528,56 @@ export class EmpresasService {
       },
     });
   }
+
+  async findVacancyMetrics(
+    companyId: string,
+    userId: string,
+  ) {
+    await this.validateUserCompanyAccess(
+      userId,
+      companyId,
+    );
+
+    const [
+      total,
+      open,
+      closed,
+      paused,
+    ] = await Promise.all([
+      this.prisma.vacante.count({
+        where: {
+          empresaId: companyId,
+        },
+      }),
+
+      this.prisma.vacante.count({
+        where: {
+          empresaId: companyId,
+          estado: VacancyStatus.OPEN,
+        },
+      }),
+
+      this.prisma.vacante.count({
+        where: {
+          empresaId: companyId,
+          estado: VacancyStatus.CLOSED,
+        },
+      }),
+
+      this.prisma.vacante.count({
+        where: {
+          empresaId: companyId,
+          estado: VacancyStatus.PAUSED,
+        },
+      }),
+    ]);
+
+    return {
+      total,
+      open,
+      closed,
+      paused,
+    };
+  }  
+
 }

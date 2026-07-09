@@ -23,6 +23,7 @@ import {
   ApiFindAllCompanies,
   ApiFindCompanyById,
   ApiUpdateCompanyProfile,
+  ApiVacancyMetrics,
 } from './empresas.swagger';
 import { EmpresaGrupoDiversidadDto } from './dto/empresa-grupo-diversidad.dto';
 
@@ -64,6 +65,25 @@ export class EmpresasController {
       throw new ForbiddenException('User does not belong to any company');
     }
     return this.empresasService.findDashboard(id, req.user.sub);
+  }
+
+  @Get(':id/dashboard/vacancies')
+  @ApiVacancyMetrics()
+  @UseGuards(JwtAuthGuard)
+  findVacancyMetrics(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (!req.user.companyId) {
+      throw new ForbiddenException(
+        'User does not belong to any company',
+      );
+    }
+
+    return this.empresasService.findVacancyMetrics(
+      id,
+      req.user.sub,
+    );
   }
 
   @Get(':id/weeklyMatches')

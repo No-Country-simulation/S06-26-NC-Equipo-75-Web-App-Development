@@ -67,3 +67,20 @@ export function ApiUpdateCompanyProfile() {
     }),
   );
 }
+
+export function ApiVacancyMetrics() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Get vacancy metrics',
+    }),
+    ApiParam({
+      name: 'id',
+      description: 'Company ID',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Vacancy metrics',
+    }),
+  );
+}
