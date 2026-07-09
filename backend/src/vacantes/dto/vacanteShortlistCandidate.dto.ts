@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CandidateLevel } from '@prisma/client';
+import { CandidateLevel, SelectionStatus } from '@prisma/client';
 
 export class ShortlistCandidateDto {
   @ApiProperty({
@@ -62,6 +62,13 @@ export class ShortlistCandidateDto {
     example: -58.3816,
   })
   longitud?: number;
+
+  @ApiProperty({
+    enum: SelectionStatus,
+    description: 'Estado de selección del candidato',
+    example: SelectionStatus.APPLIED,
+  })
+  estado?: SelectionStatus;
 }
 
 export class ShortlistResponseDto {
