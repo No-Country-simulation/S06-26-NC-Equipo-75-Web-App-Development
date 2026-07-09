@@ -3,7 +3,6 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Briefcase,
-  Users,
   Building2,
   UserCog,
   FileBarChart,
