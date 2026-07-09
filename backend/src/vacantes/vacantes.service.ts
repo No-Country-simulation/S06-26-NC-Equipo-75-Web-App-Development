@@ -250,26 +250,78 @@ export class VacantesService {
         },
       },
     });
+
+    const total = matches.length;
+
+    const averageScore =
+      total === 0
+        ? 0
+        : Number(
+            (
+              matches.reduce((sum, m) => sum + m.score, 0) /
+              total
+            ).toFixed(2),
+          );
+
+    const topScore =
+      total === 0
+        ? 0
+        : Math.max(...matches.map((m) => m.score));
+
+    const lowestScore =
+      total === 0
+        ? 0
+        : Math.min(...matches.map((m) => m.score));
+
+    const diversityCandidates =
+      matches.filter((m) => m.badgeDiversidad).length;
+
+    const diversityPercentage =
+      total === 0
+        ? 0
+        : Number(
+            (
+              (diversityCandidates / total) *
+              100
+            ).toFixed(2),
+          );
     return {
       vacanteId,
-      total: matches.length,
+
+      total,
+
+      metrics: {
+        averageScore,
+        topScore,
+        lowestScore,
+        diversityCandidates,
+        diversityPercentage,
+      },
+
       candidatos: matches.map((match, index) => ({
         id: match.candidato.id,
         nombre: match.candidato.nombre,
         apellido: match.candidato.apellido,
         score: match.score,
 
-        skills: match.candidato.skills.map((s) => s.skill.nombre),
+        skills: match.candidato.skills.map(
+          (s) => s.skill.nombre,
+        ),
 
         nivel: match.candidato.nivel,
 
-        badges: match.candidato.gruposDiversidad.map((g) => g.grupo.nombre),
+        badges:
+          match.candidato.gruposDiversidad.map(
+            (g) => g.grupo.nombre,
+          ),
 
         region: match.candidato.region.nombre,
 
         latitud: match.candidato.region.latitud,
         longitud: match.candidato.region.longitud,
-        estado: estados[index % estados.length],
+
+        estado:
+          estados[index % estados.length],
       })),
     };
   }
