@@ -70,6 +70,11 @@ const Vacancies: React.FC = () => {
   const [matchResult, setMatchResult] = useState<ShortlistResponse | null>(null);
   const [isMatching, setIsMatching] = useState(false);
 
+  // Filtros del shortlist
+  const [matchScoreMin, setMatchScoreMin] = useState(0);
+  const [matchSoloBadge, setMatchSoloBadge] = useState(false);
+  const [matchRegion, setMatchRegion] = useState('');
+
   // ---------- Efecto de carga ----------
   useEffect(() => {
     let cancelled = false;
@@ -164,6 +169,9 @@ const Vacancies: React.FC = () => {
     setIsMatching(true);
     setMatchResult(null);
     setMatchingVacante(vac);
+    setMatchScoreMin(0);
+    setMatchSoloBadge(false);
+    setMatchRegion('');
     try {
       const result = await vacantesService.executeMatch(vac.id);
       setMatchResult(result);
@@ -184,6 +192,22 @@ const Vacancies: React.FC = () => {
       default: return 'text-text-secondary bg-bg-tertiary';
     }
   };
+
+  // ---------- Filtrado de shortlist ----------
+  const matchCandidatosFiltrados = matchResult
+    ? matchResult.match.candidatos
+        .filter((c) => c.score * 100 >= matchScoreMin)
+        .filter((c) => !matchSoloBadge || c.badgeDiversidad)
+        .filter((c) => !matchRegion || c.candidato.region?.nombre === matchRegion)
+    : [];
+
+  const pctBadge = matchResult
+    ? Math.round(
+        (matchResult.match.candidatos.filter((c) => c.badgeDiversidad).length /
+          matchResult.match.candidatos.length) *
+          100
+      )
+    : 0;
 
   // ---------- Columnas de la tabla ----------
   const columns: Column<Vacante>[] = [
@@ -367,15 +391,19 @@ const Vacancies: React.FC = () => {
       {/* MODAL DE MATCHING */}
       <Modal
         isOpen={!!matchResult || isMatching}
-        onClose={() => { setMatchResult(null); setIsMatching(false); }}
+        onClose={() => {
+          setMatchResult(null);
+          setIsMatching(false);
+        }}
         title={`Resultados para: ${matchingVacante?.titulo || ''}`}
-        maxWidth="lg"
+        maxWidth="xl"
       >
         {isMatching && (
           <div className="flex justify-center py-8">
             <div className="animate-spin h-8 w-8 border-4 border-brand-secondary border-t-transparent rounded-full" />
           </div>
         )}
+
         {matchResult && matchResult.match.candidatos.length === 0 && (
           <div className="text-center py-8">
             <p className="text-body-medium text-text-secondary mb-2">
@@ -386,54 +414,115 @@ const Vacancies: React.FC = () => {
             </p>
           </div>
         )}
+
         {matchResult && matchResult.match.candidatos.length > 0 && (
-          <DataTable
-            data={matchResult.match.candidatos}
-            columns={[
-              {
-                key: 'score',
-                header: 'Score',
-                render: (c) => <span className="font-bold text-text-primary">{(c.score * 100).toFixed(0)}%</span>,
-              },
-              {
-                key: 'nombre',
-                header: 'Nombre',
-                render: (c) => <span>{c.candidato.nombre} {c.candidato.apellido}</span>,
-              },
-              {
-                key: 'nivel',
-                header: 'Nivel',
-                render: (c) => <span>{c.candidato.nivel}</span>,
-              },
-              {
-                key: 'region',
-                header: 'Región',
-                render: (c) => <span>{c.candidato.region?.nombre || '—'}</span>,
-              },
-              {
-                key: 'skills',
-                header: 'Habilidades',
-                render: (c) => (
-                  <span className="text-body-small text-text-secondary">
-                    {c.candidato.skills?.map((s) => s.skill.nombre).join(', ') || '—'}
-                  </span>
-                ),
-              },
-              {
-                key: 'diversidad',
-                header: 'Diversidad',
-                render: (c) => (
-                  <Badge
-                    label={c.badgeDiversidad ? 'Sí' : 'No'}
-                    className={c.badgeDiversidad ? 'bg-badge-success-bg text-badge-success-text' : 'bg-bg-tertiary text-text-secondary'}
-                  />
-                ),
-              },
-            ]}
-            currentPage={1}
-            totalPages={1}
-            onPageChange={() => {}}
-          />
+          <div className="space-y-4">
+            {/* Indicador de diversidad */}
+            <div className="flex items-center gap-2 rounded-lg bg-bg-secondary p-3">
+              <Users className="h-5 w-5 text-brand-secondary" />
+              <span className="text-body-medium text-text-primary font-medium">
+                {pctBadge}% de candidatos con badge de diversidad
+              </span>
+            </div>
+
+            {/* Filtros */}
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-label-small text-text-secondary">Score mín:</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={matchScoreMin}
+                  onChange={(e) => setMatchScoreMin(Number(e.target.value) || 0)}
+                  className="w-20 rounded-lg border border-input-border bg-input-bg px-2 py-1 text-body-small outline-none focus:border-input-focus"
+                />
+              </div>
+              <button
+                onClick={() => setMatchSoloBadge(!matchSoloBadge)}
+                className={`rounded-full px-3 py-1 text-label-small font-medium transition-colors ${
+                  matchSoloBadge ? 'bg-brand-secondary text-white' : 'bg-bg-tertiary text-text-secondary'
+                }`}
+              >
+                Solo con badge
+              </button>
+              <select
+                value={matchRegion}
+                onChange={(e) => setMatchRegion(e.target.value)}
+                className="rounded-lg border border-input-border bg-input-bg px-2 py-1 text-body-small outline-none focus:border-input-focus"
+              >
+                <option value="">Todas las regiones</option>
+                {[
+                  ...new Set(
+                    matchResult.match.candidatos
+                      .map((c) => c.candidato.region?.nombre)
+                      .filter(Boolean)
+                  ),
+                ].map((reg) => (
+                  <option key={reg} value={reg}>
+                    {reg}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Tabla */}
+            <DataTable
+              data={matchCandidatosFiltrados}
+              columns={[
+                {
+                  key: 'score',
+                  header: 'Score',
+                  render: (c) => (
+                    <span className="font-bold text-text-primary">
+                      {(c.score * 100).toFixed(0)}%
+                    </span>
+                  ),
+                },
+                {
+                  key: 'nombre',
+                  header: 'Nombre',
+                  render: (c) => (
+                    <span>
+                      {c.candidato.nombre} {c.candidato.apellido}
+                    </span>
+                  ),
+                },
+                { key: 'nivel', header: 'Nivel', render: (c) => <span>{c.candidato.nivel}</span> },
+                {
+                  key: 'region',
+                  header: 'Región',
+                  render: (c) => <span>{c.candidato.region?.nombre || '—'}</span>,
+                },
+                {
+                  key: 'skills',
+                  header: 'Habilidades',
+                  render: (c) => (
+                    <span className="text-body-small text-text-secondary">
+                      {c.candidato.skills?.map((s) => s.skill.nombre).join(', ') || '—'}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'diversidad',
+                  header: 'Diversidad',
+                  render: (c) => (
+                    <Badge
+                      label={c.badgeDiversidad ? 'Sí' : 'No'}
+                      className={
+                        c.badgeDiversidad
+                          ? 'bg-badge-success-bg text-badge-success-text'
+                          : 'bg-bg-tertiary text-text-secondary'
+                      }
+                    />
+                  ),
+                },
+              ]}
+              currentPage={1}
+              totalPages={1}
+              onPageChange={() => {}}
+            />
+          </div>
         )}
       </Modal>
     </>
