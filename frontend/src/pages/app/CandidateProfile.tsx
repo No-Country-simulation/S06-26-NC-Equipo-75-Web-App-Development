@@ -20,6 +20,7 @@ export default function CandidateProfile() {
   const [candidato, setCandidato] = useState<Candidato | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [estadoLocal, setEstadoLocal] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -39,6 +40,8 @@ export default function CandidateProfile() {
 
   if (error || !candidato)
     return <div className="text-center pt-10 text-text-secondary">Candidato no encontrado.</div>;
+
+  const estadoActual = estadoLocal || candidato.estado;
 
   return (
     <div className="space-y-6">
@@ -61,7 +64,32 @@ export default function CandidateProfile() {
             <p className="text-body-medium text-text-secondary">Score: {candidato.score}%</p>
           </div>
         </div>
-        <Badge label={candidato.estado} className="bg-badge-esg-bg text-badge-esg-text" />
+        <Badge label={estadoActual} className="bg-badge-esg-bg text-badge-esg-text" />
+      </div>
+
+      {/* Desglose del score */}
+      <div className="rounded-xl border border-border-light bg-bg-primary p-5 shadow-sm">
+        <h2 className="text-h3 font-semibold text-text-primary mb-4">Desglose del Score</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="rounded-lg bg-bg-secondary p-4 text-center">
+            <p className="text-metric-label text-text-secondary">Skills</p>
+            <p className="text-metric-large font-bold text-text-primary mt-1">
+              {candidato.skillsScore ? `${(candidato.skillsScore * 100).toFixed(0)}%` : '—'}
+            </p>
+          </div>
+          <div className="rounded-lg bg-bg-secondary p-4 text-center">
+            <p className="text-metric-label text-text-secondary">Experiencia</p>
+            <p className="text-metric-large font-bold text-text-primary mt-1">
+              {candidato.experienciaScore ? `${(candidato.experienciaScore * 100).toFixed(0)}%` : '—'}
+            </p>
+          </div>
+          <div className="rounded-lg bg-bg-secondary p-4 text-center">
+            <p className="text-metric-label text-text-secondary">Región</p>
+            <p className="text-metric-large font-bold text-text-primary mt-1">
+              {candidato.regionScore ? `${(candidato.regionScore * 100).toFixed(0)}%` : '—'}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Información general */}
@@ -102,7 +130,6 @@ export default function CandidateProfile() {
       {/* Diversidad e Inclusión */}
       <div className="rounded-xl border border-border-light bg-bg-primary p-5 shadow-sm space-y-4">
         <h2 className="text-h3 font-semibold text-text-primary">Diversidad e Inclusión</h2>
-
         <div className="space-y-3">
           {[
             'Mujer en área tecnológica o STEM',
@@ -122,7 +149,6 @@ export default function CandidateProfile() {
             </label>
           ))}
         </div>
-
         <p className="text-body-small text-text-tertiary italic">
           Esta información es voluntaria. Solo se muestra como etiqueta en procesos de selección con metas de inclusión. No afecta tu puntuación de compatibilidad.
         </p>
@@ -131,16 +157,35 @@ export default function CandidateProfile() {
       {/* Consentimiento de ubicación */}
       <div className="rounded-xl border border-border-light bg-bg-primary p-5 shadow-sm space-y-4">
         <h2 className="text-h3 font-semibold text-text-primary">Privacidad de ubicación</h2>
-        
         <Toggle
           checked={candidato.consentimientoUbicacion}
-          onChange={() => {}} // solo lectura para el reclutador
+          onChange={() => {}}
           label="Permitir que las empresas vean mi ubicación aproximada en el mapa de talento. Tu dirección exacta nunca se comparte."
         />
-
         <p className="text-body-small text-text-tertiary italic">
           Estado actual: {candidato.consentimientoUbicacion ? 'Activado' : 'Desactivado'}
         </p>
+      </div>
+
+      {/* Iniciar Contacto */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => {
+            if (estadoActual === 'Contactado') {
+              alert('Este candidato ya fue contactado.');
+              return;
+            }
+            setEstadoLocal('Contactado');
+          }}
+          disabled={estadoActual === 'Contactado'}
+          className={`rounded-full px-5 py-2 text-button-medium font-semibold transition-colors ${
+            estadoActual === 'Contactado'
+              ? 'bg-bg-tertiary text-text-secondary cursor-not-allowed'
+              : 'bg-brand-secondary text-white hover:bg-teal-600'
+          }`}
+        >
+          {estadoActual === 'Contactado' ? 'Contactado ✓' : 'Iniciar Contacto'}
+        </button>
       </div>
 
       {/* Indicador de completitud */}
