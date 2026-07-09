@@ -578,6 +578,97 @@ export class EmpresasService {
       closed,
       paused,
     };
-  }  
+  }
+  
+  async findSelectionFunnel(
+    companyId: string,
+    userId: string,
+  ) {
+    await this.validateUserCompanyAccess(
+      userId,
+      companyId,
+    );
+
+    const vacantes = await this.prisma.vacante.findMany({
+      where: {
+        empresaId: companyId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const vacancyIds = vacantes.map((v) => v.id);
+
+    const [
+      shortlist,
+      contacted,
+      interview,
+      hired,
+    ] = await Promise.all([
+      this.prisma.match.count({
+        where: {
+          vacanteId: {
+            in: vacancyIds,
+          },
+        },
+      }),
+
+      this.prisma.procesoSeleccion.count({
+        where: {
+          vacanteId: {
+            in: vacancyIds,
+          },
+          estado: SelectionStatus.CONTACTED,
+        },
+      }),
+
+      this.prisma.procesoSeleccion.count({
+        where: {
+          vacanteId: {
+            in: vacancyIds,
+          },
+          estado: SelectionStatus.INTERVIEW,
+        },
+      }),
+
+      this.prisma.procesoSeleccion.count({
+        where: {
+          vacanteId: {
+            in: vacancyIds,
+          },
+          estado: SelectionStatus.HIRED,
+        },
+      }),
+    ]);
+
+    return {
+      shortlist,
+      contacted,
+      interview,
+      hired,
+
+      shortlistToContact:
+        shortlist === 0
+          ? 0
+          : Number(((contacted / shortlist) * 100).toFixed(2)),
+
+      contactToInterview:
+        contacted === 0
+          ? 0
+          : Number(((interview / contacted) * 100).toFixed(2)),
+
+      interviewToHire:
+        interview === 0
+          ? 0
+          : Number(((hired / interview) * 100).toFixed(2)),
+
+      overallConversion:
+        shortlist === 0
+          ? 0
+          : Number(((hired / shortlist) * 100).toFixed(2)),
+    };
+  }
+
 
 }

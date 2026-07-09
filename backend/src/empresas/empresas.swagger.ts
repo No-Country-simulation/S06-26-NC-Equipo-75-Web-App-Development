@@ -84,3 +84,20 @@ export function ApiVacancyMetrics() {
     }),
   );
 }
+
+export function ApiSelectionFunnel() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Get company selection funnel',
+    }),
+    ApiParam({
+      name: 'id',
+      description: 'Company ID',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Selection funnel metrics',
+    }),
+  );
+}

@@ -24,6 +24,7 @@ import {
   ApiFindCompanyById,
   ApiUpdateCompanyProfile,
   ApiVacancyMetrics,
+  ApiSelectionFunnel,
 } from './empresas.swagger';
 import { EmpresaGrupoDiversidadDto } from './dto/empresa-grupo-diversidad.dto';
 
@@ -174,4 +175,24 @@ export class EmpresasController {
     }
     return this.empresasService.delete(req.user.sub);
   }
+
+  @Get(':id/dashboard/funnel')
+  @ApiSelectionFunnel()
+  @UseGuards(JwtAuthGuard)
+  findSelectionFunnel(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (!req.user.companyId) {
+      throw new ForbiddenException(
+        'User does not belong to any company',
+      );
+    }
+
+    return this.empresasService.findSelectionFunnel(
+      id,
+      req.user.sub,
+    );
+  }
+
 }
