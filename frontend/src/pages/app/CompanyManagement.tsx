@@ -11,6 +11,8 @@ import Button from '../../components/atoms/Button';
 import Input from '../../components/atoms/Input';
 import InputField from '../../components/molecules/InputField';
 import AppLayout from '../../components/templates/AppLayout';
+import { useCompanyProfile } from '../../hooks/useCompanyProfile';
+import type { CreateEmpresaPerfilPayload } from '../../services/empresas.service';
 
 interface CompanyFormData {
   companyName: string;
@@ -46,6 +48,7 @@ const CompanyManagement: React.FC = () => {
     useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [savedSummary, setSavedSummary] = useState<string>('');
+  const { submit, isLoading } = useCompanyProfile();
 
   const handleCompanyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -111,8 +114,19 @@ const CompanyManagement: React.FC = () => {
     setSavedSummary('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const payload: CreateEmpresaPerfilPayload = {
+      nombre: formData.companyName,
+      industria: formData.industry,
+      pais: formData.country,
+      ciudad: formData.city,
+      objetivoDiversidad: minimumDiversity,
+      sitioWeb: formData.website,
+    };
+
+    await submit(payload);
     setSavedSummary(
       `Configuracion ESG guardada para ${formData.companyName || 'la empresa'}.`,
     );
@@ -211,7 +225,7 @@ const CompanyManagement: React.FC = () => {
               >
                 Cancelar
               </Button>
-              <Button type="submit" variant="primary" size="medium">
+              <Button type="submit" variant="primary" size="medium" isLoading={isLoading}>
                 Guardar
               </Button>
             </div>
