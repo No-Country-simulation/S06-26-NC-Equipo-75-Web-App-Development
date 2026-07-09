@@ -7,9 +7,10 @@ export interface LoginRequest {
 }
 
 export interface SignupRequest {
+  nombre: string;
+  apellido: string;
   email: string;
   password: string;
-  name: string;
 }
 
 export interface AuthResponse {
@@ -37,7 +38,7 @@ function parseJwt(token: string): {
     atob(base64)
       .split('')
       .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-      .join('')
+      .join(''),
   );
   return JSON.parse(jsonPayload);
 }
@@ -47,6 +48,14 @@ const ROLE_MAP: Record<string, string> = {
   RECRUITER: 'reclutador',
 };
 
+interface MeResponse {
+  id: string;
+  email: string;
+  rol: string;
+  nombre?: string;
+  apellido?: string;
+  companyId?: string;
+}
 // ---------- Servicio ----------
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
@@ -90,7 +99,7 @@ export const authService = {
   },
 
   async getMe(): Promise<AuthResponse['user']> {
-    const data = await apiClient<any>('/auth/me');
+    const data = await apiClient<MeResponse>('/auth/me');
     return {
       id: data.id,
       email: data.email,

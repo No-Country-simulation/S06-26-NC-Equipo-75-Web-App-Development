@@ -23,6 +23,8 @@ import {
   ApiFindAllCompanies,
   ApiFindCompanyById,
   ApiUpdateCompanyProfile,
+  ApiVacancyMetrics,
+  ApiSelectionFunnel,
 } from './empresas.swagger';
 import { EmpresaGrupoDiversidadDto } from './dto/empresa-grupo-diversidad.dto';
 
@@ -55,6 +57,66 @@ export class EmpresasController {
   @ApiFindCompanyById()
   findById(@Param('id') id: string) {
     return this.empresasService.findById(id);
+  }
+
+  @Get(':id/dashboard')
+  @UseGuards(JwtAuthGuard)
+  findDashboard(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    if (!req.user.companyId) {
+      throw new ForbiddenException('User does not belong to any company');
+    }
+    return this.empresasService.findDashboard(id, req.user.sub);
+  }
+
+  @Get(':id/dashboard/vacancies')
+  @ApiVacancyMetrics()
+  @UseGuards(JwtAuthGuard)
+  findVacancyMetrics(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (!req.user.companyId) {
+      throw new ForbiddenException(
+        'User does not belong to any company',
+      );
+    }
+
+    return this.empresasService.findVacancyMetrics(
+      id,
+      req.user.sub,
+    );
+  }
+
+  @Get(':id/weeklyMatches')
+  @UseGuards(JwtAuthGuard)
+  getWeeklyMatches(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    if (!req.user.companyId) {
+      throw new ForbiddenException('User does not belong to any company');
+    }
+
+    return this.empresasService.getWeeklyMatches(id, req.user.sub);
+  }
+
+  @Get(':id/dashboard/esg')
+  @UseGuards(JwtAuthGuard)
+  findEsgDashboard(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    if (!req.user.companyId) {
+      throw new ForbiddenException('User does not belong to any company');
+    }
+
+    return this.empresasService.findEsgDashboard(id, req.user.sub);
+  }
+
+  @Get(':id/dashboard/badges')
+  @UseGuards(JwtAuthGuard)
+  findBadgeDistribution(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (!req.user.companyId) {
+      throw new ForbiddenException('User does not belong to any company');
+    }
+    return this.empresasService.findBadgeDistribution(id, req.user.sub);
   }
 
   @Patch(':id/perfil')
@@ -113,5 +175,24 @@ export class EmpresasController {
     }
     return this.empresasService.delete(req.user.sub);
   }
-}
 
+  @Get(':id/dashboard/funnel')
+  @ApiSelectionFunnel()
+  @UseGuards(JwtAuthGuard)
+  findSelectionFunnel(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (!req.user.companyId) {
+      throw new ForbiddenException(
+        'User does not belong to any company',
+      );
+    }
+
+    return this.empresasService.findSelectionFunnel(
+      id,
+      req.user.sub,
+    );
+  }
+
+}

@@ -29,9 +29,14 @@ import {
 import { VacanteAddSkillDto } from './dto/vacante-add-skill.dto';
 
 import {
-    ApiAddSkillToVacancy,
-    ApiGetVacancySkills,
-    ApiRemoveSkillFromVacancy,
+  ApiAddSkillToVacancy,
+  ApiGetVacancySkills,
+  ApiRemoveSkillFromVacancy,
+} from './vacantes.swagger';
+import { VacanteUpdatePesosDto } from './dto/vacante-update-pesos.dto';
+import {
+  ApiGetVacancyWeights,
+  ApiUpdateVacancyWeights,
 } from './vacantes.swagger';
 
 @Controller('vacantes')
@@ -172,6 +177,29 @@ export class VacantesController {
     @Param('id') vacanteId: string,
   ) {
     return await this.vacantesService.getSkills(vacanteId);
+  }
+
+  @Get(':id/pesos')
+  @ApiGetVacancyWeights()
+  async getWeights(
+    @Param('id') vacanteId: string,
+  ) {
+    return this.vacantesService.getWeights(vacanteId);
+  }
+
+  @Patch(':id/pesos')
+  @UseGuards(JwtAuthGuard)
+  @ApiUpdateVacancyWeights()
+  async updateWeights(
+    @Param('id') vacanteId: string,
+    @Body() dto: VacanteUpdatePesosDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.vacantesService.updateWeights(
+      vacanteId,
+      dto,
+      req.user.sub,
+    );
   }
 
 }

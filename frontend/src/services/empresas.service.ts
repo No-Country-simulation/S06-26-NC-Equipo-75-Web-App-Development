@@ -1,6 +1,6 @@
 import { apiClient } from './apiClient';
 
-export interface CreateEmpresaPerfilPayload {
+export interface CreateCompanyRequest {
   nombre: string;
   industria: string;
   pais: string;
@@ -9,7 +9,7 @@ export interface CreateEmpresaPerfilPayload {
   sitioWeb: string;
 }
 
-export interface EmpresaPerfilResponse {
+export interface CompanyResponse {
   id: string;
   nombre: string;
   industria: string;
@@ -19,11 +19,9 @@ export interface EmpresaPerfilResponse {
   sitioWeb: string;
 }
 
-export const empresasService = {
-  async createProfile(
-    data: CreateEmpresaPerfilPayload,
-  ): Promise<EmpresaPerfilResponse> {
-    return apiClient<EmpresaPerfilResponse>('/empresas/perfil', {
+export const companyService = {
+  async createCompany(data: CreateCompanyRequest): Promise<CompanyResponse> {
+    return apiClient<CompanyResponse>('/empresas/perfil', {
       method: 'POST',
       body: JSON.stringify(data),
     });

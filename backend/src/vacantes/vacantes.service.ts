@@ -9,12 +9,21 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import { CandidateLevel, Match, Prisma, VacancyStatus } from '@prisma/client';
+import { CandidateLevel, Match, Prisma, VacancyStatus, SelectionStatus } from '@prisma/client';
 import { ShortlistResponseDto } from './dto/vacanteShortlistCandidate.dto';
+import { VacanteUpdatePesosDto } from './dto/vacante-update-pesos.dto';
 
 const DEFAULT_PESO_SKILLS = 0.5;
 const DEFAULT_PESO_NIVEL = 0.3;
 const DEFAULT_PESO_EXPERIENCIA = 0.2;
+
+const estados = [
+  SelectionStatus.APPLIED,
+  SelectionStatus.CONTACTED,
+  SelectionStatus.INTERVIEW,
+  SelectionStatus.HIRED,
+  SelectionStatus.REJECTED,
+];
 
 @Injectable()
 export class VacantesService {
@@ -241,25 +250,78 @@ export class VacantesService {
         },
       },
     });
+
+    const total = matches.length;
+
+    const averageScore =
+      total === 0
+        ? 0
+        : Number(
+            (
+              matches.reduce((sum, m) => sum + m.score, 0) /
+              total
+            ).toFixed(2),
+          );
+
+    const topScore =
+      total === 0
+        ? 0
+        : Math.max(...matches.map((m) => m.score));
+
+    const lowestScore =
+      total === 0
+        ? 0
+        : Math.min(...matches.map((m) => m.score));
+
+    const diversityCandidates =
+      matches.filter((m) => m.badgeDiversidad).length;
+
+    const diversityPercentage =
+      total === 0
+        ? 0
+        : Number(
+            (
+              (diversityCandidates / total) *
+              100
+            ).toFixed(2),
+          );
     return {
       vacanteId,
-      total: matches.length,
-      candidatos: matches.map((match) => ({
+
+      total,
+
+      metrics: {
+        averageScore,
+        topScore,
+        lowestScore,
+        diversityCandidates,
+        diversityPercentage,
+      },
+
+      candidatos: matches.map((match, index) => ({
         id: match.candidato.id,
         nombre: match.candidato.nombre,
         apellido: match.candidato.apellido,
         score: match.score,
 
-        skills: match.candidato.skills.map((s) => s.skill.nombre),
+        skills: match.candidato.skills.map(
+          (s) => s.skill.nombre,
+        ),
 
         nivel: match.candidato.nivel,
 
-        badges: match.candidato.gruposDiversidad.map((g) => g.grupo.nombre),
+        badges:
+          match.candidato.gruposDiversidad.map(
+            (g) => g.grupo.nombre,
+          ),
 
         region: match.candidato.region.nombre,
 
         latitud: match.candidato.region.latitud,
         longitud: match.candidato.region.longitud,
+
+        estado:
+          estados[index % estados.length],
       })),
     };
   }
@@ -551,6 +613,71 @@ export class VacantesService {
     }
 
     return vacante.skills;
+  }
+
+  async getWeights(vacanteId: string) {
+    const pesos = await this.prisma.vacantePeso.findUnique({
+      where: {
+        vacanteId,
+      },
+    });
+
+    if (!pesos) {
+      throw new NotFoundException('Vacancy weights not found');
+    }
+
+    return pesos;
+  }
+
+  async updateWeights(
+    vacanteId: string,
+    dto: VacanteUpdatePesosDto,
+    userId: string,
+  ) {
+    await this.validateUserCompanyAccess(userId, vacanteId);
+
+    const pesosActuales =
+      await this.prisma.vacantePeso.findUnique({
+        where: {
+          vacanteId,
+        },
+      });
+
+    if (!pesosActuales) {
+      throw new NotFoundException(
+        'Vacancy weights not found',
+      );
+    }
+
+    const nuevosPesos = {
+      pesoSkills:
+        dto.pesoSkills ?? pesosActuales.pesoSkills,
+
+      pesoNivel:
+        dto.pesoNivel ?? pesosActuales.pesoNivel,
+
+      pesoExperiencia:
+        dto.pesoExperiencia ??
+        pesosActuales.pesoExperiencia,
+    };
+
+    const suma =
+      nuevosPesos.pesoSkills +
+      nuevosPesos.pesoNivel +
+      nuevosPesos.pesoExperiencia;
+
+    if (Math.abs(suma - 1) > 0.0001) {
+      throw new BadRequestException(
+        'The sum of the weights must be equal to 1',
+      );
+    }
+
+    return await this.prisma.vacantePeso.update({
+      where: {
+        vacanteId,
+      },
+      data: nuevosPesos,
+    });
   }
 
 }

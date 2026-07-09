@@ -1,24 +1,34 @@
 import React from 'react';
-import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
-import { AuthProvider } from '../contexts/AuthContext';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+  useMatches,
+} from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
 import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
-import RegisterCompany from '../pages/onboarding/Register';
+import RegisterCompany from '../pages/onboarding/RegisterCompany';
 import Dashboard from '../pages/app/Dashboard';
 import Vacancies from '../pages/app/Vacancies';
+import Candidates from '../pages/app/Candidates';
+import IndicadoresESG from '../pages/app/IndicadoresESG';
 import Home from '../pages/public/Home';
 import CompanyManagement from '../pages/app/CompanyManagement';
-import Candidatos from '../pages/app/Candidatos';
-import MapaTalento from '../pages/app/MapaTalento';
+import AppLayout from '../components/templates/AppLayout';
+import CandidateProfile from '../pages/app/CandidateProfile';
+
 import GestionUsuarios from '../pages/app/GestionUsuarios';
 import ReportesESG from '../pages/app/ReportesESG';
-import AppLayout from '../components/templates/AppLayout';
-import {ToastContainer} from 'react-toastify';
 
-// ---------- Layout protegido ----------
+// ---------- Layout protegido (con verificación de roles) ----------
 const ProtectedLayout: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const matches = useMatches();
+
+  const currentHandle = matches[matches.length - 1]?.handle as
+    | { title?: string; roles?: string[] }
+    | undefined;
 
   if (isLoading) {
     return (
@@ -32,28 +42,29 @@ const ProtectedLayout: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  return <AppLayout><Outlet /></AppLayout>;
-};
-
-const ProtectedPage: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
+  if (
+    currentHandle?.roles &&
+    user &&
+    !currentHandle.roles.includes(user.role)
+  ) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-brand-secondary border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center bg-bg-secondary">
+        <div className="text-center">
+          <h2 className="text-h2 font-semibold text-text-primary mb-2">
+            Acceso Denegado
+          </h2>
+          <p className="text-body-medium text-text-secondary">
+            No tienes permisos para acceder a esta sección.
+          </p>
+        </div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
+  return <AppLayout />;
 };
 
-// ---------- Ruta de onboarding (autenticado pero sin layout completo) ----------
+// ---------- Ruta de onboarding ----------
 const OnboardingRoute: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -83,47 +94,59 @@ const router = createBrowserRouter([
   // Onboarding (protegido pero sin AppLayout)
   { path: '/onboarding/company', element: <OnboardingRoute /> },
 
-  { path: '/company-management', element: <ProtectedPage><CompanyManagement /></ProtectedPage>, handle: { title: 'Gestión de Empresa' } },
-
   // Rutas protegidas con AppLayout
   {
     element: <ProtectedLayout />,
     children: [
-      { index: true, element: <Navigate to="/app/dashboard" replace /> },
+      { index: true, element: <Navigate to="/vacancies" replace /> },
       {
-        path: 'app/dashboard',
+        path: 'dashboard',
         element: <Dashboard />,
-        handle: { title: 'Dashboard ESG' },
+        handle: {
+          title: 'Dashboard ESG',
+          roles: ['empresa_admin', 'reclutador'],
+        },
       },
       {
-        path: 'app/vacantes',
+        path: 'vacancies',
         element: <Vacancies />,
-        handle: { title: 'Vacantes' },
+        handle: { title: 'Vacantes', roles: ['empresa_admin', 'reclutador'] },
       },
       {
-        path: 'app/candidatos',
-        element: <Candidatos />,
-        handle: { title: 'Candidatos' },
+        path: 'candidatos',
+        element: <Candidates />,
+        handle: { title: 'Candidatos', roles: ['empresa_admin', 'reclutador'] },
       },
       {
-        path: 'app/mapa-talento',
-        element: <MapaTalento />,
-        handle: { title: 'Mapa de Talento' },
+        path: 'indicadores-esg',
+        element: <IndicadoresESG />,
+        handle: {
+          title: 'Indicadores ESG',
+          roles: ['empresa_admin', 'reclutador'],
+        },
       },
       {
-        path: 'app/gestion-empresa',
+        path: 'company-management',
         element: <CompanyManagement />,
-        handle: { title: 'Gestión de Empresa' },
+        handle: { title: 'Gestión de Empresa', roles: ['empresa_admin'] },
       },
       {
-        path: 'app/gestion-usuarios',
+        path: 'candidatos/:id',
+        element: <CandidateProfile />,
+        handle: {
+          title: 'Perfil del Candidato',
+          roles: ['empresa_admin', 'reclutador'],
+        },
+      },
+      {
+        path: 'gestion-usuarios',
         element: <GestionUsuarios />,
-        handle: { title: 'Gestión de Usuarios' },
+        handle: { title: 'Gestión de Usuarios', roles: ['empresa_admin'] },
       },
       {
-        path: 'app/reportes-esg',
+        path: 'reportes-esg',
         element: <ReportesESG />,
-        handle: { title: 'Reportes ESG' },
+        handle: { title: 'Reportes ESG', roles: ['empresa_admin'] },
       },
     ],
   },
@@ -133,11 +156,6 @@ const router = createBrowserRouter([
 ]);
 
 // ---------- Componente principal ----------
-const AppRouter: React.FC = () => (
-  <AuthProvider>
-    <RouterProvider router={router} />
-    <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
-  </AuthProvider>
-);
+const AppRouter: React.FC = () => <RouterProvider router={router} />;
 
 export default AppRouter;

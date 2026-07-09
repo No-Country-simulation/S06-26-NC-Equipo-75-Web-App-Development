@@ -1,26 +1,34 @@
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import AuthLayout from '../../components/templates/AuthLayout.tsx';
-import RegisterForm, { type RegisterFormData } from '../../components/organisms/RegisterForm';
+import RegisterForm, {
+  type RegisterFormData,
+} from '../../components/organisms/RegisterForm';
 import { useAuth } from '../../contexts/useAuth';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useToast } from '../../hooks/useToast';
 
 const Register: React.FC = () => {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, signup } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { success } = useToast();
 
   if (isAuthenticated && !authLoading) {
-  return <Navigate to="/app/dashboard" replace />;
+    return <Navigate to="/onboarding/company" replace />;
   }
 
   const handleSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      // Aquí iría la llamada al endpoint de registro
-      // await api.register(data);
-      console.log('Datos de registro:', data);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      alert('Registro exitoso! Revisa tu correo para confirmar.');
-      // window.location.href = '/login';
+      await signup({
+        nombre: data.firstName,
+        apellido: data.lastName,
+        email: data.email,
+        password: data.password,
+      });
+
+      success('Registro exitoso! Revisa tu correo para confirmar.');
+      navigate('/onboarding/company');
     } catch (error) {
       console.error('Register error:', error);
       throw error;
@@ -29,11 +37,11 @@ const Register: React.FC = () => {
     }
   };
 
-return (
-  <AuthLayout title="Crear Cuenta">
-    <RegisterForm onSubmit={handleSubmit} isLoading={isLoading} />
-  </AuthLayout>
-);
+  return (
+    <AuthLayout title="Crear Cuenta">
+      <RegisterForm onSubmit={handleSubmit} isLoading={isLoading} />
+    </AuthLayout>
+  );
 };
 
 export default Register;

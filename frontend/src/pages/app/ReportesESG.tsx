@@ -8,7 +8,8 @@ const ReportesESG: React.FC = () => {
           Reportes ESG
         </h1>
         <p className="text-body-medium leading-body-medium text-text-secondary">
-          Consulta y descarga reportes sobre el cumplimiento de tus objetivos ESG.
+          Consulta y descarga reportes sobre el cumplimiento de tus objetivos
+          ESG.
         </p>
       </header>
 

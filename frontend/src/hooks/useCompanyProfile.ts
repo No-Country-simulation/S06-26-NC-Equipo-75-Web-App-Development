@@ -1,25 +1,25 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import {
-  empresasService,
-  type CreateEmpresaPerfilPayload,
-  type EmpresaPerfilResponse,
+  companyService,
+  type CreateCompanyRequest,
+  type CompanyResponse,
 } from '../services/empresas.service';
 
 export function useCompanyProfile() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [data, setData] = useState<EmpresaPerfilResponse | null>(null);
+  const [data, setData] = useState<CompanyResponse | null>(null);
 
-  const submit = async (payload: CreateEmpresaPerfilPayload) => {
+  const submit = async (payload: CreateCompanyRequest) => {
     setIsLoading(true);
     setError(null);
     setIsSuccess(false);
     setData(null);
 
     try {
-      const response = await empresasService.createProfile(payload);
+      const response = await companyService.createCompany(payload);
       setData(response);
       setIsSuccess(true);
       toast.success('Perfil de empresa creado correctamente');

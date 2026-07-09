@@ -1,7 +1,8 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { VacancyStatus } from '@prisma/client';
-import { ShortlistCandidateDto } from './dto/vacanteShortlistCandidate.dto';
+import { ShortlistCandidateDto, ShortlistResponseDto } from './dto/vacanteShortlistCandidate.dto';
+
 
 export function ApiCreateVacancy() {
   return applyDecorators(
@@ -118,8 +119,7 @@ export function ApiGetShortlist() {
     ApiResponse({
       status: 200,
       description: 'Shortlist recuperado correctamente',
-      type: ShortlistCandidateDto,
-      isArray: true,
+      type: ShortlistResponseDto,
     }),
     ApiResponse({
       status: 404,
@@ -198,6 +198,55 @@ export function ApiRemoveSkillFromVacancy() {
     ApiResponse({
       status: 404,
       description: 'Vacancy or Skill not found',
+    }),
+  );
+}
+
+export function ApiGetVacancyWeights() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Get vacancy weights',
+    }),
+    ApiParam({
+      name: 'id',
+      description: 'Vacancy ID',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Vacancy weights',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Vacancy not found',
+    }),
+  );
+}
+
+export function ApiUpdateVacancyWeights() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Update vacancy weights',
+    }),
+    ApiParam({
+      name: 'id',
+      description: 'Vacancy ID',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Weights updated successfully',
+    }),
+    ApiResponse({
+      status: 400,
+      description: 'Invalid weights',
+    }),
+    ApiResponse({
+      status: 403,
+      description: 'Forbidden',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Vacancy not found',
     }),
   );
 }

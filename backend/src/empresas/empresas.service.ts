@@ -7,6 +7,9 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { EmpresaCreateDto } from './dto/empresa-create.dto';
 import { EmpresaUpdateDto } from './dto/empresa-update.dto';
+import { VacancyStatus, SelectionStatus } from '@prisma/client';
+
+const PERCENTAGE_MULTIPLIER = 100;
 
 @Injectable()
 export class EmpresasService {
@@ -43,6 +46,311 @@ export class EmpresasService {
     });
 
     return empresa;
+  }
+
+  async findDashboard(companyId: string, userId: string) {
+    const existingCompany = await this.prisma.usuarioEmpresa.findFirst({
+      where: {
+        empresaId: companyId,
+      },
+      include: {
+        empresa: true,
+      },
+    });
+
+    if (!existingCompany) {
+      throw new BadRequestException(
+        'User does not belong to this company',
+      );
+    }
+
+    await this.validateUserCompanyAccess(userId, companyId);
+
+    // 7 días atrás
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+
+    const [
+      activeVacancies,
+      newCandidates,
+      interviews,
+      totalHired,
+      diversityHired,
+    ] = await Promise.all([
+      // Vacantes activas
+      this.prisma.vacante.count({
+        where: {
+          empresaId: companyId,
+          estado: VacancyStatus.OPEN,
+        },
+      }),
+
+      // Candidatos nuevos
+      this.prisma.candidato.count({
+        where: {
+          fechaRegistro: { gte: lastWeek },
+        },
+      }),
+
+      // Entrevistas
+      this.prisma.procesoSeleccion.count({
+        where: {
+          estado: SelectionStatus.INTERVIEW,
+          vacante: {
+            empresaId: companyId,
+          },
+          fechaActualizacion: {
+            gte: lastWeek,
+          },
+        },
+      }),
+
+      // Contrataciones totales
+      this.prisma.procesoSeleccion.count({
+        where: {
+          estado: SelectionStatus.HIRED,
+          vacante: {
+            empresaId: companyId,
+          },
+        },
+      }),
+
+      // Contrataciones con badge
+      this.prisma.procesoSeleccion.count({
+        where: {
+          estado: SelectionStatus.HIRED,
+          vacante: {
+            empresaId: companyId,
+          },
+          candidato: {
+            gruposDiversidad: {
+              some: {},
+            },
+          },
+        },
+      }),
+    ]);
+
+    const objetivoDiversidad = existingCompany.empresa.objetivoDiversidad ?? 0;
+
+    const porcentajeDiversidad =
+      totalHired === 0 ? 0 : (diversityHired / totalHired) * 100;
+
+    return {
+      activeVacancies,
+      newCandidates,
+      interviews,
+
+      esgProgress: {
+        currentPercentage: Number(porcentajeDiversidad.toFixed(2)),
+        targetPercentage: objetivoDiversidad,
+        reached: porcentajeDiversidad >= objetivoDiversidad,
+      },
+    };
+  }
+
+  async getWeeklyMatches(companyId: string, userId: string) {
+    await this.validateUserCompanyAccess(userId, companyId);
+
+    // 7 días atrás
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+
+    const matches = await this.prisma.match.findMany({
+      where: {
+        vacante: {
+          empresaId: companyId,
+        },
+        fechaMatch: {
+          gte: lastWeek,
+        },
+      },
+      select: {
+        fechaMatch: true,
+      },
+    });
+
+    const weeklyMatches = Object.values(
+      matches.reduce(
+        (acc, match) => {
+          const date = match.fechaMatch.toISOString().split('T')[0];
+
+          if (!acc[date]) {
+            acc[date] = {
+              date,
+              totalMatches: 0,
+            };
+          }
+
+          acc[date].totalMatches++;
+
+          return acc;
+        },
+        {} as Record<string, { date: string; totalMatches: number }>,
+      ),
+    );
+
+    return weeklyMatches;
+  }
+
+  async findEsgDashboard(companyId: string, userId: string) {
+    await this.validateUserCompanyAccess(userId, companyId);
+
+    const [
+      totalContacted,
+      diversityContacted,
+      totalHired,
+      diversityHired,
+      totalShortlist,
+      diversityShortlist,
+    ] = await Promise.all([
+      this.prisma.procesoSeleccion.count({
+        where: {
+          estado: SelectionStatus.CONTACTED,
+          vacante: {
+            empresaId: companyId,
+          },
+        },
+      }),
+
+      this.prisma.procesoSeleccion.count({
+        where: {
+          estado: SelectionStatus.CONTACTED,
+          vacante: {
+            empresaId: companyId,
+          },
+          candidato: {
+            gruposDiversidad: {
+              some: {},
+            },
+          },
+        },
+      }),
+
+      this.prisma.procesoSeleccion.count({
+        where: {
+          estado: SelectionStatus.HIRED,
+          vacante: {
+            empresaId: companyId,
+          },
+        },
+      }),
+
+      this.prisma.procesoSeleccion.count({
+        where: {
+          estado: SelectionStatus.HIRED,
+          vacante: {
+            empresaId: companyId,
+          },
+          candidato: {
+            gruposDiversidad: {
+              some: {},
+            },
+          },
+        },
+      }),
+
+      this.prisma.match.count({
+        where: {
+          vacante: {
+            empresaId: companyId,
+          },
+        },
+      }),
+
+      this.prisma.match.count({
+        where: {
+          vacante: {
+            empresaId: companyId,
+          },
+          badgeDiversidad: true,
+        },
+      }),
+    ]);
+
+    const diversityContactRate =
+      totalContacted === 0
+        ? 0
+        : (diversityContacted / totalContacted) * PERCENTAGE_MULTIPLIER;
+
+    const diversityHiringRate =
+      totalHired === 0
+        ? 0
+        : (diversityHired / totalHired) * PERCENTAGE_MULTIPLIER;
+
+    const averageDiversityRate =
+      totalShortlist === 0
+        ? 0
+        : (diversityShortlist / totalShortlist) * PERCENTAGE_MULTIPLIER;
+
+    const abandonmentRate =
+      totalShortlist === 0
+        ? 0
+        : ((totalShortlist - totalContacted) / totalShortlist) *
+          PERCENTAGE_MULTIPLIER;
+
+    return {
+      diversityContactRate: Number(diversityContactRate.toFixed(2)),
+      diversityHiringRate: Number(diversityHiringRate.toFixed(2)),
+      averageDiversityRate: Number(averageDiversityRate.toFixed(2)),
+      abandonmentRate: Number(abandonmentRate.toFixed(2)),
+    };
+  }
+
+  async findBadgeDistribution(companyId: string, userId: string) {
+    const company = await this.prisma.usuarioEmpresa.findFirst({
+      where: {
+        usuarioId: userId,
+        empresaId: companyId,
+      },
+    });
+
+    if (!company) {
+      throw new BadRequestException(
+        'User does not belong to this company',
+      );
+    }
+
+    await this.validateUserCompanyAccess(userId, companyId);
+
+    const totalCandidatesWithBadge =
+      await this.prisma.candidatoGrupoDiversidad.groupBy({
+        by: ['candidatoId'],
+      });
+
+    const categories = await this.prisma.grupoDiversidad.findMany({
+      include: {
+        candidatos: true,
+      },
+      orderBy: {
+        nombre: 'asc',
+      },
+    });
+
+    const totalBadgedCandidates = totalCandidatesWithBadge.length;
+
+    return {
+      totalCandidatesWithBadge: totalBadgedCandidates,
+
+      categories: categories.map((category) => {
+        const candidateCount = category.candidatos.length;
+
+        return {
+          id: category.id,
+          name: category.nombre,
+          candidateCount,
+          percentage:
+            totalBadgedCandidates === 0
+              ? 0
+              : Number(
+                  (
+                    (candidateCount / totalBadgedCandidates) *
+                    PERCENTAGE_MULTIPLIER
+                  ).toFixed(2),
+                ),
+        };
+      }),
+    };
   }
 
   async findAll() {
@@ -124,7 +432,7 @@ export class EmpresasService {
     });
   }
 
-  async validateUserCompanyAccess(userId: string,companyId: string,) {
+  async validateUserCompanyAccess(userId: string, companyId: string) {
     const company = await this.prisma.empresa.findUnique({
       where: { id: companyId },
     });
@@ -220,4 +528,147 @@ export class EmpresasService {
       },
     });
   }
+
+  async findVacancyMetrics(
+    companyId: string,
+    userId: string,
+  ) {
+    await this.validateUserCompanyAccess(
+      userId,
+      companyId,
+    );
+
+    const [
+      total,
+      open,
+      closed,
+      paused,
+    ] = await Promise.all([
+      this.prisma.vacante.count({
+        where: {
+          empresaId: companyId,
+        },
+      }),
+
+      this.prisma.vacante.count({
+        where: {
+          empresaId: companyId,
+          estado: VacancyStatus.OPEN,
+        },
+      }),
+
+      this.prisma.vacante.count({
+        where: {
+          empresaId: companyId,
+          estado: VacancyStatus.CLOSED,
+        },
+      }),
+
+      this.prisma.vacante.count({
+        where: {
+          empresaId: companyId,
+          estado: VacancyStatus.PAUSED,
+        },
+      }),
+    ]);
+
+    return {
+      total,
+      open,
+      closed,
+      paused,
+    };
+  }
+  
+  async findSelectionFunnel(
+    companyId: string,
+    userId: string,
+  ) {
+    await this.validateUserCompanyAccess(
+      userId,
+      companyId,
+    );
+
+    const vacantes = await this.prisma.vacante.findMany({
+      where: {
+        empresaId: companyId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const vacancyIds = vacantes.map((v) => v.id);
+
+    const [
+      shortlist,
+      contacted,
+      interview,
+      hired,
+    ] = await Promise.all([
+      this.prisma.match.count({
+        where: {
+          vacanteId: {
+            in: vacancyIds,
+          },
+        },
+      }),
+
+      this.prisma.procesoSeleccion.count({
+        where: {
+          vacanteId: {
+            in: vacancyIds,
+          },
+          estado: SelectionStatus.CONTACTED,
+        },
+      }),
+
+      this.prisma.procesoSeleccion.count({
+        where: {
+          vacanteId: {
+            in: vacancyIds,
+          },
+          estado: SelectionStatus.INTERVIEW,
+        },
+      }),
+
+      this.prisma.procesoSeleccion.count({
+        where: {
+          vacanteId: {
+            in: vacancyIds,
+          },
+          estado: SelectionStatus.HIRED,
+        },
+      }),
+    ]);
+
+    return {
+      shortlist,
+      contacted,
+      interview,
+      hired,
+
+      shortlistToContact:
+        shortlist === 0
+          ? 0
+          : Number(((contacted / shortlist) * 100).toFixed(2)),
+
+      contactToInterview:
+        contacted === 0
+          ? 0
+          : Number(((interview / contacted) * 100).toFixed(2)),
+
+      interviewToHire:
+        interview === 0
+          ? 0
+          : Number(((hired / interview) * 100).toFixed(2)),
+
+      overallConversion:
+        shortlist === 0
+          ? 0
+          : Number(((hired / shortlist) * 100).toFixed(2)),
+    };
+  }
+
+
 }

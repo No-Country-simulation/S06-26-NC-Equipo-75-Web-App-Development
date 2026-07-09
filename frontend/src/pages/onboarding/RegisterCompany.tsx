@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import AuthLayout from '../../components/templates/AuthLayout';
+import RegisterCompanyForm, {
+  type RegisterCompanyFormData,
+} from '../../components/organisms/RegisterCompanyForm';
 import { useAuth } from '../../contexts/useAuth';
-import type { RegisterCompanyFormData } from '../../components/organisms/RegisterCompanyForm';
-import RegisterCompanyForm from '../../components/organisms/RegisterCompanyForm';
+import { companyService } from '../../services/empresas.service';
+import { useToast } from '../../hooks/useToast';
 
 const RegisterCompany: React.FC = () => {
+  const navigate = useNavigate();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const { success } = useToast();
 
-  if (isAuthenticated && !authLoading) {
-    return <Navigate to="/app/dashboard" replace />;
+  if (!authLoading && !isAuthenticated) {
+    return <Navigate to="/login" replace />;
   }
 
   const handleSubmit = async (data: RegisterCompanyFormData) => {
@@ -18,11 +23,18 @@ const RegisterCompany: React.FC = () => {
     try {
       // Aquí iría la llamada al endpoint de registro de empresa
       // await api.registerCompany(data);
+      await companyService.createCompany({
+        nombre: data.companyName,
+        industria: data.industry,
+        sitioWeb: data.website,
+        pais: data.country,
+        ciudad: data.city,
+        objetivoDiversidad: data.diversityGoal,
+      });
+
       console.log('Datos de registro de empresa:', data);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      alert('Empresa registrada exitosamente!');
-      // Redirigir al dashboard
-      // window.location.href = '/dashboard';
+      success('Empresa registrada exitosamente!');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Register company error:', error);
       throw error;
@@ -38,7 +50,10 @@ const RegisterCompany: React.FC = () => {
       <div className="mt-6 text-center">
         <p className="text-body-small text-text-secondary">
           ¿Ya tienes cuenta?{' '}
-          <a href="/login" className="text-label-medium text-brand-secondary hover:text-brand-secondary-hover transition-colors">
+          <a
+            href="/login"
+            className="text-label-medium text-brand-secondary hover:text-brand-secondary-hover transition-colors"
+          >
             Iniciar Sesión
           </a>
         </p>

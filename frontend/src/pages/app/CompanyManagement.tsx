@@ -10,9 +10,8 @@ import {
 import Button from '../../components/atoms/Button';
 import Input from '../../components/atoms/Input';
 import InputField from '../../components/molecules/InputField';
-import AppLayout from '../../components/templates/AppLayout';
 import { useCompanyProfile } from '../../hooks/useCompanyProfile';
-import type { CreateEmpresaPerfilPayload } from '../../services/empresas.service';
+import type { CreateCompanyRequest } from '../../services/empresas.service';
 
 interface CompanyFormData {
   companyName: string;
@@ -117,7 +116,7 @@ const CompanyManagement: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payload: CreateEmpresaPerfilPayload = {
+    const payload: CreateCompanyRequest = {
       nombre: formData.companyName,
       industria: formData.industry,
       pais: formData.country,
@@ -133,7 +132,6 @@ const CompanyManagement: React.FC = () => {
   };
 
   return (
-    <AppLayout>
       <div className="flex flex-col gap-6">
         <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
@@ -443,7 +441,6 @@ const CompanyManagement: React.FC = () => {
           </aside>
         </div>
       </div>
-    </AppLayout>
     
   );
 };

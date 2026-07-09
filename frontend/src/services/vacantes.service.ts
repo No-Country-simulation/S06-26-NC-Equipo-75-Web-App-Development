@@ -4,13 +4,16 @@ import { apiClient } from './apiClient';
 export interface Vacante {
   id: string;
   titulo: string;
-  nivel: string;
+  nivelRequerido: string;
   area: string;
-  region: string;
+  region: {
+    id: string;
+    nombre: string;
+  };
+  estado: string;
   descripcion?: string;
   diversidadMinima?: number;
-  skills: string[];
-  estado: 'Abierto' | 'Pausado' | 'Cerrado';
+  skills?: VacanteSkill[];
 }
 
 export interface VacanteCreate {
@@ -21,6 +24,21 @@ export interface VacanteCreate {
   descripcion?: string;
   diversidadMinima?: number;
   skillIds: string[];        // antes era skills
+  pesosScore: {
+    skills: number;
+    nivel: number;
+    experiencia: number;
+  };
+}
+
+export interface VacanteSkill {
+  skillId: string;
+  obligatorio: boolean;
+  skill?: {
+    id: string;
+    nombre: string;
+    categoria: string;
+  };
 }
 
 export const vacantesService = {
