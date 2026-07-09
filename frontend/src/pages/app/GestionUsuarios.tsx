@@ -59,8 +59,10 @@ const GestionUsuarios: React.FC = () => {
       const data = await recruiterService.getRecruiters();
       setUsuarios(data);
       setCurrentPage(1);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
+      error('No fue posible cargar los reclutadores.');
+      setUsuarios([]);
     } finally {
       setLoading(false);
     }
@@ -178,21 +180,21 @@ const GestionUsuarios: React.FC = () => {
 
         <KpiCard
           label="Vacantes totales"
-          value={42}
+          value={0}
           icon={User}
           valueClassName="text-badge-success-text"
         />
 
         <KpiCard
           label="Contrataciones"
-          value={43}
+          value={0}
           icon={User}
           valueClassName="text-badge-warning-text"
         />
 
         <KpiCard
           label="Objetivo de Diversidad"
-          value={44}
+          value={0}
           icon={User}
           valueClassName="text-badge-error-text"
         />

@@ -13,7 +13,7 @@ export interface Vacante {
   estado: string;
   descripcion?: string;
   diversidadMinima?: number;
-  skills?: { id: string; nombre: string }[];
+  skills?: VacanteSkill[];
 }
 
 export interface VacanteCreate {
@@ -28,6 +28,16 @@ export interface VacanteCreate {
     skills: number;
     nivel: number;
     experiencia: number;
+  };
+}
+
+export interface VacanteSkill {
+  skillId: string;
+  obligatorio: boolean;
+  skill?: {
+    id: string;
+    nombre: string;
+    categoria: string;
   };
 }
 

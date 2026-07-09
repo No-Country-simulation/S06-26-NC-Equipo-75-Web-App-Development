@@ -5,12 +5,22 @@ import Toggle from '../atoms/Toggle';
 import { X } from 'lucide-react';
 import type { VacanteCreate } from '../../services/vacantes.service';
 import { regionService, type Region } from '../../services/region.service';
-import { skillsService, type Skill } from '../../services/skills.service';
+import { skillsService } from '../../services/skills.service';
 
 interface VacancyFormProps {
   onSubmit: (data: VacanteCreate) => Promise<void>;
   isSubmitting?: boolean;
   onClose: () => void;
+  initialData?: Partial<{
+    titulo: string;
+    nivelRequerido: string;
+    area: string;
+    regionId: string;
+    descripcion: string;
+    diversidadMinima: number;
+    skillIds: string[];
+    pesosScore: { skills: number; nivel: number; experiencia: number };
+  }>;
 }
 
 // ─── Datos estáticos ─────────────────────────────────
@@ -32,29 +42,35 @@ export default function VacancyForm({
   onSubmit,
   isSubmitting = false,
   onClose,
+  initialData,
 }: VacancyFormProps) {
-  const [titulo, setTitulo] = useState('');
-  const [nivel, setNivel] = useState<string>('Junior');
-  const [area, setArea] = useState<string>('Frontend');
-  const [regionId, setRegionId] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [diversidadMinima, setDiversidadMinima] = useState<number>(30);
-
-  // Pesos del score (HU-009)
-  const [pesoSkills, setPesoSkills] = useState(60);
-  const [pesoNivel, setPesoNivel] = useState(25);
-  const [pesoExperiencia, setPesoExperiencia] = useState(15);
-
-  // Skills
-  const [allSkills, setAllSkills] = useState<Skill[]>([]);
-  const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>([]);
+  // Inicialización directa desde initialData (sin useEffect)
+  const [titulo, setTitulo] = useState(initialData?.titulo ?? '');
+  const [nivel, setNivel] = useState<string>(() => {
+    if (initialData?.nivelRequerido) {
+      const encontrado = Object.entries(NIVEL_MAP).find(
+        ([, v]) => v === initialData.nivelRequerido
+      );
+      return encontrado ? encontrado[0] : 'Junior';
+    }
+    return 'Junior';
+  });
+  const [area, setArea] = useState(initialData?.area ?? 'Frontend');
+  const [regionId, setRegionId] = useState(initialData?.regionId ?? '');
+  const [descripcion, setDescripcion] = useState(initialData?.descripcion ?? '');
+  const [diversidadMinima, setDiversidadMinima] = useState(initialData?.diversidadMinima ?? 30);
+  const [pesoSkills, setPesoSkills] = useState(initialData?.pesosScore?.skills ?? 60);
+  const [pesoNivel, setPesoNivel] = useState(initialData?.pesosScore?.nivel ?? 25);
+  const [pesoExperiencia, setPesoExperiencia] = useState(initialData?.pesosScore?.experiencia ?? 15);
+  const [selectedSkillIds, setSelectedSkillIds] = useState(initialData?.skillIds ?? []);
 
   const [antisesgo, setAntisesgo] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Regiones
+  // Regiones y skills desde API
   const [regiones, setRegiones] = useState<Region[]>([]);
+  const [allSkills, setAllSkills] = useState<{ id: string; nombre: string }[]>([]);
 
   useEffect(() => {
     regionService.getAll().then(setRegiones).catch(() => setRegiones([]));
@@ -67,7 +83,6 @@ export default function VacancyForm({
     );
   };
 
-  // Validez del formulario para habilitar el botón
   const formularioValido =
     titulo.trim() !== '' &&
     selectedSkillIds.length > 0 &&
@@ -122,12 +137,12 @@ export default function VacancyForm({
       setSelectedSkillIds([]);
       setAntisesgo(true);
 
-      setSuccessMessage('¡Vacante creada con éxito!');
+      setSuccessMessage(initialData ? '¡Vacante actualizada con éxito!' : '¡Vacante creada con éxito!');
       setTimeout(() => {
         onClose();
       }, 2000);
     } catch {
-      setSuccessMessage('Error al crear la vacante. Intente nuevamente.');
+      setSuccessMessage('Error al guardar la vacante. Intente nuevamente.');
     }
   };
 
@@ -281,7 +296,7 @@ export default function VacancyForm({
       {/* Mensaje de confirmación / error */}
       {successMessage && (
         <div className={`rounded-lg p-3 text-body-small font-medium ${
-          successMessage.includes('éxito')
+          successMessage.includes('éxito') || successMessage.includes('actualizada')
             ? 'bg-badge-success-bg text-badge-success-text'
             : 'bg-badge-error-bg text-badge-error-text'
         }`}>
