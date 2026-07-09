@@ -1,7 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { VacancyStatus } from '@prisma/client';
-import { ShortlistCandidateDto } from './dto/vacanteShortlistCandidate.dto';
+import { ShortlistCandidateDto, ShortlistResponseDto } from './dto/vacanteShortlistCandidate.dto';
 
 
 export function ApiCreateVacancy() {
@@ -119,8 +119,7 @@ export function ApiGetShortlist() {
     ApiResponse({
       status: 200,
       description: 'Shortlist recuperado correctamente',
-      type: ShortlistCandidateDto,
-      isArray: true,
+      type: ShortlistResponseDto,
     }),
     ApiResponse({
       status: 404,

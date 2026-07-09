@@ -29,9 +29,9 @@ import {
 import { VacanteAddSkillDto } from './dto/vacante-add-skill.dto';
 
 import {
-    ApiAddSkillToVacancy,
-    ApiGetVacancySkills,
-    ApiRemoveSkillFromVacancy,
+  ApiAddSkillToVacancy,
+  ApiGetVacancySkills,
+  ApiRemoveSkillFromVacancy,
 } from './vacantes.swagger';
 import { VacanteUpdatePesosDto } from './dto/vacante-update-pesos.dto';
 import {

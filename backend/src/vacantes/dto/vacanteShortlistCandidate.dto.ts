@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CandidateLevel } from '@prisma/client';
+import { CandidateLevel, SelectionStatus } from '@prisma/client';
 
 export class ShortlistCandidateDto {
   @ApiProperty({
@@ -9,10 +9,16 @@ export class ShortlistCandidateDto {
   id: string;
 
   @ApiProperty({
-    description: 'Nombre completo del candidato',
-    example: 'Juan Pérez',
+    description: 'Nombre  del candidato',
+    example: 'Juan',
   })
   nombre: string;
+
+  @ApiProperty({
+  description: 'Apellido del candidato',
+  example: 'Pérez',
+  })
+  apellido: string;
 
   @ApiProperty({
     description: 'Score de compatibilidad con la vacante',
@@ -62,12 +68,62 @@ export class ShortlistCandidateDto {
     example: -58.3816,
   })
   longitud?: number;
+
+  @ApiProperty({
+    enum: SelectionStatus,
+    description: 'Estado de selección del candidato',
+    example: SelectionStatus.APPLIED,
+  })
+  estado?: SelectionStatus;
 }
 
+export class ShortlistMetricsDto {
+  @ApiProperty({
+    example: 0.84,
+    description: 'Average compatibility score',
+  })
+  averageScore: number;
+
+  @ApiProperty({
+    example: 0.98,
+    description: 'Highest score',
+  })
+  topScore: number;
+
+  @ApiProperty({
+    example: 0.52,
+    description: 'Lowest score',
+  })
+  lowestScore: number;
+
+  @ApiProperty({
+    example: 8,
+    description: 'Candidates with diversity badge',
+  })
+  diversityCandidates: number;
+
+  @ApiProperty({
+    example: 32.5,
+    description: 'Percentage of diversity candidates',
+  })
+  diversityPercentage: number;
+}
+
+
 export class ShortlistResponseDto {
+  @ApiProperty()
   vacanteId: string;
 
+  @ApiProperty()
   total: number;
 
+  @ApiProperty({
+    type: ShortlistMetricsDto,
+  })
+  metrics: ShortlistMetricsDto;
+
+  @ApiProperty({
+    type: [ShortlistCandidateDto],
+  })
   candidatos: ShortlistCandidateDto[];
 }

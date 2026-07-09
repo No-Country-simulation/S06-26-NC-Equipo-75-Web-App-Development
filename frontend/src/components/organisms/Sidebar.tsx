@@ -81,7 +81,11 @@ const ALL_NAV_ITEMS: NavItem[] = [
 // --------------------------------------------------
 // 2. Componente Sidebar
 // --------------------------------------------------
-export default function Sidebar() {
+interface SidebarProps {
+  onItemClick?: () => void;
+}
+
+export default function Sidebar({ onItemClick }: SidebarProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -109,6 +113,7 @@ export default function Sidebar() {
             key={id}
             to={to}
             end={to === '/dashboard'}
+            onClick={onItemClick}
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-3 py-2.5
               text-nav-item font-medium leading-nav-item
