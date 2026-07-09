@@ -98,14 +98,11 @@ const router = createBrowserRouter([
   {
     element: <ProtectedLayout />,
     children: [
-      { index: true, element: <Navigate to="/vacancies" replace /> },
+      { index: true, element: <Navigate to="/dashboard" replace /> },
       {
         path: 'dashboard',
         element: <Dashboard />,
-        handle: {
-          title: 'Dashboard ESG',
-          roles: ['empresa_admin', 'reclutador'],
-        },
+        handle: { title: 'Dashboard ESG', roles: ['empresa_admin', 'reclutador'] },
       },
       {
         path: 'vacancies',
