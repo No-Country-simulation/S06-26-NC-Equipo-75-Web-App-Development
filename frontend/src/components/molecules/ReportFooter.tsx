@@ -11,7 +11,6 @@ interface ReportFooterProps {
 const ReportFooter: React.FC<ReportFooterProps> = ({
   hash = 'a8f9...3b2c',
   block = '84920',
-  page = 1,
 }) => {
   return (
     <footer className="mt-12">
@@ -46,9 +45,6 @@ const ReportFooter: React.FC<ReportFooterProps> = ({
             </p>
           </div>
         </div>
-
-        {/* Página */}
-        <div className="text-body-small text-text-secondary">Página {page}</div>
       </div>
     </footer>
   );

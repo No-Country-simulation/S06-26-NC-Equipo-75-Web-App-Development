@@ -1,8 +1,8 @@
 import React from 'react';
-
 import InputField from '../molecules/InputField';
 import ReportSectionTitle from '../atoms/ReportSectionTitle';
 import Button from '../atoms/Button';
+import { exportReportPdf } from '../../utils/exportPdf';
 
 export interface ReportConfig {
   companyName: string;
@@ -10,8 +10,12 @@ export interface ReportConfig {
   objective: number;
   achieved: number;
   generatedAt: string;
-}
 
+  showSummary: boolean;
+  showDiversity: boolean;
+  showFunnel: boolean;
+  showAbandonment: boolean;
+}
 interface ReportConfigPanelProps {
   config: ReportConfig;
   onChange: (config: ReportConfig) => void;
@@ -26,6 +30,13 @@ const ReportConfigPanel: React.FC<ReportConfigPanelProps> = ({
       ...config,
       [field]:
         field === 'objective' || field === 'achieved' ? Number(value) : value,
+    });
+  };
+
+  const updateCheckbox = (field: keyof ReportConfig, checked: boolean) => {
+    onChange({
+      ...config,
+      [field]: checked,
     });
   };
 
@@ -80,8 +91,56 @@ const ReportConfigPanel: React.FC<ReportConfigPanelProps> = ({
         />
       </div>
 
+      <div className="pt-4 border-t border-border-light">
+        <h3 className="mb-4 text-body-large font-semibold text-text-primary">
+          Contenido del reporte
+        </h3>
+
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={config.showSummary}
+              onChange={(e) => updateCheckbox('showSummary', e.target.checked)}
+            />
+            <span>Resumen Ejecutivo</span>
+          </label>
+
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={config.showDiversity}
+              onChange={(e) =>
+                updateCheckbox('showDiversity', e.target.checked)
+              }
+            />
+            <span>Distribución de diversidad</span>
+          </label>
+
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={config.showFunnel}
+              onChange={(e) => updateCheckbox('showFunnel', e.target.checked)}
+            />
+            <span>Embudo de selección</span>
+          </label>
+
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={config.showAbandonment}
+              onChange={(e) =>
+                updateCheckbox('showAbandonment', e.target.checked)
+              }
+            />
+            <span>Tasa de abandono</span>
+          </label>
+        </div>
+      </div>
+
       <div className="mt-8 flex justify-end">
-        <Button>Generar Reporte</Button>
+        <Button onClick={exportReportPdf}>Generar Reporte</Button>
       </div>
     </section>
   );

@@ -15,13 +15,18 @@ const ReportesESG: React.FC = () => {
     objective: 40,
     achieved: 45,
     generatedAt: '09/07/2026',
+
+    showSummary: true,
+    showDiversity: true,
+    showFunnel: true,
+    showAbandonment: true,
   });
 
   return (
     <>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <h2 className="text-h2 leading-h2 text-text-secondary max-w-2xl">
-          Genera reportes de cumplimiento ESG para inversores, reguladores y
+          Genera reportes de cumplimiento ESG para inversores, reclutadores y
           stakeholders.
         </h2>
       </div>

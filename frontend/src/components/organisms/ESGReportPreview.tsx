@@ -22,6 +22,11 @@ interface ESGReportPreviewProps {
 
   reportTitle?: string;
 
+  showSummary: boolean;
+  showDiversity: boolean;
+  showFunnel: boolean;
+  showAbandonment: boolean;
+
   diversityData: {
     name: string;
     value: number;
@@ -29,7 +34,6 @@ interface ESGReportPreviewProps {
 
   funnelData: FunnelStageType[];
 }
-
 const ESGReportPreview: React.FC<ESGReportPreviewProps> = ({
   companyName,
   generatedAt,
@@ -37,45 +41,73 @@ const ESGReportPreview: React.FC<ESGReportPreviewProps> = ({
   objective,
   achieved,
   reportTitle,
+
+  showSummary,
+  showDiversity,
+  showFunnel,
+  showAbandonment,
+
   diversityData,
   funnelData,
 }) => {
   return (
-    <section className="rounded-xl border border-border-light bg-bg-primary p-8 shadow-sm">
+    <section
+      id="esg-report"
+      className="rounded-xl border border-border-light bg-bg-primary p-8 shadow-sm"
+    >
       {/* Encabezado */}
       <ReportHeader
         companyName={companyName}
         generatedAt={generatedAt}
         reportTitle={reportTitle}
       />
+      <div className="space-y-10">
+        {showSummary && (
+          <>
+            <ReportExecutiveSummary
+              period={period}
+              companyName={companyName}
+              objective={objective}
+              achieved={achieved}
+            />
 
-      <ReportExecutiveSummary
-        period={period}
-        companyName={companyName}
-        objective={objective}
-        achieved={achieved}
-      />
+            <ReportDivider />
+          </>
+        )}
 
-      <ReportDivider />
+        {/* Diversidad */}
 
-      {/* Diversidad */}
-      <ReportSectionTitle title="Distribución de diversidad" />
+        {showDiversity && (
+          <>
+            <ReportSectionTitle title="Distribución de diversidad" />
 
-      <DiversityPieChart data={diversityData} compact />
+            <DiversityPieChart data={diversityData} compact />
 
-      <ReportDivider />
+            <ReportDivider />
+          </>
+        )}
 
-      {/* Selección */}
-      <ReportSectionTitle title="Proceso de selección" />
+        {/* Selección */}
+        {showFunnel && (
+          <>
+            <ReportSectionTitle title="Proceso de selección" />
 
-      <div className="space-y-8">
-        <SelectionFunnel data={funnelData} compact />
+            <SelectionFunnel data={funnelData} compact />
 
-        <AbandonmentRateChart data={funnelData} compact />
+            <ReportDivider />
+          </>
+        )}
+
+        {showAbandonment && (
+          <>
+            <ReportSectionTitle title="Tasa de abandono por etapa" />
+
+            <AbandonmentRateChart data={funnelData} compact />
+
+            <ReportDivider />
+          </>
+        )}
       </div>
-
-      <ReportDivider />
-
       {/* Pie */}
       <ReportFooter />
     </section>
