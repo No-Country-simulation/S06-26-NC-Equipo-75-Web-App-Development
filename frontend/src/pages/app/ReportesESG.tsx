@@ -1,24 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+import ReportConfigPanel, {
+  type ReportConfig,
+} from '../../components/organisms/ReportConfigPanel';
+
+import ESGReportPreview from '../../components/organisms/ESGReportPreview';
+
+import { diversityMock, selectionFunnelMock } from '../../mocks/esg.mock';
 
 const ReportesESG: React.FC = () => {
-  return (
-    <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-3">
-        <h1 className="text-h1 font-bold leading-h1 text-text-primary">
-          Reportes ESG
-        </h1>
-        <p className="text-body-medium leading-body-medium text-text-secondary">
-          Consulta y descarga reportes sobre el cumplimiento de tus objetivos
-          ESG.
-        </p>
-      </header>
+  const [reportConfig, setReportConfig] = useState<ReportConfig>({
+    companyName: 'ImpactHire Demo',
+    period: 'Q2 2026',
+    objective: 40,
+    achieved: 45,
+    generatedAt: '09/07/2026',
+  });
 
-      <div className="rounded-lg border border-border-light bg-bg-primary p-6">
-        <p className="text-body-medium leading-body-medium text-text-secondary">
-          Esta sección está en desarrollo.
-        </p>
+  return (
+    <>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <h2 className="text-h2 leading-h2 text-text-secondary max-w-2xl">
+          Genera reportes de cumplimiento ESG para inversores, reguladores y
+          stakeholders.
+        </h2>
       </div>
-    </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-1">
+          <ReportConfigPanel config={reportConfig} onChange={setReportConfig} />
+        </div>
+
+        <div className="xl:col-span-2">
+          <ESGReportPreview
+            {...reportConfig}
+            diversityData={diversityMock}
+            funnelData={selectionFunnelMock}
+          />
+        </div>
+      </div>
+    </>
   );
 };
 
