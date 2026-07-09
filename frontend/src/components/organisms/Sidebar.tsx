@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Briefcase,
+  Users,
   Building2,
   UserCog,
   FileBarChart,
@@ -38,6 +39,13 @@ const ALL_NAV_ITEMS: NavItem[] = [
     label: 'Vacantes',
     icon: Briefcase,
     to: '/vacancies',
+    roles: ['empresa_admin', 'reclutador'],
+  },
+  {
+    id: 'candidatos',
+    label: 'Candidatos',
+    icon: Users,
+    to: '/candidatos',
     roles: ['empresa_admin', 'reclutador'],
   },
   {
