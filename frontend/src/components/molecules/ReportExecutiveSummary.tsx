@@ -34,11 +34,21 @@ const ReportExecutiveSummary: React.FC<ReportExecutiveSummaryProps> = ({
 
         <p className="text-body-large leading-body-large text-text-secondary">
           Durante el <strong>{period}</strong>, <strong>{companyName}</strong>{' '}
-          superó el objetivo institucional del <strong>{objective}%</strong> en
-          contrataciones de talento diverso, alcanzando un{' '}
-          <strong>{achieved}%</strong>. Este resultado refleja una mejora
-          sostenida en las diferentes etapas del proceso de selección auditado
-          por ImpactHire.
+          {goalReached ? (
+            <>
+              superó el objetivo institucional del <strong>{objective}%</strong>{' '}
+              en diversidad de candidatos dentro del proceso de selección,
+              alcanzando un <strong>{achieved}%</strong>.
+            </>
+          ) : (
+            <>
+              alcanzó un <strong>{achieved}%</strong> de diversidad de
+              candidatos dentro del proceso de selección, frente al objetivo
+              institucional establecido del <strong>{objective}%</strong>.
+            </>
+          )}{' '}
+          Este resultado refleja el desempeño actual del proceso de selección
+          auditado por ImpactHire.
         </p>
 
         <div className="mt-6 flex gap-8">
