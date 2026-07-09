@@ -41,6 +41,36 @@ export interface VacanteSkill {
   };
 }
 
+export interface ShortlistCandidate {
+  id: string;
+  candidatoId: string;
+  score: number;
+  skillsScore: number;
+  experienciaScore: number;
+  regionScore: number;
+  badgeDiversidad: boolean;
+  candidato: {
+    id: string;
+    nombre: string;
+    apellido: string;
+    email: string;
+    nivel: string;
+    region: {
+      id: string;
+      nombre: string;
+    };
+    skills: { skill: { nombre: string } }[];
+  };
+}
+
+export interface ShortlistResponse {
+  vacante: Vacante;
+  match: {
+    totalAnalizados: number;
+    candidatos: ShortlistCandidate[];
+  };
+}
+
 export const vacantesService = {
   async getAll(): Promise<Vacante[]> {
     return apiClient<Vacante[]>('/vacantes');
@@ -81,4 +111,10 @@ export const vacantesService = {
       body: JSON.stringify({ status }),
     });
   },
+
+  async executeMatch(id: string): Promise<ShortlistResponse> {
+  return apiClient<ShortlistResponse>(`/vacantes/${id}/match`, {
+    method: 'POST',
+  });
+},
 };
