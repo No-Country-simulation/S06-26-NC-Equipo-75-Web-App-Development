@@ -14,20 +14,27 @@ interface Props {
     name: string;
     value: number;
   }[];
+  compact?: boolean;
 }
 
-export default function DiversityPieChart({ data }: Props) {
+export default function DiversityPieChart({ data, compact = false }: Props) {
+  const containerClass = compact
+    ? 'flex flex-col md:flex-row items-center gap-8'
+    : 'flex flex-col lg:flex-row items-center gap-10';
+
   return (
-    <div className="flex flex-col lg:flex-row items-center gap-10">
+    <div className={containerClass}>
       {/* Gráfico */}
-      <div className="h-80 w-full lg:w-1/2">
+      <div
+        className={compact ? 'h-64 w-full md:w-1/2' : 'h-80 w-full lg:w-1/2'}
+      >
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
               dataKey="value"
               nameKey="name"
-              outerRadius={110}
+              outerRadius={compact ? 90 : 110}
               label
             >
               {data.map((_, index) => (
@@ -41,7 +48,9 @@ export default function DiversityPieChart({ data }: Props) {
       </div>
 
       {/* Leyenda personalizada */}
-      <div className="w-full lg:w-1/2 px-24">
+      <div
+        className={compact ? 'w-full md:w-1/2 px-8' : 'w-full lg:w-1/2 px-24'}
+      >
         {data.map((item, index) => (
           <div
             key={item.name}

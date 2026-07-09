@@ -9,12 +9,14 @@ interface AbandonmentRateChartProps {
   title?: string;
   description?: string;
   data: FunnelStageType[];
+  compact?: boolean;
 }
 
 const AbandonmentRateChart: React.FC<AbandonmentRateChartProps> = ({
   title = 'Tasa de Abandono por Etapa',
   description = 'Identifica en qué etapa del proceso se pierde la mayor cantidad de candidatos.',
   data,
+  compact = false,
 }) => {
   // Estado sin datos suficientes
   if (data.length < 2) {
@@ -82,18 +84,24 @@ const AbandonmentRateChart: React.FC<AbandonmentRateChartProps> = ({
   const formatStage = (stage: string) =>
     stage.charAt(0).toUpperCase() + stage.slice(1).toLowerCase();
 
-  return (
-    <section className="rounded-xl border border-border-light bg-bg-primary p-6 shadow-sm">
-      {/* Encabezado */}
-      <header className="mb-8 text-center">
-        <h3 className="mb-2 text-h2 font-semibold text-text-primary">
-          {title}
-        </h3>
+  const containerClass = compact
+    ? ''
+    : 'rounded-xl border border-border-light bg-bg-primary p-6 shadow-sm';
 
-        <p className="mx-auto max-w-xl text-body-large text-text-secondary">
-          {description}
-        </p>
-      </header>
+  return (
+    <section className={containerClass}>
+      {/* Encabezado */}
+      {!compact && (
+        <header className="mb-8 text-center">
+          <h3 className="mb-2 text-h2 font-semibold text-text-primary">
+            {title}
+          </h3>
+
+          <p className="mx-auto max-w-xl text-body-large text-text-secondary">
+            {description}
+          </p>
+        </header>
+      )}
 
       {/* Barras */}
       <div className="space-y-6">
