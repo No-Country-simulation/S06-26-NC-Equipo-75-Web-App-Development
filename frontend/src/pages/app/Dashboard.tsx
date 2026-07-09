@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import KpiCard from '../../components/molecules/KpiCard';
 import Badge from '../../components/atoms/Badge';
+import Button from '../../components/atoms/Button';
 import {
   BarChart,
   Bar,
@@ -18,6 +19,7 @@ import {
   TrendingUp,
   AlertTriangle,
   Briefcase,
+  FileDown,
 } from 'lucide-react';
 
 // ─── Mock data ────────────────────────────────────────
@@ -73,6 +75,21 @@ export default function Dashboard() {
     );
   }, []);
 
+  const [periodo, setPeriodo] = useState<'mensual' | 'trimestral' | 'anual'>('trimestral');
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      alert(`Reporte ESG (${periodo}) generado correctamente.`);
+    } catch {
+      alert('Error al generar el reporte.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Alerta visual */}
@@ -87,37 +104,15 @@ export default function Dashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KpiCard
-          label="Contrataciones diversas"
-          value={`${kpiData.contratacionesDiversas}%`}
-          icon={Users}
-          valueClassName={getKpiStatus(kpiData.contratacionesDiversas, META_DIVERSIDAD)}
-        />
-        <KpiCard
-          label="Diversidad en shortlist"
-          value={`${kpiData.shortlistDiversidad}%`}
-          icon={Briefcase}
-          valueClassName="text-text-primary"
-        />
-        <KpiCard
-          label="Candidatos contactados"
-          value={`${kpiData.candidatosContactados}%`}
-          icon={Target}
-          valueClassName="text-text-primary"
-        />
-        <KpiCard
-          label="Tasa de conversión"
-          value={`${kpiData.tasaConversion}%`}
-          icon={TrendingUp}
-          valueClassName="text-text-primary"
-        />
+        <KpiCard label="Contrataciones diversas" value={`${kpiData.contratacionesDiversas}%`} icon={Users} valueClassName={getKpiStatus(kpiData.contratacionesDiversas, META_DIVERSIDAD)} />
+        <KpiCard label="Diversidad en shortlist" value={`${kpiData.shortlistDiversidad}%`} icon={Briefcase} valueClassName="text-text-primary" />
+        <KpiCard label="Candidatos contactados" value={`${kpiData.candidatosContactados}%`} icon={Target} valueClassName="text-text-primary" />
+        <KpiCard label="Tasa de conversión" value={`${kpiData.tasaConversion}%`} icon={TrendingUp} valueClassName="text-text-primary" />
       </div>
 
-      {/* Gráfico de barras: comparación por etapa */}
+      {/* Gráfico de barras */}
       <div className="rounded-xl border border-border-light bg-bg-primary p-5 shadow-sm">
-        <h2 className="text-h3 font-semibold text-text-primary mb-4">
-          Diversidad por etapa del proceso
-        </h2>
+        <h2 className="text-h3 font-semibold text-text-primary mb-4">Diversidad por etapa del proceso</h2>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={datosPorEtapa}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -130,45 +125,30 @@ export default function Dashboard() {
         </ResponsiveContainer>
       </div>
 
-      {/* Gráfico de línea: evolución temporal */}
+      {/* Gráfico de línea */}
       <div className="rounded-xl border border-border-light bg-bg-primary p-5 shadow-sm">
-        <h2 className="text-h3 font-semibold text-text-primary mb-4">
-          Evolución del % de diversidad
-        </h2>
+        <h2 className="text-h3 font-semibold text-text-primary mb-4">Evolución del % de diversidad</h2>
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={evolucionTemporal}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="mes" />
             <YAxis domain={[0, 100]} />
             <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="diversidad"
-              stroke="var(--color-brand-secondary)"
-              strokeWidth={2}
-              name="% Diversidad"
-            />
+            <Line type="monotone" dataKey="diversidad" stroke="var(--color-brand-secondary)" strokeWidth={2} name="% Diversidad" />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
       {/* Embudo de conversión */}
       <div className="rounded-xl border border-border-light bg-bg-primary p-5 shadow-sm">
-        <h2 className="text-h3 font-semibold text-text-primary mb-4">
-          Embudo de conversión — Candidatos con badge
-        </h2>
+        <h2 className="text-h3 font-semibold text-text-primary mb-4">Embudo de conversión — Candidatos con badge</h2>
         <div className="space-y-2">
           {embudoData.map((item) => (
             <div key={item.etapa} className="flex items-center gap-3">
               <span className="w-24 text-body-small text-text-secondary">{item.etapa}</span>
               <div className="flex-1 h-8 bg-bg-tertiary rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-brand-secondary rounded-full flex items-center justify-end pr-3"
-                  style={{ width: `${item.valor}%` }}
-                >
-                  <span className="text-label-small font-medium text-white">
-                    {item.valor}%
-                  </span>
+                <div className="h-full bg-brand-secondary rounded-full flex items-center justify-end pr-3" style={{ width: `${item.valor}%` }}>
+                  <span className="text-label-small font-medium text-white">{item.valor}%</span>
                 </div>
               </div>
             </div>
@@ -179,25 +159,31 @@ export default function Dashboard() {
       {/* Indicador de meta */}
       <div className="rounded-xl border border-border-light bg-bg-primary p-5 shadow-sm">
         <div className="flex items-center justify-between">
-          <span className="text-body-medium font-medium text-text-primary">
-            Meta de diversidad: {META_DIVERSIDAD}%
-          </span>
-          <Badge
-            label={cumpleMeta ? 'Cumplida' : 'No cumplida'}
-            className={
-              cumpleMeta
-                ? 'bg-badge-success-bg text-badge-success-text'
-                : 'bg-badge-error-bg text-badge-error-text'
-            }
-          />
+          <span className="text-body-medium font-medium text-text-primary">Meta de diversidad: {META_DIVERSIDAD}%</span>
+          <Badge label={cumpleMeta ? 'Cumplida' : 'No cumplida'} className={cumpleMeta ? 'bg-badge-success-bg text-badge-success-text' : 'bg-badge-error-bg text-badge-error-text'} />
         </div>
         <div className="mt-2 h-2 bg-bg-tertiary rounded-full">
-          <div
-            className={`h-full rounded-full ${
-              cumpleMeta ? 'bg-badge-success-text' : 'bg-badge-error-text'
-            }`}
-            style={{ width: `${kpiData.contratacionesDiversas}%` }}
-          />
+          <div className={`h-full rounded-full ${cumpleMeta ? 'bg-badge-success-text' : 'bg-badge-error-text'}`} style={{ width: `${kpiData.contratacionesDiversas}%` }} />
+        </div>
+      </div>
+
+      {/* Exportar Reporte */}
+      <div className="rounded-xl border border-border-light bg-bg-primary p-5 shadow-sm">
+        <h2 className="text-h3 font-semibold text-text-primary mb-4">Exportar Reporte ESG</h2>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <select
+            value={periodo}
+            onChange={(e) => setPeriodo(e.target.value as 'mensual' | 'trimestral' | 'anual')}
+            className="rounded-lg border border-input-border bg-input-bg p-3 text-body-medium text-text-primary outline-none focus:border-input-focus"
+          >
+            <option value="mensual">Mensual</option>
+            <option value="trimestral">Trimestral</option>
+            <option value="anual">Anual</option>
+          </select>
+          <Button variant="primary" size="medium" onClick={handleExportPDF} isLoading={isExporting} className="shrink-0">
+            <FileDown className="h-5 w-5" />
+            Exportar Reporte PDF
+          </Button>
         </div>
       </div>
     </div>
