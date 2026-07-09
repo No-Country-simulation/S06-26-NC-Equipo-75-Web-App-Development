@@ -63,6 +63,12 @@ export class EmpresasController {
     return this.empresasService.findDashboard(id, req.user.sub);
   }
 
+  @Get(':id/weeklyMatches')
+  @UseGuards(JwtAuthGuard)
+  getWeeklyMatches(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.empresasService.getWeeklyMatches(id, req.user.sub);
+  }
+
   @Patch(':id/perfil')
   @UseGuards(JwtAuthGuard)
   @ApiUpdateCompanyProfile()

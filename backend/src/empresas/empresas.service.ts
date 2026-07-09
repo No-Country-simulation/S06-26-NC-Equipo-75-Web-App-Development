@@ -75,7 +75,6 @@ export class EmpresasService {
       interviews,
       totalHired,
       diversityHired,
-      matches,
     ] = await Promise.all([
       // Vacantes activas
       this.prisma.vacante.count({
@@ -129,42 +128,8 @@ export class EmpresasService {
           },
         },
       }),
-
-      // Matches últimos 7 días
-      this.prisma.match.findMany({
-        where: {
-          vacante: {
-            empresaId: id,
-          },
-          fechaMatch: {
-            gte: lastWeek,
-          },
-        },
-        select: {
-          fechaMatch: true,
-        },
-      }),
     ]);
 
-    const weeklyMatches = Object.values(
-      matches.reduce(
-        (acc, match) => {
-          const date = match.fechaMatch.toISOString().split('T')[0];
-
-          if (!acc[date]) {
-            acc[date] = {
-              date,
-              matches: 0,
-            };
-          }
-
-          acc[date].matches++;
-
-          return acc;
-        },
-        {} as Record<string, { date: string; matches: number }>,
-      ),
-    );
     const objetivoDiversidad = existingCompany.empresa.objetivoDiversidad ?? 0;
 
     const porcentajeDiversidad =
@@ -175,14 +140,55 @@ export class EmpresasService {
       newCandidates,
       interviews,
 
-      esgGoal: {
-        current: Number(porcentajeDiversidad.toFixed(2)),
-        target: objetivoDiversidad,
+      esgProgress: {
+        currentPercentage: Number(porcentajeDiversidad.toFixed(2)),
+        targetPercentage: objetivoDiversidad,
         reached: porcentajeDiversidad >= objetivoDiversidad,
       },
-
-      weeklyMatches: weeklyMatches,
     };
+  }
+  async getWeeklyMatches(id: string, userId: string) {
+    await this.validateUserCompanyAccess(userId, id);
+
+    // 7 días atrás
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+
+    const matches = await this.prisma.match.findMany({
+      where: {
+        vacante: {
+          empresaId: id,
+        },
+        fechaMatch: {
+          gte: lastWeek,
+        },
+      },
+      select: {
+        fechaMatch: true,
+      },
+    });
+
+    const weeklyMatches = Object.values(
+      matches.reduce(
+        (acc, match) => {
+          const date = match.fechaMatch.toISOString().split('T')[0];
+
+          if (!acc[date]) {
+            acc[date] = {
+              date,
+              totalMatches: 0,
+            };
+          }
+
+          acc[date].totalMatches++;
+
+          return acc;
+        },
+        {} as Record<string, { date: string; totalMatches: number }>,
+      ),
+    );
+
+    return weeklyMatches;
   }
 
   async findAll() {
