@@ -87,35 +87,6 @@ const CompanyManagement: React.FC = () => {
     setFormData((current) => ({ ...current, [name]: value }));
   };
 
-  const loadCompany = async () => {
-    if (!companyId) return;
-
-    try {
-      const company = await companyService.getCompanyById(companyId);
-
-      setFormData({
-        companyName: company.nombre,
-        industry: company.industria,
-        website: company.sitioWeb ?? '',
-        country: company.pais,
-        city: company.ciudad,
-      });
-
-      setMinimumDiversity(company.objetivoDiversidad);
-
-      const groups = company.gruposDiversidad?.map((item) => item.grupo) ?? [];
-
-      setSelectedCategories(groups);
-    } catch (err) {
-      console.error('Error cargando empresa', err);
-    }
-  };
-
-  useEffect(() => {
-    loadDiversityGroups();
-    loadCompany();
-  }, [companyId]);
-
   useEffect(() => {
     if (!company) return;
 
@@ -133,6 +104,7 @@ const CompanyManagement: React.FC = () => {
 
     setSelectedCategories(groups);
   }, [company]);
+
   const handleCategoryToggle = async (group: GrupoDiversidad) => {
     if (!companyId) return;
 
@@ -189,13 +161,21 @@ const CompanyManagement: React.FC = () => {
   const handleRemoveDiversityTag = async (group: GrupoDiversidad) => {
     if (!companyId) return;
 
-    await companyService.removeDiversityGroup(companyId, group.id);
+    try {
+      await companyService.removeDiversityGroup(companyId, group.id);
 
-    setSelectedCategories((current) =>
-      current.filter((item) => item.id !== group.id),
-    );
+      setSelectedCategories((current) =>
+        current.filter((item) => item.id !== group.id),
+      );
 
-    success('Grupo eliminado de la empresa');
+      success('Grupo eliminado de la empresa');
+    } catch (err) {
+      error(
+        err instanceof Error
+          ? err.message
+          : 'Error eliminando grupo de diversidad',
+      );
+    }
   };
 
   const esgSummary = useMemo(() => {
@@ -476,7 +456,7 @@ const CompanyManagement: React.FC = () => {
                           type="button"
                           onClick={() => handleRemoveDiversityTag(category)}
                           className="rounded-full text-text-secondary transition-colors hover:text-badge-error-text"
-                          aria-label={`Eliminar etiqueta ${category}`}
+                          aria-label={`Eliminar etiqueta ${category.nombre}`}
                         >
                           <X className="h-3.5 w-3.5" />
                         </button>

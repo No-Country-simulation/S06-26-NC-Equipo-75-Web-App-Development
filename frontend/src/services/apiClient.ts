@@ -2,7 +2,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 export async function apiClient<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const token = localStorage.getItem('access_token');
 
@@ -21,11 +21,13 @@ export async function apiClient<T>(
     return undefined as unknown as T;
   }
 
-  const data = await response.json();
+  const text = await response.text();
+
+  const data = text ? JSON.parse(text) : undefined;
 
   if (!response.ok) {
-    throw new Error(data.message || 'Error en la solicitud');
+    throw new Error(data?.message || 'Error en la solicitud');
   }
 
-  return data;
+  return data as T;
 }
