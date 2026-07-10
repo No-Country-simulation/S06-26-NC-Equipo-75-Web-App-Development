@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Candidato" ADD COLUMN     "fechaRegistro" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

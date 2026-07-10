@@ -10,6 +10,9 @@ export interface Candidato {
   estado: string;
   badges: string[];
   consentimientoUbicacion: boolean;
+  skillsScore?: number;
+  experienciaScore?: number;
+  regionScore?: number;
 }
 
 const MOCK_CANDIDATOS: Candidato[] = [
@@ -28,6 +31,9 @@ const MOCK_CANDIDATOS: Candidato[] = [
       'Resido en región periférica o de baja representación laboral',
     ],
     consentimientoUbicacion: true,
+    skillsScore: 0.90,
+    experienciaScore: 0.95,
+    regionScore: 0.80,
   },
   {
     id: '2',
@@ -41,6 +47,9 @@ const MOCK_CANDIDATOS: Candidato[] = [
     estado: 'Entrevista',
     badges: ['Tengo discapacidad certificada o auto-declarada'],
     consentimientoUbicacion: false,
+    skillsScore: 0.85,
+    experienciaScore: 0.70,
+    regionScore: 0.90,
   },
   {
     id: '3',
@@ -54,6 +63,9 @@ const MOCK_CANDIDATOS: Candidato[] = [
     estado: 'Rechazado',
     badges: [],
     consentimientoUbicacion: false,
+    skillsScore: 0.80,
+    experienciaScore: 0.60,
+    regionScore: 0.50,
   },
   {
     id: '4',
@@ -67,6 +79,9 @@ const MOCK_CANDIDATOS: Candidato[] = [
     estado: 'Contactado',
     badges: [],
     consentimientoUbicacion: true,
+    skillsScore: 0.70,
+    experienciaScore: 0.50,
+    regionScore: 0.85,
   },
   {
     id: '5',
@@ -80,6 +95,9 @@ const MOCK_CANDIDATOS: Candidato[] = [
     estado: 'Aplicó',
     badges: [],
     consentimientoUbicacion: true,
+    skillsScore: 0.65,
+    experienciaScore: 0.80,
+    regionScore: 0.60,
   },
   {
     id: '6',
@@ -93,6 +111,9 @@ const MOCK_CANDIDATOS: Candidato[] = [
     estado: 'Entrevista',
     badges: ['Mujer en área tecnológica o STEM'],
     consentimientoUbicacion: false,
+    skillsScore: 0.88,
+    experienciaScore: 0.92,
+    regionScore: 0.75,
   },
   {
     id: '7',
@@ -106,6 +127,9 @@ const MOCK_CANDIDATOS: Candidato[] = [
     estado: 'Contactado',
     badges: ['Tengo discapacidad certificada o auto-declarada'],
     consentimientoUbicacion: false,
+    skillsScore: 0.75,
+    experienciaScore: 0.68,
+    regionScore: 0.90,
   },
   {
     id: '8',
@@ -119,6 +143,9 @@ const MOCK_CANDIDATOS: Candidato[] = [
     estado: 'Aplicó',
     badges: [],
     consentimientoUbicacion: true,
+    skillsScore: 0.82,
+    experienciaScore: 0.88,
+    regionScore: 0.70,
   },
 ];
 
@@ -127,9 +154,8 @@ export const candidatosService = {
     return MOCK_CANDIDATOS;
   },
   async getById(id: string): Promise<Candidato> {
-  const candidato = MOCK_CANDIDATOS.find((c) => c.id === id);
-  if (!candidato) throw new Error('Candidato no encontrado');
-  return candidato;
-},
+    const candidato = MOCK_CANDIDATOS.find((c) => c.id === id);
+    if (!candidato) throw new Error('Candidato no encontrado');
+    return candidato;
+  },
 };
-

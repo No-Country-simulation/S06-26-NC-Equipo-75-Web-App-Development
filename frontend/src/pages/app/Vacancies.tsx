@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import KpiCard from '../../components/molecules/KpiCard';
 import DataTable, { type Column } from '../../components/organisms/DataTable';
@@ -6,9 +5,15 @@ import SearchBar from '../../components/molecules/SearchBar';
 import FilterTabs from '../../components/molecules/FilterTabs';
 import Button from '../../components/atoms/Button';
 import Modal from '../../components/molecules/Modal';
+import Badge from '../../components/atoms/Badge';
 import VacancyForm from '../../components/organisms/VacancyForm';
 import { useAuth } from '../../contexts/useAuth';
-import { vacantesService, type Vacante, type VacanteCreate } from '../../services/vacantes.service';
+import {
+  vacantesService,
+  type Vacante,
+  type VacanteCreate,
+  type ShortlistResponse,
+} from '../../services/vacantes.service';
 import {
   Briefcase,
   CheckCircle,
@@ -21,6 +26,7 @@ import {
   Play,
   StopCircle,
   Users,
+  Search,
 } from 'lucide-react';
 
 const ESTADOS_FILTRO = ['Todos', 'Abierto', 'Pausado', 'Cerrado'] as const;
@@ -31,7 +37,6 @@ const ESTADO_MAP: Record<string, string> = {
   PAUSED: 'Pausado',
 };
 
-// Mapeo inverso para enviar al backend
 const ESTADO_REVERSE_MAP: Record<string, string> = {
   'Abierto': 'OPEN',
   'Cerrado': 'CLOSED',
@@ -59,6 +64,16 @@ const Vacancies: React.FC = () => {
   // Modal de edición
   const [editingVacante, setEditingVacante] = useState<Vacante | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Matching
+  const [matchingVacante, setMatchingVacante] = useState<Vacante | null>(null);
+  const [matchResult, setMatchResult] = useState<ShortlistResponse | null>(null);
+  const [isMatching, setIsMatching] = useState(false);
+
+  // Filtros del shortlist
+  const [matchScoreMin, setMatchScoreMin] = useState(0);
+  const [matchSoloBadge, setMatchSoloBadge] = useState(false);
+  const [matchRegion, setMatchRegion] = useState('');
 
   // ---------- Efecto de carga ----------
   useEffect(() => {
@@ -113,7 +128,6 @@ const Vacancies: React.FC = () => {
     }
   };
 
-  // Cambio de estado (pausar / reanudar / cerrar)
   const handleChangeStatus = async (vac: Vacante, nuevoEstado: string) => {
     const accion = nuevoEstado === 'Abierto' ? 'reanudar' : nuevoEstado === 'Pausado' ? 'pausar' : 'cerrar';
     if (!confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} esta vacante?`)) return;
@@ -126,7 +140,6 @@ const Vacancies: React.FC = () => {
     }
   };
 
-  // Crear vacante
   const handleCreateVacante = async (data: VacanteCreate) => {
     setIsCreating(true);
     try {
@@ -137,7 +150,6 @@ const Vacancies: React.FC = () => {
     }
   };
 
-  // Editar vacante
   const handleEditVacante = async (data: VacanteCreate) => {
     if (!editingVacante) return;
     setIsEditing(true);
@@ -153,6 +165,24 @@ const Vacancies: React.FC = () => {
     }
   };
 
+  const handleMatch = async (vac: Vacante) => {
+    setIsMatching(true);
+    setMatchResult(null);
+    setMatchingVacante(vac);
+    setMatchScoreMin(0);
+    setMatchSoloBadge(false);
+    setMatchRegion('');
+    try {
+      const result = await vacantesService.executeMatch(vac.id);
+      setMatchResult(result);
+    } catch (err) {
+      console.error('Error al ejecutar matching:', err);
+      alert('No se pudo ejecutar el matching.');
+    } finally {
+      setIsMatching(false);
+    }
+  };
+
   const getEstadoColor = (estado: string) => {
     const estadoNormalizado = ESTADO_MAP[estado] || estado;
     switch (estadoNormalizado) {
@@ -162,6 +192,22 @@ const Vacancies: React.FC = () => {
       default: return 'text-text-secondary bg-bg-tertiary';
     }
   };
+
+  // ---------- Filtrado de shortlist ----------
+  const matchCandidatosFiltrados = matchResult
+    ? matchResult.match.candidatos
+        .filter((c) => c.score * 100 >= matchScoreMin)
+        .filter((c) => !matchSoloBadge || c.badgeDiversidad)
+        .filter((c) => !matchRegion || c.candidato.region?.nombre === matchRegion)
+    : [];
+
+  const pctBadge = matchResult
+    ? Math.round(
+        (matchResult.match.candidatos.filter((c) => c.badgeDiversidad).length /
+          matchResult.match.candidatos.length) *
+          100
+      )
+    : 0;
 
   // ---------- Columnas de la tabla ----------
   const columns: Column<Vacante>[] = [
@@ -252,6 +298,13 @@ const Vacancies: React.FC = () => {
             >
               <XCircle className="h-4 w-4" />
             </button>
+            <button
+              className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-brand-secondary"
+              title="Buscar Candidatos"
+              onClick={() => handleMatch(vac)}
+            >
+              <Search className="h-4 w-4" />
+            </button>
           </div>
         );
       },
@@ -332,6 +385,144 @@ const Vacancies: React.FC = () => {
               pesosScore: { skills: 60, nivel: 25, experiencia: 15 },
             }}
           />
+        )}
+      </Modal>
+
+      {/* MODAL DE MATCHING */}
+      <Modal
+        isOpen={!!matchResult || isMatching}
+        onClose={() => {
+          setMatchResult(null);
+          setIsMatching(false);
+        }}
+        title={`Resultados para: ${matchingVacante?.titulo || ''}`}
+        maxWidth="xl"
+      >
+        {isMatching && (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin h-8 w-8 border-4 border-brand-secondary border-t-transparent rounded-full" />
+          </div>
+        )}
+
+        {matchResult && matchResult.match.candidatos.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-body-medium text-text-secondary mb-2">
+              No se encontraron candidatos compatibles.
+            </p>
+            <p className="text-body-small text-text-tertiary">
+              Intentá ajustar los requisitos de la vacante o ampliar las habilidades solicitadas.
+            </p>
+          </div>
+        )}
+
+        {matchResult && matchResult.match.candidatos.length > 0 && (
+          <div className="space-y-4">
+            {/* Indicador de diversidad */}
+            <div className="flex items-center gap-2 rounded-lg bg-bg-secondary p-3">
+              <Users className="h-5 w-5 text-brand-secondary" />
+              <span className="text-body-medium text-text-primary font-medium">
+                {pctBadge}% de candidatos con badge de diversidad
+              </span>
+            </div>
+
+            {/* Filtros */}
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-label-small text-text-secondary">Score mín:</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={matchScoreMin}
+                  onChange={(e) => setMatchScoreMin(Number(e.target.value) || 0)}
+                  className="w-20 rounded-lg border border-input-border bg-input-bg px-2 py-1 text-body-small outline-none focus:border-input-focus"
+                />
+              </div>
+              <button
+                onClick={() => setMatchSoloBadge(!matchSoloBadge)}
+                className={`rounded-full px-3 py-1 text-label-small font-medium transition-colors ${
+                  matchSoloBadge ? 'bg-brand-secondary text-white' : 'bg-bg-tertiary text-text-secondary'
+                }`}
+              >
+                Solo con badge
+              </button>
+              <select
+                value={matchRegion}
+                onChange={(e) => setMatchRegion(e.target.value)}
+                className="rounded-lg border border-input-border bg-input-bg px-2 py-1 text-body-small outline-none focus:border-input-focus"
+              >
+                <option value="">Todas las regiones</option>
+                {[
+                  ...new Set(
+                    matchResult.match.candidatos
+                      .map((c) => c.candidato.region?.nombre)
+                      .filter(Boolean)
+                  ),
+                ].map((reg) => (
+                  <option key={reg} value={reg}>
+                    {reg}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Tabla */}
+            <DataTable
+              data={matchCandidatosFiltrados}
+              columns={[
+                {
+                  key: 'score',
+                  header: 'Score',
+                  render: (c) => (
+                    <span className="font-bold text-text-primary">
+                      {(c.score * 100).toFixed(0)}%
+                    </span>
+                  ),
+                },
+                {
+                  key: 'nombre',
+                  header: 'Nombre',
+                  render: (c) => (
+                    <span>
+                      {c.candidato.nombre} {c.candidato.apellido}
+                    </span>
+                  ),
+                },
+                { key: 'nivel', header: 'Nivel', render: (c) => <span>{c.candidato.nivel}</span> },
+                {
+                  key: 'region',
+                  header: 'Región',
+                  render: (c) => <span>{c.candidato.region?.nombre || '—'}</span>,
+                },
+                {
+                  key: 'skills',
+                  header: 'Habilidades',
+                  render: (c) => (
+                    <span className="text-body-small text-text-secondary">
+                      {c.candidato.skills?.map((s) => s.skill.nombre).join(', ') || '—'}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'diversidad',
+                  header: 'Diversidad',
+                  render: (c) => (
+                    <Badge
+                      label={c.badgeDiversidad ? 'Sí' : 'No'}
+                      className={
+                        c.badgeDiversidad
+                          ? 'bg-badge-success-bg text-badge-success-text'
+                          : 'bg-bg-tertiary text-text-secondary'
+                      }
+                    />
+                  ),
+                },
+              ]}
+              currentPage={1}
+              totalPages={1}
+              onPageChange={() => {}}
+            />
+          </div>
         )}
       </Modal>
     </>

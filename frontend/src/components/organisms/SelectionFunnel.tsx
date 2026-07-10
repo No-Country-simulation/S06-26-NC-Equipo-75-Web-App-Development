@@ -9,33 +9,42 @@ interface SelectionFunnelProps {
   title?: string;
   description?: string;
   data: FunnelStageType[];
+  compact?: boolean;
 }
 
 const INITIAL_WIDTH = 100;
-const STEP = 15; // reduce 15% por etapa
+const STEP = 15;
 
 const SelectionFunnel: React.FC<SelectionFunnelProps> = ({
   title = 'Embudo de Selección',
   description = 'Visualiza cuántos candidatos avanzan en cada etapa del proceso de selección.',
   data,
+  compact = false,
 }) => {
-  return (
-    <section className="rounded-xl border border-border-light bg-bg-primary p-6 shadow-sm">
-      {/* Encabezado */}
-      <header className="mb-8 text-center">
-        <h3 className="mb-2 text-h2 font-semibold text-text-primary">
-          {title}
-        </h3>
+  const containerClass = compact
+    ? ''
+    : 'rounded-xl border border-border-light bg-bg-primary p-6 shadow-sm';
 
-        <p className="mx-auto max-w-xl text-body-large text-text-secondary">
-          {description}
-        </p>
-      </header>
+  return (
+    <section className={containerClass}>
+      {/* Encabezado */}
+      {!compact && (
+        <header className="mb-8 text-center">
+          <h3 className="mb-2 text-h2 font-semibold text-text-primary">
+            {title}
+          </h3>
+
+          <p className="mx-auto max-w-xl text-body-large text-text-secondary">
+            {description}
+          </p>
+        </header>
+      )}
 
       {/* Embudo */}
       <div className="flex flex-col gap-5">
         {data.map((stage, index) => {
           const width = INITIAL_WIDTH - index * STEP;
+
           return (
             <React.Fragment key={stage.stage}>
               <div className="flex justify-center">

@@ -11,13 +11,10 @@ import Register from '../pages/public/Register';
 import RegisterCompany from '../pages/onboarding/RegisterCompany';
 import Dashboard from '../pages/app/Dashboard';
 import Vacancies from '../pages/app/Vacancies';
-import Candidates from '../pages/app/Candidates';
 import IndicadoresESG from '../pages/app/IndicadoresESG';
 import Home from '../pages/public/Home';
 import CompanyManagement from '../pages/app/CompanyManagement';
 import AppLayout from '../components/templates/AppLayout';
-import CandidateProfile from '../pages/app/CandidateProfile';
-
 import GestionUsuarios from '../pages/app/GestionUsuarios';
 import ReportesESG from '../pages/app/ReportesESG';
 
@@ -98,24 +95,16 @@ const router = createBrowserRouter([
   {
     element: <ProtectedLayout />,
     children: [
-      { index: true, element: <Navigate to="/vacancies" replace /> },
+      { index: true, element: <Navigate to="/dashboard" replace /> },
       {
         path: 'dashboard',
         element: <Dashboard />,
-        handle: {
-          title: 'Dashboard ESG',
-          roles: ['empresa_admin', 'reclutador'],
-        },
+        handle: { title: 'Dashboard ESG', roles: ['empresa_admin', 'reclutador'] },
       },
       {
         path: 'vacancies',
         element: <Vacancies />,
         handle: { title: 'Vacantes', roles: ['empresa_admin', 'reclutador'] },
-      },
-      {
-        path: 'candidatos',
-        element: <Candidates />,
-        handle: { title: 'Candidatos', roles: ['empresa_admin', 'reclutador'] },
       },
       {
         path: 'indicadores-esg',
@@ -129,14 +118,6 @@ const router = createBrowserRouter([
         path: 'company-management',
         element: <CompanyManagement />,
         handle: { title: 'Gestión de Empresa', roles: ['empresa_admin'] },
-      },
-      {
-        path: 'candidatos/:id',
-        element: <CandidateProfile />,
-        handle: {
-          title: 'Perfil del Candidato',
-          roles: ['empresa_admin', 'reclutador'],
-        },
       },
       {
         path: 'gestion-usuarios',

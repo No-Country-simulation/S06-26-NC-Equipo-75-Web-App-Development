@@ -27,7 +27,7 @@ export const companyService = {
     });
   },
 
-  async getCompanyById(id: string): Promise<CompanyResponse> {
-    return apiClient<CompanyResponse>(`/empresas/${id}`);
+  async getCompanyById(companyId: string): Promise<CompanyResponse> {
+    return apiClient<CompanyResponse>(`/empresas/${companyId}`);
   },
 };
