@@ -49,11 +49,8 @@ export interface ShortlistCandidate {
 }
 
 export interface ShortlistResponse {
-  vacante: Vacante;
-  match: {
-    totalAnalizados: number;
-    candidatos: ShortlistCandidate[];
-  };
+  totalAnalizados: number;
+  candidatos: ShortlistCandidate[];
 }
 
 export const vacantesService = {
