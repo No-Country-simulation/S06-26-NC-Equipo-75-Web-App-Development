@@ -104,7 +104,7 @@ const Vacancies: React.FC = () => {
   const pausadas = vacantes.filter((v) => v.estado === 'Pausado').length;
   const cerradas = vacantes.filter((v) => v.estado === 'Cerrado').length;
 
-  const handleView = (vac: Vacante) => console.log('Ver', vac);
+  const handleView = (vac: Vacante) => handleMatch(vac);
   const handleDelete = async (vac: Vacante) => {
     if (!confirm('¿Eliminar esta vacante?')) return;
     try {
