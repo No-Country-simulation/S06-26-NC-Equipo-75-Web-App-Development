@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   BarChart3,
   Building2,
@@ -10,9 +10,8 @@ import {
 import Button from '../../components/atoms/Button';
 import Input from '../../components/atoms/Input';
 import InputField from '../../components/molecules/InputField';
-import { useAuth } from '../../contexts/useAuth';
 import { useCompanyProfile } from '../../hooks/useCompanyProfile';
-import { companyService, type CreateCompanyRequest } from '../../services/empresas.service';
+import type { CreateCompanyRequest } from '../../services/empresas.service';
 
 interface CompanyFormData {
   companyName: string;
@@ -49,22 +48,6 @@ const CompanyManagement: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [savedSummary, setSavedSummary] = useState<string>('');
   const { submit, isLoading } = useCompanyProfile();
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (!user?.companyId) return;
-
-    companyService.getCompanyById(user.companyId).then((company) => {
-      setFormData({
-        companyName: company.nombre || '',
-        industry: company.industria || '',
-        website: company.sitioWeb || '',
-        country: company.pais || '',
-        city: company.ciudad || '',
-      });
-      setMinimumDiversity(company.objetivoDiversidad ?? 35);
-    });
-  }, [user?.companyId]);
 
   const handleCompanyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
