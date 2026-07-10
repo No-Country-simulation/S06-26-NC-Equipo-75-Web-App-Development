@@ -54,7 +54,7 @@ interface MeResponse {
   rol: string;
   nombre?: string;
   apellido?: string;
-  companyId?: string;
+  empresas: { empresaId: string }[];
 }
 // ---------- Servicio ----------
 export const authService = {
@@ -105,7 +105,7 @@ export const authService = {
       email: data.email,
       role: ROLE_MAP[data.rol] || data.rol,
       name: `${data.nombre} ${data.apellido}`,
-      companyId: data.companyId,
+      companyId: data.empresas?.[0]?.empresaId,
     };
   },
 };
