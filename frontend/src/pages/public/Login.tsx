@@ -8,7 +8,7 @@ const Login: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isAuthenticated && !isLoading) {
-    return <Navigate to="/vacancies" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
