@@ -1,0 +1,142 @@
+import React from 'react';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+  useMatches,
+} from 'react-router-dom';
+import { useAuth } from '../contexts/useAuth';
+import Login from '../pages/public/Login';
+import Register from '../pages/public/Register';
+import RegisterCompany from '../pages/onboarding/RegisterCompany';
+import Dashboard from '../pages/app/Dashboard';
+import Vacancies from '../pages/app/Vacancies';
+import IndicadoresESG from '../pages/app/IndicadoresESG';
+import Home from '../pages/public/Home';
+import CompanyManagement from '../pages/app/CompanyManagement';
+import AppLayout from '../components/templates/AppLayout';
+import GestionUsuarios from '../pages/app/GestionUsuarios';
+import ReportesESG from '../pages/app/ReportesESG';
+
+// ---------- Layout protegido (con verificación de roles) ----------
+const ProtectedLayout: React.FC = () => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const matches = useMatches();
+
+  const currentHandle = matches[matches.length - 1]?.handle as
+    | { title?: string; roles?: string[] }
+    | undefined;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-brand-secondary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (
+    currentHandle?.roles &&
+    user &&
+    !currentHandle.roles.includes(user.role)
+  ) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-secondary">
+        <div className="text-center">
+          <h2 className="text-h2 font-semibold text-text-primary mb-2">
+            Acceso Denegado
+          </h2>
+          <p className="text-body-medium text-text-secondary">
+            No tienes permisos para acceder a esta sección.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return <AppLayout />;
+};
+
+// ---------- Ruta de onboarding ----------
+const OnboardingRoute: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-brand-secondary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <RegisterCompany />;
+};
+
+// ---------- Data router ----------
+const router = createBrowserRouter([
+  // Rutas públicas
+  { path: '/', element: <Home /> },
+  { path: '/login', element: <Login /> },
+  { path: '/register', element: <Register /> },
+  { path: '/company-management-preview', element: <CompanyManagement /> },
+
+  // Onboarding (protegido pero sin AppLayout)
+  { path: '/onboarding/company', element: <OnboardingRoute /> },
+
+  // Rutas protegidas con AppLayout
+  {
+    element: <ProtectedLayout />,
+    children: [
+      { index: true, element: <Navigate to="/dashboard" replace /> },
+      {
+        path: 'dashboard',
+        element: <Dashboard />,
+        handle: { title: 'Dashboard ESG', roles: ['empresa_admin', 'reclutador'] },
+      },
+      {
+        path: 'vacancies',
+        element: <Vacancies />,
+        handle: { title: 'Vacantes', roles: ['empresa_admin', 'reclutador'] },
+      },
+      {
+        path: 'indicadores-esg',
+        element: <IndicadoresESG />,
+        handle: {
+          title: 'Indicadores ESG',
+          roles: ['empresa_admin', 'reclutador'],
+        },
+      },
+      {
+        path: 'company-management',
+        element: <CompanyManagement />,
+        handle: { title: 'Gestión de Empresa', roles: ['empresa_admin'] },
+      },
+      {
+        path: 'gestion-usuarios',
+        element: <GestionUsuarios />,
+        handle: { title: 'Gestión de Usuarios', roles: ['empresa_admin'] },
+      },
+      {
+        path: 'reportes-esg',
+        element: <ReportesESG />,
+        handle: { title: 'Reportes ESG', roles: ['empresa_admin'] },
+      },
+    ],
+  },
+
+  // Catch-all
+  { path: '*', element: <Navigate to="/login" replace /> },
+]);
+
+// ---------- Componente principal ----------
+const AppRouter: React.FC = () => <RouterProvider router={router} />;
+
+export default AppRouter;

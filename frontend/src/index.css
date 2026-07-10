@@ -1,0 +1,299 @@
+@import 'tailwindcss';
+
+html,
+body,
+#root {
+  min-height: 100vh;
+}
+
+/* ==========================================================
+   IMPACTHIRE DESIGN TOKENS
+   ----------------------------------------------------------
+   Los colores base documentan la identidad visual.
+   Los semánticos son los que debe consumir la aplicación.
+   ========================================================== */
+
+@theme {
+  /* ========================================================
+     PRIMITIVE TOKENS
+     ======================================================== */
+
+  /* Navy */
+  --color-navy-100: #e2e8f0;
+  --color-navy-300: #94a3b8;
+  --color-navy-600: #334155;
+  --color-navy-900: #0f172a;
+
+  /* Teal */
+  --color-teal-100: #ccfbf1;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+  --color-teal-700: #0f766e;
+
+  /* Connection */
+  --color-connection-100: #d8ecec;
+  --color-connection-500: #1e6f73;
+  --color-connection-700: #144a4d;
+
+  /* Gray */
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-300: #cbd5e1;
+  --color-gray-600: #475569;
+
+  /* Green */
+  --color-green-100: #dcfce7;
+  --color-green-700: #15803d;
+
+  /* Amber*/
+  --color-amber-100: #fef3c7;
+  --color-amber-700: #b45309;
+
+  /* Red */
+  --color-red-100: #fee2e2;
+  --color-red-700: #b91c1c;
+
+  /* White */
+  --color-white: #ffffff;
+
+  /* ========================================================
+     SEMANTIC TOKENS
+     ======================================================== */
+
+  /* Brand */
+  --color-brand-primary: var(--color-navy-900);
+  --color-brand-secondary: var(--color-teal-500);
+  --color-brand-tertiary: var(--color-connection-500);
+
+  /* Text */
+  --color-text-primary: var(--color-navy-900);
+  --color-text-secondary: var(--color-gray-600);
+  --color-text-tertiary: var(--color-gray-300);
+  --color-text-inverse: var(--color-white);
+
+  /* Background */
+  --color-bg-primary: var(--color-white);
+  --color-bg-secondary: var(--color-gray-50);
+  --color-bg-tertiary: var(--color-gray-100);
+  --color-bg-dark: var(--color-navy-900);
+
+  /* Border */
+  --color-border-light: var(--color-gray-100);
+  --color-border-medium: var(--color-gray-300);
+  --color-border-strong: var(--color-gray-600);
+
+  /* Buttons */
+  --color-button-primary-bg: var(--color-teal-500);
+  --color-button-primary-hover: var(--color-teal-600);
+  --color-button-primary-pressed: var(--color-teal-700);
+  --color-button-primary-text: var(--color-white);
+
+  --color-button-secondary-border: var(--color-gray-300);
+  --color-button-secondary-text: var(--color-gray-600);
+  --color-button-secondary-hover: var(--color-teal-500);
+  --color-button-secondary-pressed: var(--color-teal-600);
+
+  --color-button-tertiary-bg: var(--color-navy-300);
+  --color-button-tertiary-hover: var(--color-navy-600);
+  --color-button-tertiary-pressed: var(--color-navy-900);
+  --color-button-tertiary-text: var(--color-white);
+
+  /* Navigation */
+  --color-nav-header-icon: var(--color-navy-300);
+  --color-nav-header-hover: var(--color-navy-600);
+  --color-nav-header-active: var(--color-navy-600);
+
+  --color-nav-sidebar-default: var(--color-gray-300);
+  --color-nav-sidebar-hover: var(--color-teal-500);
+  --color-nav-sidebar-active: var(--color-teal-600);
+
+  /* Inputs */
+  --color-input-border: var(--color-gray-300);
+  --color-input-hover: var(--color-gray-600);
+  --color-input-focus: var(--color-teal-500);
+  --color-input-error: var(--color-red-700);
+  --color-input-bg: var(--color-white);
+
+  --color-input-text: var(--color-text-primary);
+  --color-input-label: var(--color-text-secondary);
+  --color-input-placeholder: var(--color-text-tertiary);
+
+  /* Status */
+  --color-status-success: var(--color-green-700);
+  --color-status-warning: var(--color-amber-700);
+  --color-status-error: var(--color-red-700);
+
+  /* Badges */
+  --color-badge-success-bg: var(--color-green-100);
+  --color-badge-success-text: var(--color-green-700);
+
+  --color-badge-warning-bg: var(--color-amber-100);
+  --color-badge-warning-text: var(--color-amber-700);
+
+  --color-badge-error-bg: var(--color-red-100);
+  --color-badge-error-text: var(--color-red-700);
+
+  --color-badge-esg-bg: var(--color-teal-100);
+  --color-badge-esg-text: var(--color-teal-700);
+
+  --color-badge-diversity-bg: var(--color-connection-100);
+  --color-badge-diversity-text: var(--color-connection-700);
+
+  /* Charts */
+  --color-chart-1: var(--color-teal-500);
+  --color-chart-2: var(--color-connection-500);
+  --color-chart-3: var(--color-navy-900);
+  --color-chart-4: var(--color-green-700);
+  --color-chart-5: var(--color-amber-700);
+
+  /* ========================================================
+   TYPOGRAPHY TOKENS
+   --------------------------------------------------------
+   Font Family
+   Inter
+
+   Font Weights
+
+   font-normal    → 400 (Regular)
+   font-medium    → 500 (Medium)
+   font-semibold  → 600 (SemiBold)
+   font-bold      → 700 (Bold)
+
+   Convención:
+
+   text-*     → Font Size
+   leading-*  → Line Height
+   font-*     → Font Weight
+
+   Ejemplo:
+
+   H1           |      Body Medium            
+   text-h1      |      text-body-medium
+   leading-h1   |      leading-body-medium
+   font-bold    |      font-normal
+ 
+   ======================================================== */
+
+  /* Font Family */
+  --font-sans: 'Inter', sans-serif;
+
+  /* ========================================================
+   DISPLAY
+   --------------------------------------------------------
+   Display/Large  → 38px / 46px / Bold
+   Display/Medium → 32px / 40px / Bold
+   Display/Small  → 28px / 36px / SemiBold
+   ======================================================== */
+
+  --text-display-large: 38px;
+  --leading-display-large: 46px;
+
+  --text-display-medium: 32px;
+  --leading-display-medium: 40px;
+
+  --text-display-small: 28px;
+  --leading-display-small: 36px;
+
+  /* ========================================================
+   HEADINGS
+   --------------------------------------------------------
+   H1 → 28px / 36px / Bold
+   H2 → 24px / 32px / SemiBold
+   H3 → 20px / 28px / SemiBold
+   H4 → 16px / 24px / SemiBold
+   ======================================================== */
+
+  --text-h1: 28px;
+  --leading-h1: 36px;
+
+  --text-h2: 24px;
+  --leading-h2: 32px;
+
+  --text-h3: 20px;
+  --leading-h3: 28px;
+
+  --text-h4: 16px;
+  --leading-h4: 24px;
+
+  /* ========================================================
+   BODY
+   --------------------------------------------------------
+   Body/Large  → 16px / 24px / Regular
+   Body/Medium → 14px / 20px / Regular
+   Body/Small  → 12px / 16px / Regular
+   ======================================================== */
+
+  --text-body-large: 16px;
+  --leading-body-large: 24px;
+
+  --text-body-medium: 14px;
+  --leading-body-medium: 20px;
+
+  --text-body-small: 12px;
+  --leading-body-small: 16px;
+
+  /* ========================================================
+   LABELS
+   --------------------------------------------------------
+   Label/Large → 14px / 20px / Medium
+   Label/Small → 12px / 16px / Medium
+   ======================================================== */
+
+  --text-label-large: 14px;
+  --leading-label-large: 20px;
+
+  --text-label-small: 12px;
+  --leading-label-small: 16px;
+
+  /* ========================================================
+   BUTTONS
+   --------------------------------------------------------
+   Button/Large  → 16px / 24px / SemiBold
+   Button/Medium → 14px / 20px / SemiBold
+   Button/Small  → 12px / 16px / SemiBold
+   ======================================================== */
+
+  --text-button-large: 16px;
+  --leading-button-large: 24px;
+
+  --text-button-medium: 14px;
+  --leading-button-medium: 20px;
+
+  --text-button-small: 12px;
+  --leading-button-small: 16px;
+
+  /* ========================================================
+   NAVIGATION
+   --------------------------------------------------------
+   Nav/Item → 14px / 20px / Medium
+   ======================================================== */
+
+  --text-nav-item: 14px;
+  --leading-nav-item: 20px;
+
+  /* ========================================================
+   BADGES
+   --------------------------------------------------------
+   Badge/Text → 12px / 16px / SemiBold
+   ======================================================== */
+
+  --text-badge: 12px;
+  --leading-badge: 16px;
+
+  /* ========================================================
+   METRICS
+   --------------------------------------------------------
+   Metric/Large → 28px / 36px / Bold
+   Metric/Medium → 24px / 32px / Bold
+   Metric/Label → 14px / 20px / Medium
+   ======================================================== */
+
+  --text-metric-large: 28px;
+  --leading-metric-large: 36px;
+
+  --text-metric-medium: 24px;
+  --leading-metric-medium: 32px;
+
+  --text-metric-label: 14px;
+  --leading-metric-label: 20px;
+}
