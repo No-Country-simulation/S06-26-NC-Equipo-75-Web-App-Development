@@ -57,28 +57,22 @@ const Vacancies: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Modal de creación
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
-  // Modal de edición
   const [editingVacante, setEditingVacante] = useState<Vacante | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Matching
   const [matchingVacante, setMatchingVacante] = useState<Vacante | null>(null);
   const [matchResult, setMatchResult] = useState<ShortlistResponse | null>(null);
   const [isMatching, setIsMatching] = useState(false);
 
-  // Filtros del shortlist
   const [matchScoreMin, setMatchScoreMin] = useState(0);
   const [matchSoloBadge, setMatchSoloBadge] = useState(false);
   const [matchRegion, setMatchRegion] = useState('');
 
-  // ---------- Efecto de carga ----------
   useEffect(() => {
     let cancelled = false;
-
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
@@ -86,20 +80,17 @@ const Vacancies: React.FC = () => {
         const data = await vacantesService.getByCompany(companyId);
         if (!cancelled) setVacantes(data);
       } catch (err) {
-        if (!cancelled)
-          setError(err instanceof Error ? err.message : 'Error al cargar vacantes');
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Error al cargar vacantes');
       } finally {
         if (!cancelled) setIsLoading(false);
       }
     };
-
     fetchData();
     return () => { cancelled = true; };
   }, [companyId, refreshKey]);
 
   const triggerRefresh = useCallback(() => setRefreshKey((prev) => prev + 1), []);
 
-  // ---------- Filtrado ----------
   const filteredVacantes = vacantes.filter((vac) => {
     const matchesSearch = vac.titulo.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesEstado = estadoFilter === 'Todos' || ESTADO_MAP[vac.estado] === estadoFilter;
@@ -108,15 +99,12 @@ const Vacancies: React.FC = () => {
 
   const totalPages = Math.ceil(filteredVacantes.length / itemsPerPage);
 
-  // ---------- Métricas ----------
   const total = vacantes.length;
   const abiertas = vacantes.filter((v) => v.estado === 'Abierto').length;
   const pausadas = vacantes.filter((v) => v.estado === 'Pausado').length;
   const cerradas = vacantes.filter((v) => v.estado === 'Cerrado').length;
 
-  // ---------- Acciones ----------
   const handleView = (vac: Vacante) => console.log('Ver', vac);
-
   const handleDelete = async (vac: Vacante) => {
     if (!confirm('¿Eliminar esta vacante?')) return;
     try {
@@ -193,37 +181,25 @@ const Vacancies: React.FC = () => {
     }
   };
 
-  // ---------- Filtrado de shortlist ----------
-  const matchCandidatosFiltrados = matchResult
-    ? matchResult.match.candidatos
+  const matchCandidatosFiltrados = matchResult?.candidatos
+    ? matchResult.candidatos
         .filter((c) => c.score * 100 >= matchScoreMin)
         .filter((c) => !matchSoloBadge || c.badgeDiversidad)
         .filter((c) => !matchRegion || c.candidato.region?.nombre === matchRegion)
     : [];
 
-  const pctBadge = matchResult
+  const pctBadge = matchResult?.candidatos?.length
     ? Math.round(
-        (matchResult.match.candidatos.filter((c) => c.badgeDiversidad).length /
-          matchResult.match.candidatos.length) *
+        (matchResult.candidatos.filter((c) => c.badgeDiversidad).length /
+          matchResult.candidatos.length) *
           100
       )
     : 0;
 
-  // ---------- Columnas de la tabla ----------
   const columns: Column<Vacante>[] = [
     { key: 'titulo', header: 'Título' },
-    {
-      key: 'nivel',
-      header: 'Nivel',
-      hideOnMobile: true,
-      render: (vac) => <span>{vac.nivelRequerido || '—'}</span>,
-    },
-    {
-      key: 'region',
-      header: 'Región',
-      hideOnMobile: true,
-      render: (vac) => <span>{vac.region?.nombre || '—'}</span>,
-    },
+    { key: 'nivel', header: 'Nivel', hideOnMobile: true, render: (vac) => <span>{vac.nivelRequerido || '—'}</span> },
+    { key: 'region', header: 'Región', hideOnMobile: true, render: (vac) => <span>{vac.region?.nombre || '—'}</span> },
     {
       key: 'contactados',
       header: 'Contactados',
@@ -250,273 +226,70 @@ const Vacancies: React.FC = () => {
         const estadoActual = ESTADO_MAP[vac.estado] || vac.estado;
         return (
           <div className="flex items-center justify-end gap-2">
-            <button
-              className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-brand-secondary"
-              title="Ver detalles"
-              onClick={() => handleView(vac)}
-            >
-              <Eye className="h-4 w-4" />
-            </button>
-            <button
-              className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-brand-secondary"
-              title="Editar"
-              onClick={() => setEditingVacante(vac)}
-            >
-              <Edit className="h-4 w-4" />
-            </button>
-            {estadoActual === 'Abierto' && (
-              <button
-                className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-badge-warning-text"
-                title="Pausar"
-                onClick={() => handleChangeStatus(vac, 'Pausado')}
-              >
-                <Pause className="h-4 w-4" />
-              </button>
-            )}
-            {estadoActual === 'Pausado' && (
-              <button
-                className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-badge-success-text"
-                title="Reanudar"
-                onClick={() => handleChangeStatus(vac, 'Abierto')}
-              >
-                <Play className="h-4 w-4" />
-              </button>
-            )}
-            {estadoActual !== 'Cerrado' && (
-              <button
-                className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-badge-error-text"
-                title="Cerrar"
-                onClick={() => handleChangeStatus(vac, 'Cerrado')}
-              >
-                <StopCircle className="h-4 w-4" />
-              </button>
-            )}
-            <button
-              className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-badge-error-text"
-              title="Eliminar"
-              onClick={() => handleDelete(vac)}
-            >
-              <XCircle className="h-4 w-4" />
-            </button>
-            <button
-              className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-brand-secondary"
-              title="Buscar Candidatos"
-              onClick={() => handleMatch(vac)}
-            >
-              <Search className="h-4 w-4" />
-            </button>
+            <button className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-brand-secondary" title="Ver detalles" onClick={() => handleView(vac)}><Eye className="h-4 w-4" /></button>
+            <button className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-brand-secondary" title="Editar" onClick={() => setEditingVacante(vac)}><Edit className="h-4 w-4" /></button>
+            {estadoActual === 'Abierto' && <button className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-badge-warning-text" title="Pausar" onClick={() => handleChangeStatus(vac, 'Pausado')}><Pause className="h-4 w-4" /></button>}
+            {estadoActual === 'Pausado' && <button className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-badge-success-text" title="Reanudar" onClick={() => handleChangeStatus(vac, 'Abierto')}><Play className="h-4 w-4" /></button>}
+            {estadoActual !== 'Cerrado' && <button className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-badge-error-text" title="Cerrar" onClick={() => handleChangeStatus(vac, 'Cerrado')}><StopCircle className="h-4 w-4" /></button>}
+            <button className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-badge-error-text" title="Eliminar" onClick={() => handleDelete(vac)}><XCircle className="h-4 w-4" /></button>
+            <button className="rounded-md p-1.5 text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-brand-secondary" title="Buscar Candidatos" onClick={() => handleMatch(vac)}><Search className="h-4 w-4" /></button>
           </div>
         );
       },
     },
   ];
 
-  // ---------- Estados de carga / error ----------
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin h-8 w-8 border-4 border-brand-secondary border-t-transparent rounded-full" />
-      </div>
-    );
-  }
+  if (isLoading) return <div className="flex items-center justify-center h-full"><div className="animate-spin h-8 w-8 border-4 border-brand-secondary border-t-transparent rounded-full" /></div>;
+  if (error) return <div className="flex items-center justify-center h-full"><div className="text-center"><p className="text-badge-error-text text-h3 font-semibold mb-2">Error</p><p className="text-body-medium text-text-secondary">{error}</p></div></div>;
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <p className="text-badge-error-text text-h3 font-semibold mb-2">Error</p>
-          <p className="text-body-medium text-text-secondary">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // ---------- Renderizado principal ----------
   return (
     <>
-      {/* ENCABEZADO */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <h2 className="text-h2 leading-h2 text-text-secondary max-w-2xl">
-          Encuentra talento compatible y gestiona cada vacante desde un solo lugar.
-        </h2>
-        <Button variant="primary" size="medium" className="shrink-0" onClick={() => setIsCreateModalOpen(true)}>
-          <Plus className="h-5 w-5" />
-          Crear Vacante
-        </Button>
+        <h2 className="text-h2 leading-h2 text-text-secondary max-w-2xl">Encuentra talento compatible y gestiona cada vacante desde un solo lugar.</h2>
+        <Button variant="primary" size="medium" className="shrink-0" onClick={() => setIsCreateModalOpen(true)}><Plus className="h-5 w-5" />Crear Vacante</Button>
       </div>
-
-      {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <KpiCard label="Vacantes totales" value={total} icon={Briefcase} valueClassName="text-text-primary" />
         <KpiCard label="Abiertas" value={abiertas} icon={CheckCircle} valueClassName="text-badge-success-text" />
         <KpiCard label="Pausadas" value={pausadas} icon={PauseCircle} valueClassName="text-badge-warning-text" />
         <KpiCard label="Cerradas" value={cerradas} icon={XCircle} valueClassName="text-badge-error-text" />
       </div>
-
-      {/* BUSCADOR Y FILTROS */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-16 mb-6">
         <SearchBar value={searchTerm} onChange={setSearchTerm} placeholder="Buscar vacantes..." className="sm:w-145" />
         <FilterTabs options={ESTADOS_FILTRO} selected={estadoFilter} onChange={setEstadoFilter} />
       </div>
-
-      {/* TABLA */}
       <DataTable data={filteredVacantes} columns={columns} currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-
-      {/* MODAL DE CREAR VACANTE */}
       <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} title="Crear Vacante" maxWidth="md">
         <VacancyForm onSubmit={handleCreateVacante} isSubmitting={isCreating} onClose={() => setIsCreateModalOpen(false)} />
       </Modal>
-
-      {/* MODAL DE EDITAR VACANTE */}
       <Modal isOpen={!!editingVacante} onClose={() => setEditingVacante(null)} title="Editar Vacante" maxWidth="md">
         {editingVacante && (
-          <VacancyForm
-            onSubmit={handleEditVacante}
-            isSubmitting={isEditing}
-            onClose={() => setEditingVacante(null)}
-            initialData={{
-              titulo: editingVacante.titulo,
-              nivelRequerido: editingVacante.nivelRequerido,
-              area: editingVacante.area,
-              regionId: editingVacante.region?.id || '',
-              descripcion: editingVacante.descripcion || '',
-              diversidadMinima: editingVacante.diversidadMinima || 30,
-              skillIds: editingVacante.skills?.map((s) => s.skillId) || [],
-              pesosScore: { skills: 60, nivel: 25, experiencia: 15 },
-            }}
-          />
+          <VacancyForm onSubmit={handleEditVacante} isSubmitting={isEditing} onClose={() => setEditingVacante(null)} initialData={{ titulo: editingVacante.titulo, nivelRequerido: editingVacante.nivelRequerido, area: editingVacante.area, regionId: editingVacante.region?.id || '', descripcion: editingVacante.descripcion || '', diversidadMinima: editingVacante.diversidadMinima || 30, skillIds: editingVacante.skills?.map((s) => s.skillId) || [], pesosScore: { skills: 60, nivel: 25, experiencia: 15 } }} />
         )}
       </Modal>
-
-      {/* MODAL DE MATCHING */}
-      <Modal
-        isOpen={!!matchResult || isMatching}
-        onClose={() => {
-          setMatchResult(null);
-          setIsMatching(false);
-        }}
-        title={`Resultados para: ${matchingVacante?.titulo || ''}`}
-        maxWidth="xl"
-      >
-        {isMatching && (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin h-8 w-8 border-4 border-brand-secondary border-t-transparent rounded-full" />
-          </div>
-        )}
-
-        {matchResult && matchResult.match.candidatos.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-body-medium text-text-secondary mb-2">
-              No se encontraron candidatos compatibles.
-            </p>
-            <p className="text-body-small text-text-tertiary">
-              Intentá ajustar los requisitos de la vacante o ampliar las habilidades solicitadas.
-            </p>
-          </div>
-        )}
-
-        {matchResult && matchResult.match.candidatos.length > 0 && (
+      <Modal isOpen={!!matchResult || isMatching} onClose={() => { setMatchResult(null); setIsMatching(false); }} title={`Resultados para: ${matchingVacante?.titulo || ''}`} maxWidth="xl">
+        {isMatching && <div className="flex justify-center py-8"><div className="animate-spin h-8 w-8 border-4 border-brand-secondary border-t-transparent rounded-full" /></div>}
+        {matchResult?.candidatos?.length === 0 && <div className="text-center py-8"><p className="text-body-medium text-text-secondary mb-2">No se encontraron candidatos compatibles.</p><p className="text-body-small text-text-tertiary">Intentá ajustar los requisitos de la vacante o ampliar las habilidades solicitadas.</p></div>}
+        {matchResult?.candidatos && matchResult.candidatos.length > 0 && (
           <div className="space-y-4">
-            {/* Indicador de diversidad */}
-            <div className="flex items-center gap-2 rounded-lg bg-bg-secondary p-3">
-              <Users className="h-5 w-5 text-brand-secondary" />
-              <span className="text-body-medium text-text-primary font-medium">
-                {pctBadge}% de candidatos con badge de diversidad
-              </span>
-            </div>
-
-            {/* Filtros */}
+            <div className="flex items-center gap-2 rounded-lg bg-bg-secondary p-3"><Users className="h-5 w-5 text-brand-secondary" /><span className="text-body-medium text-text-primary font-medium">{pctBadge}% de candidatos con badge de diversidad</span></div>
             <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2">
-                <label className="text-label-small text-text-secondary">Score mín:</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={matchScoreMin}
-                  onChange={(e) => setMatchScoreMin(Number(e.target.value) || 0)}
-                  className="w-20 rounded-lg border border-input-border bg-input-bg px-2 py-1 text-body-small outline-none focus:border-input-focus"
-                />
-              </div>
-              <button
-                onClick={() => setMatchSoloBadge(!matchSoloBadge)}
-                className={`rounded-full px-3 py-1 text-label-small font-medium transition-colors ${
-                  matchSoloBadge ? 'bg-brand-secondary text-white' : 'bg-bg-tertiary text-text-secondary'
-                }`}
-              >
-                Solo con badge
-              </button>
-              <select
-                value={matchRegion}
-                onChange={(e) => setMatchRegion(e.target.value)}
-                className="rounded-lg border border-input-border bg-input-bg px-2 py-1 text-body-small outline-none focus:border-input-focus"
-              >
+              <div className="flex items-center gap-2"><label className="text-label-small text-text-secondary">Score mín:</label><input type="number" min={0} max={100} value={matchScoreMin} onChange={(e) => setMatchScoreMin(Number(e.target.value) || 0)} className="w-20 rounded-lg border border-input-border bg-input-bg px-2 py-1 text-body-small outline-none focus:border-input-focus" /></div>
+              <button onClick={() => setMatchSoloBadge(!matchSoloBadge)} className={`rounded-full px-3 py-1 text-label-small font-medium transition-colors ${matchSoloBadge ? 'bg-brand-secondary text-white' : 'bg-bg-tertiary text-text-secondary'}`}>Solo con badge</button>
+              <select value={matchRegion} onChange={(e) => setMatchRegion(e.target.value)} className="rounded-lg border border-input-border bg-input-bg px-2 py-1 text-body-small outline-none focus:border-input-focus">
                 <option value="">Todas las regiones</option>
-                {[
-                  ...new Set(
-                    matchResult.match.candidatos
-                      .map((c) => c.candidato.region?.nombre)
-                      .filter(Boolean)
-                  ),
-                ].map((reg) => (
-                  <option key={reg} value={reg}>
-                    {reg}
-                  </option>
-                ))}
+                {[...new Set(matchResult.candidatos.map((c) => c.candidato.region?.nombre).filter(Boolean))].map((reg) => <option key={reg} value={reg}>{reg}</option>)}
               </select>
             </div>
-
-            {/* Tabla */}
             <DataTable
               data={matchCandidatosFiltrados}
               columns={[
-                {
-                  key: 'score',
-                  header: 'Score',
-                  render: (c) => (
-                    <span className="font-bold text-text-primary">
-                      {(c.score * 100).toFixed(0)}%
-                    </span>
-                  ),
-                },
-                {
-                  key: 'nombre',
-                  header: 'Nombre',
-                  render: (c) => (
-                    <span>
-                      {c.candidato.nombre} {c.candidato.apellido}
-                    </span>
-                  ),
-                },
+                { key: 'score', header: 'Score', render: (c) => <span className="font-bold text-text-primary">{(c.score * 100).toFixed(0)}%</span> },
+                { key: 'nombre', header: 'Nombre', render: (c) => <span>{c.candidato.nombre} {c.candidato.apellido}</span> },
                 { key: 'nivel', header: 'Nivel', render: (c) => <span>{c.candidato.nivel}</span> },
-                {
-                  key: 'region',
-                  header: 'Región',
-                  render: (c) => <span>{c.candidato.region?.nombre || '—'}</span>,
-                },
-                {
-                  key: 'skills',
-                  header: 'Habilidades',
-                  render: (c) => (
-                    <span className="text-body-small text-text-secondary">
-                      {c.candidato.skills?.map((s) => s.skill.nombre).join(', ') || '—'}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'diversidad',
-                  header: 'Diversidad',
-                  render: (c) => (
-                    <Badge
-                      label={c.badgeDiversidad ? 'Sí' : 'No'}
-                      className={
-                        c.badgeDiversidad
-                          ? 'bg-badge-success-bg text-badge-success-text'
-                          : 'bg-bg-tertiary text-text-secondary'
-                      }
-                    />
-                  ),
-                },
+                { key: 'region', header: 'Región', render: (c) => <span>{c.candidato.region?.nombre || '—'}</span> },
+                { key: 'skills', header: 'Habilidades', render: (c) => <span className="text-body-small text-text-secondary">{c.candidato.skills?.map((s) => s.skill.nombre).join(', ') || '—'}</span> },
+                { key: 'diversidad', header: 'Diversidad', render: (c) => <Badge label={c.badgeDiversidad ? 'Sí' : 'No'} className={c.badgeDiversidad ? 'bg-badge-success-bg text-badge-success-text' : 'bg-bg-tertiary text-text-secondary'} /> },
               ]}
               currentPage={1}
               totalPages={1}
