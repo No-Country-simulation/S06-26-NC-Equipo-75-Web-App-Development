@@ -445,13 +445,18 @@ const CompanyManagement: React.FC = () => {
                 )}
 
                 <div className="flex min-h-11 flex-wrap gap-2 rounded-lg border border-border-light bg-bg-tertiary p-3">
-                  {selectedCategories.length > 0 ? (
+                  {isLoadingDiversityGroups ? (
+                    <span className="text-body-small text-text-secondary">
+                      Cargando grupos...
+                    </span>
+                  ) : selectedCategories.length > 0 ? (
                     selectedCategories.map((category) => (
                       <span
                         key={category.id}
                         className="inline-flex max-w-full items-center gap-2 rounded-full bg-bg-primary px-3 py-1.5 text-label-small font-medium leading-label-small text-text-primary shadow-sm"
                       >
                         <span className="truncate">{category.nombre}</span>
+
                         <button
                           type="button"
                           onClick={() => handleRemoveDiversityTag(category)}
