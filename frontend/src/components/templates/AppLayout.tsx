@@ -40,11 +40,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-bg-secondary flex flex-col">
-      <Header
-        title={pageTitle}
-        userInitials={userInitials}
-        onMenuToggle={() => setSidebarOpen((prev) => !prev)}
-      />
+      <Header title={pageTitle} userInitials={userInitials} />
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar en escritorio (visible siempre) */}
