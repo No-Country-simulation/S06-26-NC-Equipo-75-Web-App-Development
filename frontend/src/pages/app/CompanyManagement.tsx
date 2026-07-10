@@ -10,13 +10,14 @@ import Button from '../../components/atoms/Button';
 import Input from '../../components/atoms/Input';
 import InputField from '../../components/molecules/InputField';
 import { useCompanyProfile } from '../../hooks/useCompanyProfile';
-import type { CreateCompanyRequest } from '../../services/empresas.service';
+import type { UpdateCompanyRequest } from '../../services/empresas.service';
 import {
   grupoDiversidadService,
   type GrupoDiversidad,
 } from '../../services/grupoDiversidad.service';
 import { useToast } from '../../hooks/useToast';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/useAuth';
+import { companyService } from '../../services/empresas.service';
 
 interface CompanyFormData {
   companyName: string;
@@ -49,11 +50,14 @@ const CompanyManagement: React.FC = () => {
   const [isLoadingDiversityGroups, setIsLoadingDiversityGroups] =
     useState(false);
   const [savedSummary, setSavedSummary] = useState<string>('');
-  const [diversityError, setDiversityError] = useState('');
-  const { submit, isLoading } = useCompanyProfile();
   const { success, error } = useToast();
   const { user } = useAuth();
-
+  const {
+    data: company,
+    isLoading,
+    getProfile,
+    updateProfile,
+  } = useCompanyProfile();
   const companyId = user?.companyId;
   const loadDiversityGroups = async () => {
     try {
@@ -69,6 +73,11 @@ const CompanyManagement: React.FC = () => {
       setIsLoadingDiversityGroups(false);
     }
   };
+  useEffect(() => {
+    if (user?.companyId) {
+      getProfile(user.companyId);
+    }
+  }, [user]);
 
   useEffect(() => {
     loadDiversityGroups();
@@ -78,6 +87,52 @@ const CompanyManagement: React.FC = () => {
     setFormData((current) => ({ ...current, [name]: value }));
   };
 
+  const loadCompany = async () => {
+    if (!companyId) return;
+
+    try {
+      const company = await companyService.getCompanyById(companyId);
+
+      setFormData({
+        companyName: company.nombre,
+        industry: company.industria,
+        website: company.sitioWeb ?? '',
+        country: company.pais,
+        city: company.ciudad,
+      });
+
+      setMinimumDiversity(company.objetivoDiversidad);
+
+      const groups = company.gruposDiversidad?.map((item) => item.grupo) ?? [];
+
+      setSelectedCategories(groups);
+    } catch (err) {
+      console.error('Error cargando empresa', err);
+    }
+  };
+
+  useEffect(() => {
+    loadDiversityGroups();
+    loadCompany();
+  }, [companyId]);
+
+  useEffect(() => {
+    if (!company) return;
+
+    setFormData({
+      companyName: company.nombre ?? '',
+      industry: company.industria ?? '',
+      website: company.sitioWeb ?? '',
+      country: company.pais ?? '',
+      city: company.ciudad ?? '',
+    });
+
+    setMinimumDiversity(company.objetivoDiversidad ?? 35);
+
+    const groups = company.gruposDiversidad?.map((item) => item.grupo) ?? [];
+
+    setSelectedCategories(groups);
+  }, [company]);
   const handleCategoryToggle = async (group: GrupoDiversidad) => {
     if (!companyId) return;
 
@@ -118,7 +173,7 @@ const CompanyManagement: React.FC = () => {
 
       setDiversityGroups((current) => [...current, newGroup]);
 
-      setSelectedCategories((current) => [...current, newGroup.nombre]);
+      setSelectedCategories((current) => [...current, newGroup]);
 
       setDiversityTagInput('');
       success('Grupo de diversidad creado correctamente');
@@ -131,10 +186,16 @@ const CompanyManagement: React.FC = () => {
     }
   };
 
-  const handleRemoveDiversityTag = (category: string) => {
+  const handleRemoveDiversityTag = async (group: GrupoDiversidad) => {
+    if (!companyId) return;
+
+    await companyService.removeDiversityGroup(companyId, group.id);
+
     setSelectedCategories((current) =>
-      current.filter((item) => item !== category),
+      current.filter((item) => item.id !== group.id),
     );
+
+    success('Grupo eliminado de la empresa');
   };
 
   const esgSummary = useMemo(() => {
@@ -171,7 +232,12 @@ const CompanyManagement: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payload: CreateCompanyRequest = {
+    if (!companyId) {
+      error('No existe empresa asociada');
+      return;
+    }
+
+    const payload: UpdateCompanyRequest = {
       nombre: formData.companyName,
       industria: formData.industry,
       pais: formData.country,
@@ -180,10 +246,15 @@ const CompanyManagement: React.FC = () => {
       sitioWeb: formData.website,
     };
 
-    await submit(payload);
-    setSavedSummary(
-      `Configuracion ESG guardada para ${formData.companyName || 'la empresa'}.`,
-    );
+    try {
+      await updateProfile(companyId, payload);
+
+      success('Perfil de empresa actualizado correctamente');
+
+      setSavedSummary(`Configuración guardada para ${formData.companyName}`);
+    } catch (err) {
+      error(err instanceof Error ? err.message : 'Error actualizando empresa');
+    }
   };
 
   return (
@@ -329,7 +400,7 @@ const CompanyManagement: React.FC = () => {
                     <label
                       key={group.id}
                       className={`inline-flex cursor-pointer items-center rounded-full bg-[#144A4D] px-4 py-2 text-label-small font-semibold leading-label-small text-white transition-all ${
-                        selectedCategories.includes(group.nombre)
+                        selectedCategories.some((item) => item.id === group.id)
                           ? 'ring-2 ring-brand-secondary ring-offset-2 ring-offset-bg-primary'
                           : 'opacity-85 hover:opacity-100'
                       }`}
@@ -397,7 +468,7 @@ const CompanyManagement: React.FC = () => {
                   {selectedCategories.length > 0 ? (
                     selectedCategories.map((category) => (
                       <span
-                        key={category}
+                        key={category.id}
                         className="inline-flex max-w-full items-center gap-2 rounded-full bg-bg-primary px-3 py-1.5 text-label-small font-medium leading-label-small text-text-primary shadow-sm"
                       >
                         <span className="truncate">{category.nombre}</span>

@@ -1,4 +1,5 @@
 import { apiClient } from './apiClient';
+import { type GrupoDiversidad } from './grupoDiversidad.service';
 
 export interface CreateCompanyRequest {
   nombre: string;
@@ -16,11 +17,6 @@ export interface UpdateCompanyRequest {
   ciudad?: string;
   objetivoDiversidad?: number;
   sitioWeb?: string;
-}
-
-export interface GrupoDiversidad {
-  id: string;
-  nombre: string;
 }
 
 export interface CompanyResponse {
